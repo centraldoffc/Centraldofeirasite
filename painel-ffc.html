@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerenciar · Central do FFC</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#050f0d; --accent:#6FA89E; --ink:#EDF3F1; --ink-dim:rgba(237,243,241,.56);
+    --card:rgba(255,255,255,.035); --card-border:rgba(120,160,155,.16);
+    --danger:#ff6b6b;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100dvh;
+    background: radial-gradient(110% 80% at 8% 100%, #12332c 0%, transparent 55%), var(--bg-0);
+    font-family:'Inter',-apple-system,sans-serif; color:var(--ink);
+    display:flex; justify-content:center;
+  }
+  .wrap{ width:100%; max-width:640px; padding:40px 20px 80px; }
+  h1{ font-family:'Archivo Black', sans-serif; font-size:22px; margin:0 0 4px; }
+  h2{ font-size:15px; margin:0 0 2px; }
+  .hint{ color:var(--ink-dim); font-size:13px; margin:0 0 20px; }
+
+  #gate{ display:flex; flex-direction:column; align-items:center; padding-top:14vh; text-align:center; }
+  #gate input{
+    margin-top:12px; width:260px; padding:12px 14px; border-radius:10px;
+    border:1px solid var(--card-border); background:rgba(255,255,255,.04); color:var(--ink);
+    font-size:15px; text-align:center;
+  }
+  #gate button{ margin-top:14px; }
+  #gate .err{ color:var(--danger); font-size:13px; margin-top:10px; min-height:18px; }
+
+  #panel{ display:none; }
+  #loading{ text-align:center; padding-top:20vh; color:var(--ink-dim); }
+
+  .card{
+    background:var(--card); border:1px solid var(--card-border); border-radius:14px;
+    padding:16px; margin-bottom:14px;
+  }
+  .row{ display:flex; gap:10px; margin-bottom:10px; }
+  .row:last-child{ margin-bottom:0; }
+  label{ display:block; font-size:11px; color:var(--ink-dim); margin-bottom:4px; letter-spacing:.03em; text-transform:uppercase; }
+  input[type=text], input[type=url], select, input[type=password], input[type=email], textarea{
+    width:100%; padding:10px 12px; border-radius:9px; border:1px solid var(--card-border);
+    background:rgba(255,255,255,.04); color:var(--ink); font-size:14px; font-family:inherit;
+  }
+  textarea{ resize:vertical; min-height:56px; }
+  input:focus, select:focus, textarea:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .field{ flex:1; min-width:0; }
+
+  .card-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .badge{ font-size:11px; padding:3px 8px; border-radius:20px; background:rgba(111,168,158,.14); color:var(--accent); }
+  .badge.off{ background:rgba(255,255,255,.06); color:var(--ink-dim); }
+  .badge.group{ background:rgba(255,255,255,.05); color:var(--ink-dim); }
+
+  .card-actions{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+
+  button{
+    cursor:pointer; border:none; border-radius:9px; padding:9px 14px; font-size:13px;
+    font-weight:600; font-family:inherit; transition:opacity .15s ease, transform .1s ease;
+  }
+  button:active{ transform:scale(0.98); }
+  button:disabled{ opacity:.5; cursor:default; }
+  .btn-primary{ background:var(--accent); color:#04140f; }
+  .btn-ghost{ background:rgba(255,255,255,.06); color:var(--ink); }
+  .btn-danger{ background:rgba(255,107,107,.12); color:var(--danger); }
+  button:hover:not(:disabled){ opacity:.85; }
+
+  .top-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+
+  .section-header{ margin: 30px 0 12px; }
+  .section-header:first-child{ margin-top:0; }
+
+  .toolbar{ display:flex; gap:10px; margin:18px 0; flex-wrap:wrap; }
+  .toolbar button{ flex:1; min-width:140px; }
+
+  .save-bar{ position:sticky; bottom:16px; display:flex; justify-content:center; margin-top:26px; z-index:5; }
+  .save-bar button{ padding:14px 32px; font-size:14.5px; box-shadow:0 10px 30px -10px rgba(0,0,0,.7); }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--accent); color:#04140f; padding:10px 18px; border-radius:10px;
+    font-size:13px; font-weight:600; opacity:0; transition:all .25s ease; pointer-events:none; z-index:10;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast.error{ background: var(--danger); color:#3a0a0a; }
+
+  a.back, a.logout{ color:var(--ink-dim); font-size:13px; text-decoration:none; }
+  a.back:hover, a.logout:hover{ color:var(--accent); }
+
+  .social-row{ display:flex; gap:8px; align-items:flex-end; margin-bottom:8px; }
+  .social-row select{ max-width:130px; }
+  .icon-btn{ padding:9px 11px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div id="gate">
+    <h1>Área de gerenciamento</h1>
+    <p class="hint">Acesso restrito à administração da Central do FFC.</p>
+    <input type="email" id="email" placeholder="E-mail" autocomplete="username">
+    <input type="password" id="pass" placeholder="Senha" autocomplete="current-password">
+    <br>
+    <button class="btn-primary" id="loginBtn" onclick="tryEnter()">Entrar</button>
+    <p class="err" id="gateErr"></p>
+  </div>
+
+  <div id="loading" style="display:none;">Carregando…</div>
+
+  <div id="panel">
+    <div class="top-row">
+      <div>
+        <a class="back" href="linkdabio.html">← ver página pública</a>
+        <h1 style="margin-top:14px;">Gerenciar Central do FFC</h1>
+      </div>
+      <a class="logout" href="#" onclick="logout(); return false;">sair</a>
+    </div>
+    <p class="hint">Edite os campos abaixo e clique em <b>Salvar tudo</b> no final da página — só esse botão grava as alterações no servidor.</p>
+
+    <div class="section-header">
+      <h2>Perfil</h2>
+      <p class="hint" style="margin:0;">Nome de usuário, bio e redes sociais no topo da página.</p>
+    </div>
+    <div class="card">
+      <div class="row">
+        <div class="field">
+          <label>Nome de usuário</label>
+          <input type="text" id="profHandle">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Bio</label>
+          <textarea id="profBio"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label style="margin-top:0;">Redes sociais (ícones)</label>
+      <div id="socialsList"></div>
+      <div class="card-actions">
+        <button class="btn-ghost" onclick="addSocial()">+ Adicionar rede social</button>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>Links</h2>
+      <p class="hint" style="margin:0;">Agrupe os links em seções (ex.: "Links", "Jogos") digitando o mesmo nome de grupo.</p>
+    </div>
+    <div id="list"></div>
+
+    <div class="toolbar">
+      <button class="btn-ghost" onclick="addLink()">+ Adicionar link</button>
+    </div>
+
+    <div class="save-bar">
+      <button class="btn-primary" id="saveAllBtn" onclick="saveAll()">Salvar tudo</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<datalist id="groupOptions"></datalist>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+  const sb = supabase.createClient(FFC_SUPABASE_URL, FFC_SUPABASE_KEY);
+
+  const TYPE_OPTIONS = ['instagram','whatsapp','tiktok','youtube','site','x','loja','grupo','pix','app','default'];
+  const SOCIAL_TYPE_OPTIONS = ['instagram','x','youtube','tiktok','whatsapp'];
+
+  let links = [];
+  let socialsState = [];
+
+  // --- Autenticação ---
+  async function tryEnter(){
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('pass').value;
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    document.getElementById('gateErr').textContent = '';
+
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+
+    btn.disabled = false;
+    if(error){
+      document.getElementById('gateErr').textContent = 'E-mail ou senha incorretos.';
+      return;
+    }
+    showPanel();
+  }
+  document.getElementById('pass').addEventListener('keydown', e => { if(e.key === 'Enter') tryEnter(); });
+
+  async function logout(){
+    await sb.auth.signOut();
+    document.getElementById('panel').style.display = 'none';
+    document.getElementById('gate').style.display = 'flex';
+  }
+
+  async function showPanel(){
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    await initAll();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+  }
+
+  // Se já existe sessão válida (mesmo navegador), pula o login
+  sb.auth.getSession().then(({ data }) => {
+    if(data.session) showPanel();
+  });
+
+  // --- Carregamento inicial ---
+  async function initAll(){
+    const { data: profile } = await sb.from('profile').select('*').eq('id', 1).single();
+    document.getElementById('profHandle').value = profile?.handle || '';
+    document.getElementById('profBio').value = profile?.bio || '';
+
+    const { data: socials } = await sb.from('socials').select('*').order('position');
+    socialsState = socials || [];
+    renderSocials();
+
+    const { data: linkRows } = await sb.from('links').select('*').order('position');
+    links = linkRows || [];
+    renderList();
+  }
+
+  function escapeAttr(str){ return String(str || '').replace(/"/g, '&quot;'); }
+
+  // --- Perfil (persistido apenas via saveAll) ---
+
+  // --- Redes sociais ---
+  function renderSocials(){
+    const wrap = document.getElementById('socialsList');
+    wrap.innerHTML = '';
+    socialsState.forEach((s, i) => {
+      const row = document.createElement('div');
+      row.className = 'social-row';
+      row.innerHTML = `
+        <div class="field">
+          <label>URL</label>
+          <input type="url" value="${escapeAttr(s.url)}" oninput="socialsState[${i}].url = this.value">
+        </div>
+        <div>
+          <label>Ícone</label>
+          <select onchange="socialsState[${i}].type = this.value">
+            ${SOCIAL_TYPE_OPTIONS.map(t => `<option value="${t}" ${t===s.type?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn-danger icon-btn" onclick="removeSocial(${i})">✕</button>
+      `;
+      wrap.appendChild(row);
+    });
+  }
+  function addSocial(){ socialsState.push({ type: 'instagram', url: 'https://', position: socialsState.length }); renderSocials(); }
+  async function removeSocial(i){
+    const s = socialsState[i];
+    if(s.id){ await sb.from('socials').delete().eq('id', s.id); }
+    socialsState.splice(i,1);
+    renderSocials();
+  }
+
+  // --- Links ---
+  function renderList(){
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+    links.forEach((link, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-top">
+          <div style="display:flex; gap:6px;">
+            <span class="badge ${link.active === false ? 'off' : ''}">${link.active === false ? 'Oculto' : 'Visível'}</span>
+            <span class="badge group">${link.group_name || 'Links'}</span>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-ghost" onclick="moveLink(${i}, -1)" title="Mover para cima">↑</button>
+            <button class="btn-ghost" onclick="moveLink(${i}, 1)" title="Mover para baixo">↓</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Título</label>
+            <input type="text" value="${escapeAttr(link.title)}" oninput="links[${i}].title = this.value">
+          </div>
+          <div class="field" style="max-width:120px;">
+            <label>Ícone</label>
+            <select onchange="links[${i}].type = this.value">
+              ${TYPE_OPTIONS.map(t => `<option value="${t}" ${t===link.type?'selected':''}>${t}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Descrição (opcional)</label>
+            <input type="text" value="${escapeAttr(link.desc_text)}" oninput="links[${i}].desc_text = this.value">
+          </div>
+          <div class="field" style="max-width:140px;">
+            <label>Grupo / seção</label>
+            <input type="text" list="groupOptions" value="${escapeAttr(link.group_name || 'Links')}"
+              oninput="links[${i}].group_name = this.value; updateGroupBadge(${i}, this.value)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>URL de destino</label>
+            <input type="url" value="${escapeAttr(link.url)}" oninput="links[${i}].url = this.value">
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-ghost" onclick="toggleActive(${i})">${link.active === false ? 'Mostrar' : 'Ocultar'}</button>
+          <button class="btn-ghost" onclick="toggleFeatured(${i})">${link.featured ? 'Remover destaque' : 'Destacar'}</button>
+          <button class="btn-danger" onclick="removeLink(${i})">Remover</button>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+    refreshGroupOptions();
+  }
+
+  function updateGroupBadge(i, value){
+    const card = document.querySelectorAll('#list .card')[i];
+    const badge = card && card.querySelector('.badge.group');
+    if(badge) badge.textContent = value || 'Links';
+    refreshGroupOptions();
+  }
+
+  function refreshGroupOptions(){
+    const dl = document.getElementById('groupOptions');
+    const uniqueGroups = [...new Set(links.map(l => l.group_name || 'Links'))];
+    dl.innerHTML = uniqueGroups.map(g => `<option value="${escapeAttr(g)}">`).join('');
+  }
+
+  function toggleActive(i){ links[i].active = links[i].active === false ? true : false; renderList(); }
+  function toggleFeatured(i){ links[i].featured = !links[i].featured; renderList(); }
+
+  function moveLink(i, dir){
+    const j = i + dir;
+    if(j < 0 || j >= links.length) return;
+    [links[i], links[j]] = [links[j], links[i]];
+    renderList();
+  }
+
+  async function removeLink(i){
+    if(!confirm('Remover este link? Essa ação é imediata e não pode ser desfeita.')) return;
+    const link = links[i];
+    if(link.id){
+      const { error } = await sb.from('links').delete().eq('id', link.id);
+      if(error){ showToast('Erro ao remover link', true); console.error(error); return; }
+    }
+    links.splice(i,1);
+    renderList();
+    showToast('Link removido');
+  }
+
+  function addLink(){
+    links.push({ title: 'Novo link', desc_text: '', url: 'https://', type: 'default', group_name: 'Links', active: true, featured: false });
+    renderList();
+  }
+
+  // --- Salvar tudo ---
+  async function saveAll(){
+    const btn = document.getElementById('saveAllBtn');
+    btn.disabled = true;
+    btn.textContent = 'Salvando…';
+    try{
+      // Perfil
+      const handle = document.getElementById('profHandle').value.trim();
+      const bio = document.getElementById('profBio').value.trim();
+      const { error: profileErr } = await sb.from('profile')
+        .update({ handle, bio, updated_at: new Date().toISOString() }).eq('id', 1);
+      if(profileErr) throw new Error('perfil: ' + profileErr.message);
+
+      // Redes sociais
+      for(let i=0; i<socialsState.length; i++){
+        const s = socialsState[i];
+        const payload = { type: s.type, url: s.url, position: i };
+        if(s.id){
+          const { error } = await sb.from('socials').update(payload).eq('id', s.id);
+          if(error) throw new Error('redes sociais: ' + error.message);
+        } else {
+          const { data, error } = await sb.from('socials').insert(payload).select().single();
+          if(error) throw new Error('redes sociais: ' + error.message);
+          s.id = data.id;
+        }
+      }
+
+      // Links
+      for(let i=0; i<links.length; i++){
+        const link = links[i];
+        const payload = {
+          title: link.title, desc_text: link.desc_text || '', url: link.url,
+          type: link.type, group_name: link.group_name || 'Links',
+          active: link.active !== false, featured: !!link.featured, position: i
+        };
+        if(link.id){
+          const { error } = await sb.from('links').update(payload).eq('id', link.id);
+          if(error) throw new Error('link "' + link.title + '": ' + error.message);
+        } else {
+          const { data, error } = await sb.from('links').insert(payload).select().single();
+          if(error) throw new Error('link "' + link.title + '": ' + error.message);
+          link.id = data.id;
+        }
+      }
+
+      showToast('Tudo salvo ✓');
+    }catch(err){
+      showToast('Erro ao salvar — ' + err.message, true);
+      console.error(err);
+    }finally{
+      btn.disabled = false;
+      btn.textContent = 'Salvar tudo';
+    }
+  }
+
+  function showToast(msg, isError){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isError ? ' error' : '');
+    setTimeout(() => { t.className = 'toast'; }, 2400);
+  }
+</script>
+</body>
+</html>
