@@ -197,6 +197,8 @@
   });
 
   // --- Autenticação ---
+  let panelInitialized = false;
+
   async function tryEnter(){
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('pass').value;
@@ -217,21 +219,32 @@
 
   async function logout(){
     await sb.auth.signOut();
+    panelInitialized = false;
     document.getElementById('panel').style.display = 'none';
     document.getElementById('gate').style.display = 'flex';
   }
 
   async function showPanel(){
+    // Guard: nunca recarrega os dados (e nunca sobrescreve edições em andamento)
+    // se o painel já foi inicializado nesta sessão de uso.
+    if(panelInitialized){
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('panel').style.display = 'block';
+      return;
+    }
     document.getElementById('gate').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
     await initAll();
+    panelInitialized = true;
     document.getElementById('loading').style.display = 'none';
     document.getElementById('panel').style.display = 'block';
   }
 
-  // Se já existe sessão válida (mesmo navegador), pula o login
+  // Se já existe sessão válida (mesmo navegador), pula o login.
+  // Roda só na carga inicial da página — não interfere se o usuário já estiver editando.
   sb.auth.getSession().then(({ data }) => {
-    if(data.session) showPanel();
+    if(data.session && !panelInitialized) showPanel();
   });
 
   // --- Carregamento inicial ---
@@ -401,7 +414,10 @@
   }
 
   // --- Salvar tudo ---
+  let isSaving = false;
   async function saveAll(){
+    if(isSaving) return;
+    isSaving = true;
     const btn = document.getElementById('saveAllBtn');
     btn.disabled = true;
     btn.textContent = 'Salvando…';
@@ -462,6 +478,7 @@
       showToast('Erro ao salvar — ' + err.message, true);
       console.error(err);
     }finally{
+      isSaving = false;
       btn.disabled = false;
       btn.textContent = 'Salvar tudo';
     }
