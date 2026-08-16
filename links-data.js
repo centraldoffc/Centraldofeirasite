@@ -33,9 +33,9 @@ window.FFC_LINKS = [
   {
     id: "site",
     type: "site",
-    title: "Site completo (em breve)",
-    desc: "Todas as notícias e informações do clube",
-    url: "https://central-ffc.exemplo.com.br",
+    title: "Site (em breve)",
+    desc: "Todas as notícias e informações do feira",
+    url: "https://centraldofeira.vercel.app/site",
     group: "Links",
     active: true,
     featured: true
@@ -44,8 +44,8 @@ window.FFC_LINKS = [
     id: "fifafriends",
     type: "app",
     title: "FIFA Friends",
-    desc: "Elenco do Feira FC no FIFA Friends",
-    url: "https://exemplo.com/fifa-friends",
+    desc: "🇧🇷 Patch de FIFA 16 com todos os times do Brasil!",
+    url: "https://www.fifafriends.com.br/",
     group: "Jogos",
     active: true
   },
@@ -53,8 +53,8 @@ window.FFC_LINKS = [
     id: "marfut",
     type: "app",
     title: "Marfut Patch",
-    desc: "Patch do Feira FC para o Marfut",
-    url: "https://exemplo.com/marfut-patch",
+    desc: "🦁 Patch de PES 21 com o Feira!",
+    url: "https://marfut.com.br/",
     group: "Jogos",
     active: true
   }
