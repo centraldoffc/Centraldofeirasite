@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central do FFC</title>
+<meta name="description" content="Central do FFC — cobertura independente do Feira FC.">
+<link rel="icon" href="assets/mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0: #050f0d;
+    --grid-line: rgba(120, 160, 155, 0.055);
+    --accent: #6FA89E;
+    --accent-soft: rgba(111, 168, 158, 0.14);
+    --ink: #EDF3F1;
+    --ink-dim: rgba(237, 243, 241, 0.58);
+    --ink-faint: rgba(237, 243, 241, 0.34);
+    --card: rgba(255,255,255,0.035);
+    --card-border: rgba(120, 160, 155, 0.14);
+    --card-border-hover: rgba(111, 168, 158, 0.5);
+  }
+
+  *{ box-sizing:border-box; }
+  html{
+    min-height:100%;
+    width:100%;
+    overflow-x:hidden;
+    background:
+      radial-gradient(110% 60% at 8% 100%, #12332c 0%, transparent 55%),
+      radial-gradient(80% 50% at 100% 0%, #0d211d 0%, transparent 50%),
+      var(--bg-0);
+  }
+  body{
+    margin:0;
+    width:100%;
+    min-height:100dvh;
+    font-family:'Inter', -apple-system, sans-serif;
+    color: var(--ink);
+    display:flex;
+    justify-content:center;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  .grid-layer{
+    position:fixed;
+    inset:-20% -20%;
+    background-image:
+      repeating-linear-gradient(35deg, var(--grid-line) 0 1px, transparent 1px 72px),
+      repeating-linear-gradient(-55deg, var(--grid-line) 0 1px, transparent 1px 72px);
+    pointer-events:none;
+    mask-image: radial-gradient(75% 55% at 50% 25%, black 30%, transparent 80%);
+  }
+
+  .page{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:480px;
+    padding: 36px 20px 48px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .avatar{
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: var(--card);
+    border:1px solid var(--card-border);
+    box-shadow: 0 14px 32px -16px rgba(0,0,0,0.75);
+    margin-bottom:12px;
+    overflow:hidden;
+  }
+  .avatar img{ width:56%; height:56%; object-fit:contain; }
+  .avatar-fallback::after{
+    content:'FFC';
+    font-family:'Archivo Black', sans-serif;
+    font-size:12px;
+    color: var(--accent);
+    letter-spacing:0.02em;
+  }
+
+  .handle{
+    font-family:'Archivo Black', sans-serif;
+    font-size: 18px;
+    letter-spacing:-0.01em;
+    margin:0 0 10px;
+    text-align:center;
+    min-height:22px;
+  }
+
+  .bio{
+    color: var(--ink-dim);
+    font-size:12.5px;
+    line-height:1.5;
+    text-align:center;
+    max-width:340px;
+    margin:0 0 18px;
+    min-height:18px;
+  }
+
+  .socials{
+    display:flex;
+    gap:10px;
+    margin-bottom:24px;
+    min-height:32px;
+  }
+  .social-btn{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: var(--card);
+    border:1px solid var(--card-border);
+    color: var(--ink);
+    text-decoration:none;
+    transition: border-color .18s ease, transform .16s ease, background .18s ease;
+  }
+  .social-btn:hover{
+    border-color: var(--card-border-hover);
+    background: var(--accent-soft);
+    transform: translateY(-2px);
+  }
+  .social-btn svg{ width:12px; height:12px; }
+
+  .section{ width:100%; margin-bottom:4px; }
+  .section-title{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color: var(--ink-faint);
+    text-align:center;
+    margin: 18px 0 10px;
+  }
+  .section:first-of-type .section-title{ margin-top:0; }
+
+  .links{ width:100%; display:flex; flex-direction:column; gap:10px; }
+
+  .link-card{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:13px;
+    width:100%;
+    padding:14px 16px;
+    background: var(--card);
+    border:1px solid var(--card-border);
+    border-radius:13px;
+    color:var(--ink);
+    text-decoration:none;
+    transition: border-color .2s ease, transform .16s ease, background .2s ease;
+  }
+  .link-card:hover, .link-card:focus-visible{
+    border-color: var(--card-border-hover);
+    background: var(--accent-soft);
+    transform: translateY(-1px);
+  }
+  .link-card:focus-visible{ outline: 2px solid var(--accent); outline-offset:3px; }
+  .link-card:active{ transform: translateY(0); }
+
+  .link-card.featured{
+    border-color: rgba(111, 168, 158, 0.4);
+    background: linear-gradient(135deg, rgba(111,168,158,0.1), rgba(111,168,158,0.02));
+  }
+
+  .link-icon{
+    flex:none; width:32px; height:32px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--accent-soft); font-size:15px; overflow:hidden;
+  }
+
+  .link-text{ flex:1; min-width:0; }
+  .link-title{ font-weight:600; font-size:15.5px; margin:0 0 2px; }
+  .link-desc{ font-size:12.5px; color: var(--ink-dim); margin:0; overflow-wrap:break-word; }
+
+  .link-arrow{ flex:none; color: var(--ink-faint); font-size:15px; transition: transform .2s ease, color .2s ease; }
+  .link-card:hover .link-arrow{ transform: translateX(3px); color: var(--accent); }
+
+  .empty, .error-msg{
+    width:100%; padding: 40px 20px; text-align:center;
+    border:1px dashed var(--card-border); border-radius:14px;
+    color: var(--ink-dim); font-size:14px;
+  }
+</style>
+</head>
+<body>
+  <div class="grid-layer" aria-hidden="true"></div>
+
+  <main class="page">
+    <div class="avatar"><img src="assets/mark.png" alt="Central do FFC" onerror="this.style.display='none'; this.parentElement.classList.add('avatar-fallback');"></div>
+    <h1 class="handle" id="handle"></h1>
+    <p class="bio" id="bio"></p>
+
+    <div class="socials" id="socials"></div>
+
+    <div id="sections">
+      <div class="empty">Carregando…</div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script>
+    const sb = supabase.createClient(FFC_SUPABASE_URL, FFC_SUPABASE_KEY);
+
+    const SOCIAL_ICONS = {
+      instagram: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.25.07 1.62.07 4.81 0 3.2 0 3.56-.07 4.81-.15 3.23-1.66 4.77-4.92 4.92-1.25.06-1.62.07-4.85.07-3.2 0-3.56 0-4.81-.07-3.26-.15-4.77-1.7-4.92-4.92-.06-1.25-.07-1.61-.07-4.81 0-3.19.01-3.56.07-4.81.15-3.23 1.67-4.77 4.92-4.92C8.44 2.21 8.8 2.2 12 2.2zm0 2.16c-3.15 0-3.48 0-4.7.06-2.44.11-3.53 1.21-3.65 3.65-.06 1.22-.06 1.55-.06 4.7s0 3.48.06 4.7c.12 2.44 1.21 3.54 3.65 3.65 1.22.06 1.55.06 4.7.06s3.48 0 4.7-.06c2.44-.11 3.53-1.21 3.65-3.65.06-1.22.06-1.55.06-4.7s0-3.48-.06-4.7c-.12-2.44-1.21-3.54-3.65-3.65-1.22-.06-1.55-.06-4.7-.06zm0 3.68a5.96 5.96 0 1 1 0 11.92 5.96 5.96 0 0 1 0-11.92zm0 2.16a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6zm6.2-2.4a1.39 1.39 0 1 1-2.78 0 1.39 1.39 0 0 1 2.78 0z"/></svg>`,
+      x: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.24 2.75h3.05l-6.66 7.62 7.84 10.88h-6.14l-4.81-6.63-5.5 6.63H2.16l7.12-8.24L1.75 2.75h6.3l4.35 6.06zm-1.07 16.6h1.7L7 4.55H5.17z"/></svg>`,
+      youtube: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.5 6.9a2.86 2.86 0 0 0-2-2C18.7 4.4 12 4.4 12 4.4s-6.7 0-8.5.5a2.86 2.86 0 0 0-2 2A30 30 0 0 0 1 12a30 30 0 0 0 .5 5.1 2.86 2.86 0 0 0 2 2c1.8.5 8.5.5 8.5.5s6.7 0 8.5-.5a2.86 2.86 0 0 0 2-2A30 30 0 0 0 23 12a30 30 0 0 0-.5-5.1zM9.8 15.5V8.5l6.2 3.5z"/></svg>`,
+      tiktok: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 2h-3.2v13.6a2.9 2.9 0 1 1-2-2.75v-3.3a6.2 6.2 0 1 0 5.2 6.13V8.4a7.9 7.9 0 0 0 4.6 1.47V6.7a4.6 4.6 0 0 1-4.6-4.6z"/></svg>`,
+      whatsapp: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.5A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-3 .9.9-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.15c-.25-.12-1.45-.72-1.68-.8-.22-.08-.38-.12-.55.13-.16.24-.63.8-.77.96-.14.16-.28.18-.53.06a6.7 6.7 0 0 1-3.34-2.92c-.25-.44.25-.4.72-1.35.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.8-.2-.48-.4-.4-.55-.42h-.47a.9.9 0 0 0-.66.3 2.75 2.75 0 0 0-.86 2.05c0 1.2.87 2.37 1 2.53.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.5.58.19 1.11.16 1.53.1.47-.07 1.45-.6 1.65-1.17.2-.58.2-1.08.14-1.18-.06-.1-.22-.16-.47-.28z"/></svg>`,
+    };
+
+    function iconFor(type){
+      const icons = {
+        instagram: '📷', whatsapp: '💬', tiktok: '🎵', youtube: '▶️',
+        site: '🌐', x: '✕', loja: '🛒', grupo: '👥', pix: '💚',
+        app: '📲', default: '🔗'
+      };
+      return icons[type] || icons.default;
+    }
+
+    function socialLink(url, type){
+      const a = document.createElement('a');
+      a.className = 'social-btn';
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.setAttribute('aria-label', type);
+      a.innerHTML = SOCIAL_ICONS[type] || '';
+      return a;
+    }
+
+    function renderSections(links){
+      const wrap = document.getElementById('sections');
+      wrap.innerHTML = '';
+
+      if(!links.length){
+        wrap.innerHTML = '<div class="empty">Nenhum link publicado ainda. Volte em breve.</div>';
+        return;
+      }
+
+      const groups = [];
+      links.forEach(link => {
+        const g = link.group_name || 'Links';
+        let bucket = groups.find(x => x.name === g);
+        if(!bucket){ bucket = { name: g, items: [] }; groups.push(bucket); }
+        bucket.items.push(link);
+      });
+
+      groups.forEach(group => {
+        const section = document.createElement('div');
+        section.className = 'section';
+
+        const title = document.createElement('p');
+        title.className = 'section-title';
+        title.textContent = group.name;
+        section.appendChild(title);
+
+        const linksWrap = document.createElement('div');
+        linksWrap.className = 'links';
+
+        group.items.forEach(link => {
+          const a = document.createElement('a');
+          a.className = 'link-card' + (link.featured ? ' featured' : '');
+          a.href = link.url;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.innerHTML = `
+            <span class="link-icon">${link.icon_url ? `<img src="${link.icon_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:7px;">` : iconFor(link.type)}</span>
+            <span class="link-text">
+              <p class="link-title">${escapeHtml(link.title)}</p>
+              ${link.desc_text ? `<p class="link-desc">${escapeHtml(link.desc_text)}</p>` : ''}
+            </span>
+            <span class="link-arrow">→</span>
+          `;
+          linksWrap.appendChild(a);
+        });
+
+        section.appendChild(linksWrap);
+        wrap.appendChild(section);
+      });
+    }
+
+    function escapeHtml(str){
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    async function loadPage(){
+      try{
+        const [{ data: profile }, { data: socials }, { data: links }] = await Promise.all([
+          sb.from('profile').select('*').eq('id', 1).single(),
+          sb.from('socials').select('*').order('position'),
+          sb.from('links').select('*').eq('active', true).order('position')
+        ]);
+
+        document.getElementById('handle').textContent = profile?.handle || 'centraldoffc';
+        document.getElementById('bio').textContent = profile?.bio || '';
+
+        if(profile?.avatar_url){
+          const img = document.querySelector('.avatar img');
+          if(img) img.src = profile.avatar_url;
+        }
+
+        const socialsWrap = document.getElementById('socials');
+        socialsWrap.innerHTML = '';
+        (socials || []).forEach(s => socialsWrap.appendChild(socialLink(s.url, s.type)));
+
+        renderSections(links || []);
+      }catch(err){
+        document.getElementById('sections').innerHTML = '<div class="error-msg">Não foi possível carregar os links agora. Tente novamente em instantes.</div>';
+        console.error(err);
+      }
+    }
+
+    loadPage();
+  </script>
+</body>
+</html>
