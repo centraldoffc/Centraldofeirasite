@@ -1,8 +1,0 @@
-{
-  "redirects": [
-    { "source": "/linkdabio.html", "destination": "/", "permanent": false }
-  ],
-  "rewrites": [
-    { "source": "/", "destination": "/linkdabio.html" }
-  ]
-}
