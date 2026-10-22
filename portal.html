@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central do FFC — Notícias do Feira FC</title>
+<meta name="description" content="Notícias, jogos e bastidores do Feira Futebol Clube.">
+<link rel="icon" href="/mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050f0d; --accent:#6FA89E; --accent-hi:#8CC4B9; --ink:#EDF3F1;
+    --dim:rgba(237,243,241,.62); --faint:rgba(237,243,241,.38);
+    --card:rgba(255,255,255,.035); --line:rgba(120,160,155,.16);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:'Inter',-apple-system,sans-serif; color:var(--ink); min-height:100dvh;
+    background:radial-gradient(110% 50% at 8% 100%,#12332c 0,transparent 55%),radial-gradient(80% 40% at 100% 0,#0d211d 0,transparent 50%),var(--bg);
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{width:min(100%,1080px);margin:0 auto;padding:0 18px}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Archivo Black',sans-serif;font-size:18px}
+  .brand img{width:36px;height:36px;border-radius:50%;border:1px solid var(--line)}
+  .links-btn{font-size:13px;font-weight:600;padding:8px 16px;border-radius:99px;border:1px solid var(--line);transition:border-color .2s}
+  .links-btn:hover{border-color:var(--accent)}
+
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:6px 0 18px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;font:500 13px 'Inter',sans-serif;color:var(--dim);background:transparent;border:1px solid var(--line);border-radius:99px;padding:7px 15px;cursor:pointer;transition:all .2s}
+  .chip:hover{border-color:var(--accent);color:var(--ink)}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#04120f;font-weight:600}
+  .chip:focus-visible,.card:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+  .thumb{background:linear-gradient(135deg,#17372f,#0b1b17) center/cover;position:relative}
+  .tag{display:inline-block;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--accent);color:#04120f}
+  .meta{font-size:12px;color:var(--faint)}
+
+  .hero{display:block;border-radius:20px;overflow:hidden;border:1px solid var(--line);margin-bottom:26px}
+  .hero .thumb{min-height:min(52vw,380px);display:flex;align-items:flex-end}
+  .hero .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(5,15,13,.94) 8%,rgba(5,15,13,.1) 70%)}
+  .hero .txt{position:relative;padding:22px}
+  .hero h2{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:clamp(24px,5vw,40px);line-height:1.08;margin:12px 0 8px;max-width:20ch}
+  .hero p{margin:0 0 8px;color:var(--dim);max-width:58ch;font-size:15px;line-height:1.5}
+
+  h3.sec{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:22px;margin:0 0 14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;padding-bottom:40px}
+  .card{display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);transition:border-color .2s,transform .2s}
+  .card:hover{border-color:rgba(111,168,158,.5);transform:translateY(-2px)}
+  .card .thumb{aspect-ratio:16/10}
+  .card .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .card h4{margin:0;font-size:16px;line-height:1.3;font-weight:600}
+  .card p{margin:0;font-size:13.5px;line-height:1.5;color:var(--dim)}
+  .card .meta{margin-top:auto}
+
+  .empty{padding:60px 10px;text-align:center;color:var(--dim)}
+  footer{border-top:1px solid var(--line);padding:26px 0 34px;font-size:13px;color:var(--faint);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="/portal"><img src="/mark.png" alt="" width="36" height="36">Central do FFC</a>
+    <a class="links-btn" href="/">Nossos links</a>
+  </header>
+
+  <nav class="chips" id="chips" aria-label="Categorias"></nav>
+  <div id="hero"></div>
+  <h3 class="sec" id="secTitle" hidden>Últimas notícias</h3>
+  <section class="grid" id="grid" aria-live="polite"></section>
+  <p class="empty" id="empty" hidden>Nenhuma notícia publicada nesta categoria ainda.</p>
+
+  <footer><span>Central do FFC — acompanhando de perto o Feira Futebol Clube.</span><a href="/">Instagram, X e mais</a></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+  const sb = supabase.createClient(FFC_SUPABASE_URL, FFC_SUPABASE_KEY);
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let all = [], cat = 'Todas';
+
+  function ago(d){
+    const m = Math.round((Date.now() - new Date(d)) / 60000);
+    if (m < 60) return `há ${Math.max(m,1)} min`;
+    if (m < 1440) return `há ${Math.round(m/60)} h`;
+    return `há ${Math.round(m/1440)} d`;
+  }
+  const bg = a => a.image_url ? ` style="background-image:url('${esc(a.image_url)}')"` : '';
+
+  function render(){
+    const list = cat === 'Todas' ? all : all.filter(a => a.category === cat);
+    const hero = list.find(a => a.featured) || list[0];
+    const rest = list.filter(a => a !== hero);
+
+    $('hero').innerHTML = hero ? `
+      <a class="hero" href="#"><div class="thumb"${bg(hero)}><div class="shade"></div>
+        <div class="txt"><span class="tag">${esc(hero.category)}</span>
+          <h2>${esc(hero.title)}</h2>
+          ${hero.summary ? `<p>${esc(hero.summary)}</p>` : ''}
+          <span class="meta">${ago(hero.created_at)}</span></div></div></a>` : '';
+
+    $('grid').innerHTML = rest.map(a => `
+      <a class="card" href="#"><div class="thumb"${bg(a)}></div>
+        <div class="body"><span class="tag" style="align-self:flex-start">${esc(a.category)}</span>
+          <h4>${esc(a.title)}</h4>${a.summary ? `<p>${esc(a.summary)}</p>` : ''}
+          <span class="meta">${ago(a.created_at)}</span></div></a>`).join('');
+
+    $('secTitle').hidden = !rest.length;
+    $('empty').hidden = list.length > 0;
+  }
+
+  function renderChips(){
+    const cats = ['Todas', ...new Set(all.map(a => a.category))];
+    $('chips').innerHTML = cats.map(c => `<button class="chip${c === cat ? ' on' : ''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+  }
+  $('chips').addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    cat = b.dataset.c; renderChips(); render();
+  });
+
+  (async () => {
+    const { data, error } = await sb.from('articles').select('*').eq('published', true).order('created_at', { ascending: false });
+    if (error) { $('empty').textContent = 'Não foi possível carregar as notícias agora. Tente de novo em instantes.'; $('empty').hidden = false; return; }
+    all = data || []; renderChips(); render();
+  })();
+</script>
+</body>
+</html>
