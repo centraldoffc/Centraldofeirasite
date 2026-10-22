@@ -78,6 +78,11 @@
   .cats button{display:flex;justify-content:space-between;width:100%;padding:9px 0;background:none;border:0;border-top:1px solid var(--line);color:var(--ink);font-size:14px;cursor:pointer;text-align:left}
   .cats button:first-of-type{border-top:0}
   .cats i{font-style:normal;color:var(--faint);font-size:12.5px}
+  .ad{display:flex;gap:12px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+  .ad:first-child{border-top:0;padding-top:2px}
+  .ad img{width:48px;height:48px;border-radius:12px;object-fit:cover;flex:none}
+  .ad b{display:block;font-size:14.5px;margin-bottom:2px}
+  .ad span{font-size:12.5px;line-height:1.4;color:var(--dim)}
   .follow{background:linear-gradient(135deg,#17413a,#0a1c18)}
   .follow p{margin:0 0 12px;font-size:13.5px;line-height:1.5;color:var(--dim)}
   .follow a{display:inline-block;font-size:13px;font-weight:700;background:var(--hi);color:#04120f;border-radius:99px;padding:9px 18px}
@@ -115,7 +120,6 @@
       <span class="date" id="date"></span>
       <a class="pill" href="/">Nossos links</a>
     </div>
-    <nav class="nav" id="nav" aria-label="Categorias"></nav>
   </div>
 </header>
 
@@ -129,7 +133,7 @@
       <button class="more" id="more" hidden>Carregar mais notícias</button>
     </section>
     <aside>
-      <div class="box"><h3>Categorias</h3><div class="cats" id="cats"></div></div>
+      <div class="box" id="ads" hidden><h3>Oferecimento</h3><div id="adsList"></div></div>
       <div class="box follow"><h3>Siga a Central</h3><p>Acompanhe o Feira FC de perto também nas redes.</p><a href="/">Ver nossos links</a></div>
     </aside>
   </div>
@@ -146,7 +150,7 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const PAGE = 6;
-  let all = [], cat = 'Todas', shown = PAGE, loaded = false;
+  let all = [], shown = PAGE, loaded = false;
 
   $('date').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
 
@@ -160,28 +164,19 @@
   const ph = (a, extra='') => `<div class="ph ${a.image_url ? '' : 'logo'} ${extra}"${a.image_url ? ` style="background-image:url('${esc(a.image_url)}')"` : ''}></div>`;
   const href = a => `#/n/${a.id}`;
 
-  function renderNav(){
-    const cats = ['Todas', ...new Set(all.map(a => a.category))];
-    $('nav').innerHTML = cats.map(c => `<button class="${c===cat?'on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
-    $('cats').innerHTML = cats.slice(1).map(c => `<button data-c="${esc(c)}">${esc(c)}<i>${all.filter(a=>a.category===c).length}</i></button>`).join('');
-  }
-
   function renderHome(){
-    const list = cat === 'Todas' ? all : all.filter(a => a.category === cat);
+    const list = all;
     const hero = list.find(a => a.featured) || list[0];
     const rest = list.filter(a => a !== hero);
     const side = rest.slice(0, 2), feed = rest.slice(2);
 
     $('top').innerHTML = hero ? `
-      <a class="hero" href="${href(hero)}">${ph(hero)}<div class="in"><span class="tag">${esc(hero.category)}</span>
-        <h2>${esc(hero.title)}</h2>${hero.summary ? `<p>${esc(hero.summary)}</p>` : ''}<span class="meta">${ago(hero.created_at)}</span></div></a>
-      <div class="side">${side.map(a => `<a class="mini" href="${href(a)}">${ph(a)}<div class="in"><span class="tag">${esc(a.category)}</span><h3>${esc(a.title)}</h3><span class="meta">${ago(a.created_at)}</span></div></a>`).join('')}</div>` : '';
+      <a class="hero" href="${href(hero)}">${ph(hero)}<div class="in"><h2>${esc(hero.title)}</h2>${hero.summary ? `<p>${esc(hero.summary)}</p>` : ''}<span class="meta">${ago(hero.created_at)}</span></div></a>
+      <div class="side">${side.map(a => `<a class="mini" href="${href(a)}">${ph(a)}<div class="in"><h3>${esc(a.title)}</h3><span class="meta">${ago(a.created_at)}</span></div></a>`).join('')}</div>` : '';
 
     $('grid').innerHTML = feed.slice(0, shown).map(a => `
-      <a class="card" href="${href(a)}">${ph(a)}<div class="bd"><span class="tag" style="align-self:flex-start">${esc(a.category)}</span>
-        <h3>${esc(a.title)}</h3>${a.summary ? `<p>${esc(a.summary)}</p>` : ''}<span class="meta">${ago(a.created_at)}</span></div></a>`).join('');
+      <a class="card" href="${href(a)}">${ph(a)}<div class="bd"><h3>${esc(a.title)}</h3>${a.summary ? `<p>${esc(a.summary)}</p>` : ''}<span class="meta">${ago(a.created_at)}</span></div></a>`).join('');
 
-    $('gridTitle').textContent = cat === 'Todas' ? 'Últimas notícias' : cat;
     $('count').textContent = list.length ? `${list.length} ${list.length === 1 ? 'notícia' : 'notícias'}` : '';
     $('more').hidden = feed.length <= shown;
     $('empty').hidden = list.length > 0;
@@ -194,7 +189,7 @@
     const paras = (a.content || '').split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
     $('article').innerHTML = `<article class="art">
       <button class="back" onclick="location.hash='#/'">Voltar para as notícias</button><br>
-      <span class="tag">${esc(a.category)}</span><h1>${esc(a.title)}</h1>
+      <h1>${esc(a.title)}</h1>
       ${a.summary ? `<p class="lead">${esc(a.summary)}</p>` : ''}
       <span class="meta">${new Date(a.created_at).toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}</span>
       ${ph(a)}
@@ -210,19 +205,18 @@
     window.scrollTo(0, 0);
   }
 
-  document.addEventListener('click', e => {
-    const b = e.target.closest('#nav button, #cats button'); if (!b) return;
-    cat = b.dataset.c; shown = PAGE; renderNav(); renderHome();
-    if (location.hash !== '#/' && location.hash !== '') location.hash = '#/';
-    window.scrollTo(0, 0);
-  });
   $('more').onclick = () => { shown += PAGE; renderHome(); };
   window.addEventListener('hashchange', route);
 
   (async () => {
     const { data, error } = await sb.from('articles').select('*').eq('published', true).order('created_at', { ascending: false });
     if (error){ $('empty').textContent = 'Não foi possível carregar as notícias agora. Tente de novo em instantes.'; $('empty').hidden = false; return; }
-    all = data || []; loaded = true; renderNav(); renderHome(); route();
+    all = data || []; loaded = true; renderHome(); route();
+    const { data: ads } = await sb.from('links').select('*').eq('active', true).eq('group_name', 'Jogos').order('position');
+    if (ads && ads.length){
+      $('adsList').innerHTML = ads.map(a => `<a class="ad" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer sponsored">${a.icon_url ? `<img src="${esc(a.icon_url)}" alt="">` : ''}<div><b>${esc(a.title)}</b><span>${esc(a.desc_text)}</span></div></a>`).join('');
+      $('ads').hidden = false;
+    }
   })();
 </script>
 </body>
