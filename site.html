@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central do FFC — site em construção</title>
+<meta name="description" content="O site da Central do FFC está em construção. Enquanto isso, acompanhe a cobertura do Feira FC pelas nossas redes.">
+<link rel="icon" href="/mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #050f0d;
+    --grid-line: rgba(120, 160, 155, 0.055);
+    --win: #1a2e29;
+    --win-shadow: #0b1714;
+    --cloud: #243c36;
+    --letter: #E4ECE9;
+    --outline: #07110f;
+    --hi: #7FD9B4;      /* verde claro: barra, botão, detalhes */
+    --mid: #46B08A;     /* verde médio: placa, faixas, destaque */
+    --shade: #2F8468;   /* sombra do verde */
+    --metal: #D9E3E0;
+    --dark: #22352f;
+    --ink: #EDF3F1;
+    --ink-dim: rgba(237, 243, 241, 0.72);
+  }
+
+  *{ box-sizing:border-box; }
+
+  html{
+    min-height:100%;
+    background:
+      radial-gradient(110% 60% at 8% 100%, #12332c 0%, transparent 55%),
+      radial-gradient(80% 50% at 100% 0%, #0d211d 0%, transparent 50%),
+      var(--bg);
+  }
+
+  body{
+    margin:0;
+    min-height:100dvh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:24px 14px;
+    font-family:'Quicksand', 'Inter', -apple-system, 'Segoe UI', sans-serif;
+    color:var(--ink);
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  .grid-layer{
+    position:fixed;
+    inset:-20% -20%;
+    background-image:
+      repeating-linear-gradient(35deg, var(--grid-line) 0 1px, transparent 1px 72px),
+      repeating-linear-gradient(-55deg, var(--grid-line) 0 1px, transparent 1px 72px);
+    pointer-events:none;
+    mask-image: radial-gradient(75% 55% at 50% 40%, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(75% 55% at 50% 40%, black 30%, transparent 80%);
+  }
+
+  /* container: tudo dentro escala junto com a largura da "janela" */
+  .stage{
+    position:relative;
+    z-index:1;
+    width:min(100%, 880px);
+    container-type:inline-size;
+  }
+
+  .window{
+    position:relative;
+    background:var(--win);
+    border-radius:2.2cqw;
+    overflow:hidden;
+    box-shadow:0 2.4cqw 0 -0.4cqw var(--win-shadow), 0 4cqw 6cqw -2cqw rgba(0,0,0,.6);
+  }
+
+  .titlebar{
+    height:max(26px, 4.6cqw);
+    background:var(--hi);
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:max(5px, .9cqw);
+    padding-right:max(10px, 1.6cqw);
+  }
+  .titlebar i{
+    width:max(9px, 2cqw);
+    height:max(9px, 2cqw);
+    border-radius:50%;
+    background:var(--shade);
+    opacity:.55;
+  }
+
+  .content{
+    position:relative;
+    padding:7cqw 4cqw 6.5cqw;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+
+  /* nuvens de velocidade ao fundo */
+  .cloud{
+    position:absolute;
+    height:5.2cqw;
+    border-radius:99px;
+    background:var(--cloud);
+    opacity:.75;
+  }
+  .c1{ left:14%;  top:15%; width:26cqw; }
+  .c2{ left:6%;   top:27%; width:34cqw; }
+  .c3{ left:9%;   top:41%; width:22cqw; }
+  .c4{ right:6%;  top:20%; width:30cqw; }
+  .c5{ right:10%; top:34%; width:34cqw; }
+  .c6{ right:4%;  top:46%; width:24cqw; }
+
+  /* título + objetos de obra */
+  .hero{
+    position:relative;
+    z-index:1;
+    font-size:14.5cqw;
+    margin:3.4cqw 0 0;
+  }
+  .hero h1{
+    margin:0;
+    font-family:'Bungee', 'Archivo Black', Impact, sans-serif;
+    font-weight:400;
+    font-size:1em;
+    line-height:.92;
+    letter-spacing:.01em;
+    color:var(--letter);
+    text-transform:uppercase;
+  }
+  .hero h1 span{ display:block; }
+
+  .hero::after{
+    content:"";
+    position:absolute;
+    left:-.18em; right:-.18em;
+    bottom:-.2em;
+    height:max(2px, .03em);
+    border-radius:2px;
+    background:var(--outline);
+    opacity:.8;
+  }
+
+  .prop{ position:absolute; display:block; height:auto; }
+
+  .hat{
+    width:.9em;
+    left:36%;
+    top:-.36em;
+    transform-origin:50% 100%;
+    animation:drop 1s cubic-bezier(.3,1.4,.5,1) .3s both;
+  }
+  .sign{ width:.8em; right:-.5em; top:.3em; }
+  .cone-a{ width:.5em; left:-.34em; bottom:-.16em; }
+  .cone-b{ width:.5em; left:-.04em; bottom:-.16em; }
+  .barrier{ width:1.08em; left:50%; margin-left:-.54em; bottom:-.12em; }
+
+  @keyframes drop{
+    from{ transform:translateY(-1em) rotate(-24deg); opacity:0; }
+    to  { transform:translateY(0) rotate(-8deg); opacity:1; }
+  }
+  .hat{ transform:rotate(-8deg); }
+
+  /* linhas de velocidade */
+  .sl{
+    position:absolute;
+    z-index:2;
+    height:max(2px, .22cqw);
+    border-radius:2px;
+    background:var(--outline);
+  }
+  .sl.lt{ background:var(--metal); opacity:.8; }
+  .s1{ left:-.2em;  top:.30em; width:.30em; }
+  .s2{ left:-.12em; top:.38em; width:.14em; }
+  .s3{ left:-.16em; top:1.05em; width:.34em; }
+  .s4{ right:.05em; top:.18em; width:.26em; }
+  .s5{ right:.12em; top:.26em; width:.12em; }
+  .s6{ right:.2em;  top:1.38em; width:.30em; }
+  .s7{ left:.14em;  top:1.46em; width:.16em; }
+  .s8{ right:-.02em; top:.9em; width:.22em; }
+
+  .subtitle{
+    position:relative;
+    z-index:1;
+    margin:max(34px, 6.5cqw) 0 0;
+    font-weight:700;
+    font-size:clamp(17px, 5cqw, 44px);
+    letter-spacing:.07em;
+    line-height:1.1;
+    text-transform:uppercase;
+    color:var(--letter);
+  }
+  .subtitle b{ font-weight:700; color:var(--mid); }
+
+  .lead{
+    position:relative;
+    z-index:1;
+    margin:max(10px, 1.4cqw) 0 0;
+    max-width:40ch;
+    font-weight:500;
+    font-size:clamp(13.5px, 2.3cqw, 19px);
+    line-height:1.55;
+    color:var(--ink-dim);
+  }
+
+  .btn{
+    position:relative;
+    z-index:1;
+    margin-top:max(20px, 3.4cqw);
+    display:inline-block;
+    padding:.85em 2.2em;
+    border-radius:999px;
+    background:var(--hi);
+    color:#04120f;
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:clamp(13px, 2.1cqw, 17px);
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    text-decoration:none;
+    transition:background .2s ease, transform .2s ease;
+  }
+  .btn:hover{ background:#A2E8CB; }
+  .btn:active{ transform:scale(.97); }
+  .btn:focus-visible{ outline:2px solid var(--ink); outline-offset:3px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .hat{ animation:none; transform:rotate(-8deg); }
+  }
+</style>
+</head>
+<body>
+  <div class="grid-layer" aria-hidden="true"></div>
+
+  <div class="stage">
+    <main class="window">
+      <div class="titlebar" aria-hidden="true"><i></i><i></i><i></i></div>
+
+      <div class="content">
+        <span class="cloud c1" aria-hidden="true"></span>
+        <span class="cloud c2" aria-hidden="true"></span>
+        <span class="cloud c3" aria-hidden="true"></span>
+        <span class="cloud c4" aria-hidden="true"></span>
+        <span class="cloud c5" aria-hidden="true"></span>
+        <span class="cloud c6" aria-hidden="true"></span>
+
+        <div class="hero">
+          <h1><span>Nosso</span><span>Site</span></h1>
+
+          <!-- capacete -->
+          <svg class="prop hat" viewBox="0 0 120 70" aria-hidden="true">
+            <path d="M10 48 Q12 14 58 12 Q104 14 108 48 Z" fill="#7FD9B4" stroke="#07110f" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M82 20 Q104 26 107 46 L77 46 Z" fill="#2F8468" opacity=".55"/>
+            <path d="M58 12 V46 M37 20 L41 46 M79 20 L75 46" stroke="#07110f" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+            <rect x="4" y="46" width="112" height="13" rx="6.5" fill="#46B08A" stroke="#07110f" stroke-width="4"/>
+          </svg>
+
+          <!-- placa de atenção -->
+          <svg class="prop sign" viewBox="0 0 100 190" aria-hidden="true">
+            <rect x="47" y="92" width="6" height="92" fill="#D9E3E0" stroke="#07110f" stroke-width="2.5"/>
+            <ellipse cx="50" cy="186" rx="14" ry="2.5" fill="#07110f" opacity=".6"/>
+            <rect x="18" y="18" width="64" height="64" rx="10" transform="rotate(45 50 50)" fill="#46B08A" stroke="#07110f" stroke-width="4.5"/>
+            <rect x="29" y="29" width="42" height="42" rx="6" transform="rotate(45 50 50)" fill="none" stroke="#07110f" stroke-width="3" stroke-dasharray="6 5"/>
+            <rect x="46" y="32" width="8" height="22" rx="2" fill="#22352f"/>
+            <circle cx="50" cy="64" r="4.8" fill="#22352f"/>
+          </svg>
+
+          <!-- cones -->
+          <svg class="prop cone-a" viewBox="0 0 70 100" aria-hidden="true">
+            <defs><clipPath id="cc1"><path d="M20 86 L29 14 Q35 4 41 14 L50 86 Z"/></clipPath></defs>
+            <path d="M20 86 L29 14 Q35 4 41 14 L50 86 Z" fill="#22352f"/>
+            <g clip-path="url(#cc1)" fill="#7FD9B4"><rect x="0" y="30" width="70" height="13"/><rect x="0" y="58" width="70" height="13"/></g>
+            <path d="M20 86 L29 14 Q35 4 41 14 L50 86 Z" fill="none" stroke="#07110f" stroke-width="4" stroke-linejoin="round"/>
+            <rect x="4" y="84" width="62" height="11" rx="4.5" fill="#46B08A" stroke="#07110f" stroke-width="4"/>
+          </svg>
+          <svg class="prop cone-b" viewBox="0 0 70 100" aria-hidden="true">
+            <defs><clipPath id="cc2"><path d="M20 86 L29 14 Q35 4 41 14 L50 86 Z"/></clipPath></defs>
+            <path d="M20 86 L29 14 Q35 4 41 14 L50 86 Z" fill="#22352f"/>
+            <g clip-path="url(#cc2)" fill="#7FD9B4"><rect x="0" y="30" width="70" height="13"/><rect x="0" y="58" width="70" height="13"/></g>
+            <path d="M20 86 L29 14 Q35 4 41 14 L50 86 Z" fill="none" stroke="#07110f" stroke-width="4" stroke-linejoin="round"/>
+            <rect x="4" y="84" width="62" height="11" rx="4.5" fill="#46B08A" stroke="#07110f" stroke-width="4"/>
+          </svg>
+
+          <!-- barreira -->
+          <svg class="prop barrier" viewBox="0 0 160 72" aria-hidden="true">
+            <rect x="30" y="24" width="8" height="40" fill="#D9E3E0" stroke="#07110f" stroke-width="3"/>
+            <rect x="122" y="24" width="8" height="40" fill="#D9E3E0" stroke="#07110f" stroke-width="3"/>
+            <path d="M24 67 H44 M116 67 H136" stroke="#07110f" stroke-width="4" stroke-linecap="round"/>
+            <defs><clipPath id="bb"><rect x="3" y="3" width="154" height="22" rx="4"/></clipPath></defs>
+            <rect x="3" y="3" width="154" height="22" rx="4" fill="#22352f"/>
+            <g clip-path="url(#bb)" fill="#46B08A">
+              <polygon points="6,25 16,25 28,3 18,3"/>
+              <polygon points="28,25 38,25 50,3 40,3"/>
+              <polygon points="50,25 60,25 72,3 62,3"/>
+              <polygon points="72,25 82,25 94,3 84,3"/>
+              <polygon points="94,25 104,25 116,3 106,3"/>
+              <polygon points="116,25 126,25 138,3 128,3"/>
+              <polygon points="138,25 148,25 160,3 150,3"/>
+            </g>
+            <rect x="3" y="3" width="154" height="22" rx="4" fill="none" stroke="#07110f" stroke-width="4"/>
+          </svg>
+
+          <!-- linhas de velocidade -->
+          <i class="sl s1" aria-hidden="true"></i>
+          <i class="sl lt s2" aria-hidden="true"></i>
+          <i class="sl s3" aria-hidden="true"></i>
+          <i class="sl s4" aria-hidden="true"></i>
+          <i class="sl lt s5" aria-hidden="true"></i>
+          <i class="sl s6" aria-hidden="true"></i>
+          <i class="sl lt s7" aria-hidden="true"></i>
+          <i class="sl s8" aria-hidden="true"></i>
+        </div>
+
+        <p class="subtitle">Em <b>construção</b></p>
+        <p class="lead">Estamos montando a casa nova da Central do FFC. Enquanto isso, a cobertura do Feira FC continua nas nossas redes.</p>
+        <a class="btn" href="/">Ver nossos links</a>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
