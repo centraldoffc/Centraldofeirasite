@@ -7,75 +7,137 @@
 <meta name="description" content="Notícias, jogos e bastidores do Feira Futebol Clube.">
 <link rel="icon" href="/mark.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#050f0d; --accent:#6FA89E; --accent-hi:#8CC4B9; --ink:#EDF3F1;
-    --dim:rgba(237,243,241,.62); --faint:rgba(237,243,241,.38);
-    --card:rgba(255,255,255,.035); --line:rgba(120,160,155,.16);
+    --bg:#050f0d; --accent:#6FA89E; --hi:#8CC4B9; --ink:#EDF3F1;
+    --dim:rgba(237,243,241,.66); --faint:rgba(237,243,241,.42);
+    --card:#0c1a17; --line:rgba(120,160,155,.16);
   }
   *{box-sizing:border-box}
-  body{
-    margin:0; font-family:'Inter',-apple-system,sans-serif; color:var(--ink); min-height:100dvh;
-    background:radial-gradient(110% 50% at 8% 100%,#12332c 0,transparent 55%),radial-gradient(80% 40% at 100% 0,#0d211d 0,transparent 50%),var(--bg);
-  }
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:'Inter',-apple-system,sans-serif;color:var(--ink);min-height:100dvh;
+    background:radial-gradient(100% 45% at 0 100%,#10302a 0,transparent 60%),var(--bg)}
   a{color:inherit;text-decoration:none}
-  .wrap{width:min(100%,1080px);margin:0 auto;padding:0 18px}
+  button{font-family:inherit}
+  .wrap{width:min(100%,1120px);margin:0 auto;padding:0 16px}
 
-  header{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
-  .brand{display:flex;align-items:center;gap:10px;font-family:'Archivo Black',sans-serif;font-size:18px}
-  .brand img{width:36px;height:36px;border-radius:50%;border:1px solid var(--line)}
-  .links-btn{font-size:13px;font-weight:600;padding:8px 16px;border-radius:99px;border:1px solid var(--line);transition:border-color .2s}
-  .links-btn:hover{border-color:var(--accent)}
+  /* topo */
+  .top{position:sticky;top:0;z-index:20;background:rgba(5,15,13,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;height:58px}
+  .brand{display:flex;align-items:center;gap:9px;font-family:'Archivo Black',sans-serif;font-size:16px;white-space:nowrap}
+  .brand img{width:32px;height:32px;border-radius:50%;border:1px solid var(--line)}
+  .date{font-size:12px;color:var(--faint);text-transform:capitalize;display:none}
+  .pill{font-size:12.5px;font-weight:600;white-space:nowrap;padding:7px 14px;border-radius:99px;border:1px solid var(--line);transition:border-color .2s}
+  .pill:hover{border-color:var(--accent)}
+  .nav{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav button{flex:none;font-size:13px;font-weight:500;color:var(--dim);background:none;border:0;border-radius:99px;padding:7px 14px;cursor:pointer;transition:background .2s,color .2s}
+  .nav button:hover{color:var(--ink)}
+  .nav button.on{background:var(--accent);color:#04120f;font-weight:700}
+  button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
-  .chips{display:flex;gap:8px;overflow-x:auto;padding:6px 0 18px;scrollbar-width:none}
-  .chips::-webkit-scrollbar{display:none}
-  .chip{flex:none;font:500 13px 'Inter',sans-serif;color:var(--dim);background:transparent;border:1px solid var(--line);border-radius:99px;padding:7px 15px;cursor:pointer;transition:all .2s}
-  .chip:hover{border-color:var(--accent);color:var(--ink)}
-  .chip.on{background:var(--accent);border-color:var(--accent);color:#04120f;font-weight:600}
-  .chip:focus-visible,.card:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-
-  .thumb{background:linear-gradient(135deg,#17372f,#0b1b17) center/cover;position:relative}
-  .tag{display:inline-block;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--accent);color:#04120f}
+  /* imagens e etiquetas */
+  .ph{position:relative;background:#12302a center/cover no-repeat;overflow:hidden}
+  .ph.logo::before{content:"";position:absolute;inset:0;background:url(/mark.png) center/34% no-repeat;opacity:.16}
+  .ph.logo{background-image:linear-gradient(135deg,#17413a,#0a1c18)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;background:var(--accent);color:#04120f}
   .meta{font-size:12px;color:var(--faint)}
 
-  .hero{display:block;border-radius:20px;overflow:hidden;border:1px solid var(--line);margin-bottom:26px}
-  .hero .thumb{min-height:min(52vw,380px);display:flex;align-items:flex-end}
-  .hero .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(5,15,13,.94) 8%,rgba(5,15,13,.1) 70%)}
-  .hero .txt{position:relative;padding:22px}
-  .hero h2{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:clamp(24px,5vw,40px);line-height:1.08;margin:12px 0 8px;max-width:20ch}
-  .hero p{margin:0 0 8px;color:var(--dim);max-width:58ch;font-size:15px;line-height:1.5}
+  /* destaques */
+  .top-grid{display:grid;gap:14px;padding:18px 0 8px}
+  .hero{position:relative;display:flex;align-items:flex-end;min-height:min(86vw,430px);border-radius:18px;overflow:hidden}
+  .hero .ph{position:absolute;inset:0}
+  .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(4,12,10,.96) 10%,rgba(4,12,10,.2) 75%)}
+  .hero .in{position:relative;z-index:1;padding:20px}
+  .hero h2{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:clamp(22px,6.2vw,36px);line-height:1.1;margin:10px 0 8px}
+  .hero p{margin:0 0 8px;font-size:14px;line-height:1.5;color:var(--dim);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .side{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+  .mini{position:relative;display:flex;align-items:flex-end;min-height:170px;border-radius:14px;overflow:hidden}
+  .mini .ph{position:absolute;inset:0}
+  .mini::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(4,12,10,.95) 5%,rgba(4,12,10,.1) 80%)}
+  .mini .in{position:relative;z-index:1;padding:12px}
+  .mini h3{margin:8px 0 4px;font-size:14px;line-height:1.28;font-weight:700}
 
-  h3.sec{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:22px;margin:0 0 14px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;padding-bottom:40px}
-  .card{display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);transition:border-color .2s,transform .2s}
-  .card:hover{border-color:rgba(111,168,158,.5);transform:translateY(-2px)}
-  .card .thumb{aspect-ratio:16/10}
-  .card .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
-  .card h4{margin:0;font-size:16px;line-height:1.3;font-weight:600}
-  .card p{margin:0;font-size:13.5px;line-height:1.5;color:var(--dim)}
-  .card .meta{margin-top:auto}
+  /* corpo */
+  .main{display:grid;gap:26px;padding:22px 0 10px}
+  .sec{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 14px}
+  .sec h2{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:21px;margin:0}
+  .sec span{font-size:12px;color:var(--faint)}
+  .grid{display:grid;gap:14px;grid-template-columns:1fr}
+  .card{display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:var(--card);border:1px solid var(--line);transition:border-color .2s,transform .2s}
+  .card:hover{border-color:rgba(111,168,158,.55);transform:translateY(-2px)}
+  .card .ph{aspect-ratio:16/9}
+  .card .bd{padding:13px 14px 15px;display:flex;flex-direction:column;gap:7px;flex:1}
+  .card h3{margin:0;font-size:16px;line-height:1.3;font-weight:700}
+  .card p{margin:0;font-size:13.5px;line-height:1.5;color:var(--dim);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .more{display:block;margin:20px auto 0;font-size:13.5px;font-weight:600;color:var(--ink);background:none;border:1px solid var(--line);border-radius:99px;padding:10px 24px;cursor:pointer}
+  .more:hover{border-color:var(--accent)}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .box h3{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:16px;margin:0 0 10px}
+  .cats button{display:flex;justify-content:space-between;width:100%;padding:9px 0;background:none;border:0;border-top:1px solid var(--line);color:var(--ink);font-size:14px;cursor:pointer;text-align:left}
+  .cats button:first-of-type{border-top:0}
+  .cats i{font-style:normal;color:var(--faint);font-size:12.5px}
+  .follow{background:linear-gradient(135deg,#17413a,#0a1c18)}
+  .follow p{margin:0 0 12px;font-size:13.5px;line-height:1.5;color:var(--dim)}
+  .follow a{display:inline-block;font-size:13px;font-weight:700;background:var(--hi);color:#04120f;border-radius:99px;padding:9px 18px}
 
-  .empty{padding:60px 10px;text-align:center;color:var(--dim)}
-  footer{border-top:1px solid var(--line);padding:26px 0 34px;font-size:13px;color:var(--faint);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  /* notícia aberta */
+  .art{max-width:720px;margin:0 auto;padding:22px 0 30px}
+  .back{display:inline-block;font-size:13.5px;font-weight:600;color:var(--hi);background:none;border:0;padding:6px 0;cursor:pointer;margin-bottom:12px}
+  .art h1{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:clamp(26px,7vw,42px);line-height:1.1;margin:12px 0}
+  .art .lead{font-size:17px;line-height:1.55;color:var(--dim);margin:0 0 18px}
+  .art .ph{aspect-ratio:16/9;border-radius:16px;margin:16px 0 22px}
+  .art .txt p{font-size:16.5px;line-height:1.75;margin:0 0 18px}
+
+  .empty{padding:50px 10px;text-align:center;color:var(--dim)}
+  footer{border-top:1px solid var(--line);margin-top:28px;padding:24px 0 34px;font-size:13px;color:var(--faint);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  [hidden]{display:none!important}
+
+  @media (min-width:720px){
+    .date{display:block}
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .top-grid{grid-template-columns:2fr 1fr}
+    .side{grid-template-columns:1fr}
+    .hero{min-height:430px}
+    .mini{min-height:208px}
+    .main{grid-template-columns:2fr 1fr}
+  }
+  @media (min-width:1000px){ .grid{grid-template-columns:repeat(3,1fr)} .main{grid-template-columns:3fr 1fr} }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <a class="brand" href="/portal"><img src="/mark.png" alt="" width="36" height="36">Central do FFC</a>
-    <a class="links-btn" href="/">Nossos links</a>
-  </header>
+<header class="top">
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="#/"><img src="/mark.png" alt="" width="32" height="32">Central do FFC</a>
+      <span class="date" id="date"></span>
+      <a class="pill" href="/">Nossos links</a>
+    </div>
+    <nav class="nav" id="nav" aria-label="Categorias"></nav>
+  </div>
+</header>
 
-  <nav class="chips" id="chips" aria-label="Categorias"></nav>
-  <div id="hero"></div>
-  <h3 class="sec" id="secTitle" hidden>Últimas notícias</h3>
-  <section class="grid" id="grid" aria-live="polite"></section>
-  <p class="empty" id="empty" hidden>Nenhuma notícia publicada nesta categoria ainda.</p>
-
-  <footer><span>Central do FFC — acompanhando de perto o Feira Futebol Clube.</span><a href="/">Instagram, X e mais</a></footer>
+<div class="wrap" id="home">
+  <section class="top-grid" id="top"></section>
+  <div class="main">
+    <section>
+      <div class="sec"><h2 id="gridTitle">Últimas notícias</h2><span id="count"></span></div>
+      <div class="grid" id="grid"></div>
+      <p class="empty" id="empty" hidden>Nenhuma notícia por aqui ainda.</p>
+      <button class="more" id="more" hidden>Carregar mais notícias</button>
+    </section>
+    <aside>
+      <div class="box"><h3>Categorias</h3><div class="cats" id="cats"></div></div>
+      <div class="box follow"><h3>Siga a Central</h3><p>Acompanhe o Feira FC de perto também nas redes.</p><a href="/">Ver nossos links</a></div>
+    </aside>
+  </div>
 </div>
+
+<div class="wrap" id="article" hidden></div>
+
+<div class="wrap"><footer><span>Central do FFC — acompanhando de perto o Feira Futebol Clube.</span><a href="/">Instagram, X e mais</a></footer></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
@@ -83,51 +145,84 @@
   const sb = supabase.createClient(FFC_SUPABASE_URL, FFC_SUPABASE_KEY);
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  let all = [], cat = 'Todas';
+  const PAGE = 6;
+  let all = [], cat = 'Todas', shown = PAGE, loaded = false;
+
+  $('date').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
 
   function ago(d){
     const m = Math.round((Date.now() - new Date(d)) / 60000);
     if (m < 60) return `há ${Math.max(m,1)} min`;
     if (m < 1440) return `há ${Math.round(m/60)} h`;
-    return `há ${Math.round(m/1440)} d`;
+    if (m < 43200) return `há ${Math.round(m/1440)} d`;
+    return new Date(d).toLocaleDateString('pt-BR');
   }
-  const bg = a => a.image_url ? ` style="background-image:url('${esc(a.image_url)}')"` : '';
+  const ph = (a, extra='') => `<div class="ph ${a.image_url ? '' : 'logo'} ${extra}"${a.image_url ? ` style="background-image:url('${esc(a.image_url)}')"` : ''}></div>`;
+  const href = a => `#/n/${a.id}`;
 
-  function render(){
+  function renderNav(){
+    const cats = ['Todas', ...new Set(all.map(a => a.category))];
+    $('nav').innerHTML = cats.map(c => `<button class="${c===cat?'on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+    $('cats').innerHTML = cats.slice(1).map(c => `<button data-c="${esc(c)}">${esc(c)}<i>${all.filter(a=>a.category===c).length}</i></button>`).join('');
+  }
+
+  function renderHome(){
     const list = cat === 'Todas' ? all : all.filter(a => a.category === cat);
     const hero = list.find(a => a.featured) || list[0];
     const rest = list.filter(a => a !== hero);
+    const side = rest.slice(0, 2), feed = rest.slice(2);
 
-    $('hero').innerHTML = hero ? `
-      <a class="hero" href="#"><div class="thumb"${bg(hero)}><div class="shade"></div>
-        <div class="txt"><span class="tag">${esc(hero.category)}</span>
-          <h2>${esc(hero.title)}</h2>
-          ${hero.summary ? `<p>${esc(hero.summary)}</p>` : ''}
-          <span class="meta">${ago(hero.created_at)}</span></div></div></a>` : '';
+    $('top').innerHTML = hero ? `
+      <a class="hero" href="${href(hero)}">${ph(hero)}<div class="in"><span class="tag">${esc(hero.category)}</span>
+        <h2>${esc(hero.title)}</h2>${hero.summary ? `<p>${esc(hero.summary)}</p>` : ''}<span class="meta">${ago(hero.created_at)}</span></div></a>
+      <div class="side">${side.map(a => `<a class="mini" href="${href(a)}">${ph(a)}<div class="in"><span class="tag">${esc(a.category)}</span><h3>${esc(a.title)}</h3><span class="meta">${ago(a.created_at)}</span></div></a>`).join('')}</div>` : '';
 
-    $('grid').innerHTML = rest.map(a => `
-      <a class="card" href="#"><div class="thumb"${bg(a)}></div>
-        <div class="body"><span class="tag" style="align-self:flex-start">${esc(a.category)}</span>
-          <h4>${esc(a.title)}</h4>${a.summary ? `<p>${esc(a.summary)}</p>` : ''}
-          <span class="meta">${ago(a.created_at)}</span></div></a>`).join('');
+    $('grid').innerHTML = feed.slice(0, shown).map(a => `
+      <a class="card" href="${href(a)}">${ph(a)}<div class="bd"><span class="tag" style="align-self:flex-start">${esc(a.category)}</span>
+        <h3>${esc(a.title)}</h3>${a.summary ? `<p>${esc(a.summary)}</p>` : ''}<span class="meta">${ago(a.created_at)}</span></div></a>`).join('');
 
-    $('secTitle').hidden = !rest.length;
+    $('gridTitle').textContent = cat === 'Todas' ? 'Últimas notícias' : cat;
+    $('count').textContent = list.length ? `${list.length} ${list.length === 1 ? 'notícia' : 'notícias'}` : '';
+    $('more').hidden = feed.length <= shown;
     $('empty').hidden = list.length > 0;
+    $('grid').parentElement.querySelector('.sec').hidden = !feed.length;
   }
 
-  function renderChips(){
-    const cats = ['Todas', ...new Set(all.map(a => a.category))];
-    $('chips').innerHTML = cats.map(c => `<button class="chip${c === cat ? ' on' : ''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+  function renderArticle(id){
+    const a = all.find(x => x.id === id);
+    if (!a){ location.hash = '#/'; return; }
+    const paras = (a.content || '').split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+    $('article').innerHTML = `<article class="art">
+      <button class="back" onclick="location.hash='#/'">Voltar para as notícias</button><br>
+      <span class="tag">${esc(a.category)}</span><h1>${esc(a.title)}</h1>
+      ${a.summary ? `<p class="lead">${esc(a.summary)}</p>` : ''}
+      <span class="meta">${new Date(a.created_at).toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}</span>
+      ${ph(a)}
+      <div class="txt">${paras.map(p => `<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('') || ''}</div></article>`;
+    document.title = `${a.title} — Central do FFC`;
   }
-  $('chips').addEventListener('click', e => {
-    const b = e.target.closest('.chip'); if (!b) return;
-    cat = b.dataset.c; renderChips(); render();
+
+  function route(){
+    if (!loaded) return;
+    const m = location.hash.match(/^#\/n\/(.+)$/);
+    $('home').hidden = !!m; $('article').hidden = !m;
+    if (m) renderArticle(m[1]); else document.title = 'Central do FFC — Notícias do Feira FC';
+    window.scrollTo(0, 0);
+  }
+
+  document.addEventListener('click', e => {
+    const b = e.target.closest('#nav button, #cats button'); if (!b) return;
+    cat = b.dataset.c; shown = PAGE; renderNav(); renderHome();
+    if (location.hash !== '#/' && location.hash !== '') location.hash = '#/';
+    window.scrollTo(0, 0);
   });
+  $('more').onclick = () => { shown += PAGE; renderHome(); };
+  window.addEventListener('hashchange', route);
 
   (async () => {
     const { data, error } = await sb.from('articles').select('*').eq('published', true).order('created_at', { ascending: false });
-    if (error) { $('empty').textContent = 'Não foi possível carregar as notícias agora. Tente de novo em instantes.'; $('empty').hidden = false; return; }
-    all = data || []; renderChips(); render();
+    if (error){ $('empty').textContent = 'Não foi possível carregar as notícias agora. Tente de novo em instantes.'; $('empty').hidden = false; return; }
+    all = data || []; loaded = true; renderNav(); renderHome(); route();
   })();
 </script>
 </body>
