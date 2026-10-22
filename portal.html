@@ -12,18 +12,18 @@
   :root{
     --bg:#050f0d; --accent:#6FA89E; --hi:#8CC4B9; --ink:#EDF3F1;
     --dim:rgba(237,243,241,.66); --faint:rgba(237,243,241,.42);
-    --card:#0c1a17; --line:rgba(120,160,155,.16);
+    --card:rgba(4,14,11,.72); --line:rgba(120,160,155,.16);
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{margin:0;font-family:'Inter',-apple-system,sans-serif;color:var(--ink);min-height:100dvh;
-    background:radial-gradient(100% 45% at 0 100%,#10302a 0,transparent 60%),var(--bg)}
+  body{margin:0;font-family:'Inter',-apple-system,sans-serif;color:var(--ink);min-height:100dvh;background:#020705}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;background:url(/bg.jpg) center/cover no-repeat}
   a{color:inherit;text-decoration:none}
   button{font-family:inherit}
   .wrap{width:min(100%,1120px);margin:0 auto;padding:0 16px}
 
   /* topo */
-  .top{position:sticky;top:0;z-index:20;background:rgba(5,15,13,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .top{position:sticky;top:0;z-index:20;background:rgba(2,8,6,.55);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
   .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;height:58px}
   .brand{display:flex;align-items:center;gap:9px;font-family:'Archivo Black',sans-serif;font-size:16px;white-space:nowrap}
   .brand img{width:32px;height:32px;border-radius:50%;border:1px solid var(--line)}
@@ -58,7 +58,7 @@
   .mini h3{margin:8px 0 4px;font-size:14px;line-height:1.28;font-weight:700}
 
   /* corpo */
-  .main{display:grid;gap:26px;padding:22px 0 10px}
+  .main{display:grid;gap:26px;padding:22px 0 44px}
   .sec{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 14px}
   .sec h2{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:21px;margin:0}
   .sec span{font-size:12px;color:var(--faint)}
@@ -80,8 +80,12 @@
   .art .ph{aspect-ratio:16/9;border-radius:16px;margin:16px 0 22px}
   .art .txt p{font-size:16.5px;line-height:1.75;margin:0 0 18px}
 
+  .art .txt h2,.art .txt h3{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:24px;line-height:1.2;margin:30px 0 10px}
+  .art .txt a{color:var(--hi);text-decoration:underline}
+  .art .txt img{display:block;max-width:100%;height:auto;border-radius:12px;margin:8px auto 20px}
+  .art .txt blockquote{margin:0 0 18px;padding:4px 0 4px 16px;border-left:3px solid var(--accent);color:var(--dim)}
+  .art .txt ul,.art .txt ol{padding-left:22px;margin:0 0 18px;font-size:16.5px;line-height:1.7}
   .empty{padding:50px 10px;text-align:center;color:var(--dim)}
-  footer{border-top:1px solid var(--line);margin-top:28px;padding:24px 0 34px;font-size:13px;color:var(--faint);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
   [hidden]{display:none!important}
 
   @media (min-width:720px){
@@ -121,7 +125,6 @@
 
 <div class="wrap" id="article" hidden></div>
 
-<div class="wrap"><footer><span>Central do FFC — acompanhando de perto o Feira Futebol Clube.</span><a href="/">Instagram, X e mais</a></footer></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
@@ -163,6 +166,17 @@
     $('grid').parentElement.querySelector('.sec').hidden = !feed.length;
   }
 
+  const OK = new Set(['P','BR','B','STRONG','I','EM','U','A','H2','H3','UL','OL','LI','BLOCKQUOTE','IMG','FIGURE','FIGCAPTION','DIV','SPAN']);
+  function clean(root){
+    root.querySelectorAll('*').forEach(el => {
+      const t = el.tagName;
+      if (!OK.has(t)){ /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|FORM|LINK|META)$/.test(t) ? el.remove() : el.replaceWith(...el.childNodes); return; }
+      [...el.attributes].forEach(at => { if (!((t === 'A' && at.name === 'href') || (t === 'IMG' && (at.name === 'src' || at.name === 'alt')))) el.removeAttribute(at.name); });
+      if (t === 'A'){ if (!/^(https?:|mailto:)/i.test(el.getAttribute('href') || '')) el.removeAttribute('href'); el.target = '_blank'; el.rel = 'noopener noreferrer'; }
+      if (t === 'IMG' && !/^https:/i.test(el.getAttribute('src') || '')) el.remove();
+    });
+  }
+
   function renderArticle(id){
     const a = all.find(x => x.id === id);
     if (!a){ location.hash = '#/'; return; }
@@ -173,7 +187,8 @@
       ${a.summary ? `<p class="lead">${esc(a.summary)}</p>` : ''}
       <span class="meta">${new Date(a.created_at).toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}</span>
       ${ph(a)}
-      <div class="txt">${paras.map(p => `<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('') || ''}</div></article>`;
+      <div class="txt">${/<[a-z][\s\S]*>/i.test(a.content || '') ? a.content : paras.map(p => `<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('')}</div></article>`;
+    clean(document.querySelector('.art .txt'));
     document.title = `${a.title} — Central do FFC`;
   }
 
