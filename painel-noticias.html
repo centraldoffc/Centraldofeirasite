@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Painel — Notícias | Central do FFC</title>
+<link rel="icon" href="/mark.png">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#050f0d;--side:#081a15;--card:#0d211b;--line:rgba(120,160,155,.16);--acc:#6FA89E;--hi:#8CC4B9;--g:#1e8a5f;--ink:#EDF3F1;--dim:rgba(237,243,241,.62);--faint:rgba(237,243,241,.4);--red:#e5655f}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 'Inter',sans-serif;color:var(--ink);background:var(--bg);min-height:100dvh}
+  button,input,textarea{font:inherit;color:inherit}
+  button{cursor:pointer}
+  h1,h2,h3{font-family:'Archivo Black',sans-serif;font-weight:400;margin:0}
+  [hidden]{display:none!important}
+  :focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+
+  #login{min-height:100dvh;display:grid;place-items:center;padding:20px}
+  .lbox{width:min(100%,360px);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;display:grid;gap:12px}
+  input[type=text],input[type=email],input[type=password],textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+  .btn{border:0;border-radius:99px;padding:10px 20px;font-weight:600;background:var(--hi);color:#04120f}
+  .btn.g{background:linear-gradient(135deg,#1e8a5f,#13694a);color:#fff}
+  .btn.o{background:none;border:1px solid var(--line);color:var(--ink)}
+  .btn.r{background:none;border:1px solid rgba(229,101,95,.5);color:var(--red)}
+  .btn.s{padding:6px 13px;font-size:12.5px}
+  .err{color:var(--red);font-size:13px;min-height:18px}
+
+  .app{display:grid;grid-template-columns:230px 1fr;min-height:100dvh}
+  aside{background:var(--side);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100dvh}
+  .brand{display:flex;gap:9px;align-items:center;font-family:'Archivo Black';font-size:16px;margin:0 6px 18px}
+  .brand img{width:32px;height:32px;border-radius:50%}
+  .nav{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;background:none;border:0;color:var(--dim);text-align:left;width:100%;text-decoration:none}
+  .nav:hover{color:var(--ink)}
+  .nav.on{background:rgba(111,168,158,.16);color:var(--ink);font-weight:600;box-shadow:inset 3px 0 0 var(--hi)}
+  .sp{flex:1}
+  main{padding:22px;min-width:0}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+  .top h1{font-size:26px}.top p{margin:2px 0 0;color:var(--dim)}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+  .st{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+  .st.hl{background:linear-gradient(135deg,#1e8a5f,#0c3a2a);border-color:transparent}
+  .st small{color:var(--dim)}.st b{display:block;font:400 38px 'Archivo Black';margin-top:4px}
+  .row{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-bottom:16px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+  .panel h3{font-size:16px;margin-bottom:12px}
+  .bars{display:flex;align-items:flex-end;gap:9px;height:130px}
+  .bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;font-size:11.5px;color:var(--faint)}
+  .bar i{width:100%;max-width:34px;border-radius:99px;background:linear-gradient(0deg,#13694a,#3fbf8a);min-height:6px}
+  .quick{display:grid;gap:10px}
+
+  .tools{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}.tools input{flex:1;min-width:180px}
+  .list{display:grid;gap:10px}
+  .it{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px}
+  .th{width:76px;height:54px;border-radius:10px;background:#12302a center/cover;flex:none}
+  .it .tx{flex:1;min-width:0}.it b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .it small{color:var(--faint)}
+  .badge{font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px;margin-right:6px;background:rgba(111,168,158,.2);color:var(--hi)}
+  .badge.d{background:rgba(255,255,255,.08);color:var(--dim)}.badge.f{background:#e3b341;color:#1a1300}
+  .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+
+  .ed{display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start}
+  .tb{display:flex;flex-wrap:wrap;gap:4px;padding:8px;border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;background:rgba(255,255,255,.03)}
+  .tb button{min-width:34px;height:34px;border:0;border-radius:8px;background:none;font-weight:700}
+  .tb button:hover{background:rgba(111,168,158,.2)}
+  #body{min-height:340px;border:1px solid var(--line);border-radius:0 0 14px 14px;padding:16px;line-height:1.7;font-size:16px;outline:none;background:rgba(255,255,255,.02)}
+  #body h2{font:400 22px 'Archivo Black';margin:14px 0 6px}
+  #body a{color:var(--hi);text-decoration:underline}
+  #body img{max-width:100%;border-radius:10px;display:block;margin:8px 0}
+  #body blockquote{margin:8px 0;padding-left:14px;border-left:3px solid var(--acc);color:var(--dim)}
+  label{display:block;font-size:12.5px;color:var(--dim);margin:12px 0 5px}
+  .sw{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line)}
+  .gal{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .gi{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+  .gi img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+  .gi div{display:flex;gap:4px;padding:5px}.gi button{flex:1;font-size:11.5px;padding:4px;border-radius:6px;border:1px solid var(--line);background:rgba(0,0,0,.3)}
+  .gi.cv{outline:2px solid var(--hi)}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--hi);color:#04120f;padding:10px 20px;border-radius:99px;font-weight:600;z-index:50}
+
+  @media (max-width:860px){
+    .app{grid-template-columns:1fr}
+    aside{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:10px}
+    .brand,.sp{display:none}.nav{width:auto;white-space:nowrap}.nav.on{box-shadow:none}
+    .stats{grid-template-columns:1fr 1fr}.row,.ed{grid-template-columns:1fr}
+    main{padding:16px}.it{flex-wrap:wrap}.acts{width:100%;justify-content:flex-start}
+  }
+</style>
+</head>
+<body>
+
+<div id="login" hidden>
+  <form class="lbox" onsubmit="return login(event)">
+    <h2>Painel da Central</h2>
+    <input type="email" id="em" placeholder="E-mail" autocomplete="username" required>
+    <input type="password" id="pw" placeholder="Senha" autocomplete="current-password" required>
+    <div class="err" id="lerr"></div>
+    <button class="btn" type="submit">Entrar</button>
+  </form>
+</div>
+
+<div class="app" id="app" hidden>
+  <aside>
+    <div class="brand"><img src="/mark.png" alt="">Central do FFC</div>
+    <button class="nav on" data-v="dash">Dashboard</button>
+    <button class="nav" data-v="list">Notícias</button>
+    <button class="nav" data-v="edit" id="navNew">Nova notícia</button>
+    <div class="sp"></div>
+    <a class="nav" href="/painel-ffc.html">Links da bio</a>
+    <a class="nav" href="/site" target="_blank">Ver o site</a>
+    <button class="nav" onclick="sb.auth.signOut()">Sair</button>
+  </aside>
+
+  <main>
+    <section id="v-dash">
+      <div class="top"><div><h1>Dashboard</h1><p>Acompanhe e publique as notícias do Feira FC.</p></div><button class="btn g" onclick="newArt()">+ Nova notícia</button></div>
+      <div class="stats" id="stats"></div>
+      <div class="row">
+        <div class="panel"><h3>Publicações nos últimos 7 dias</h3><div class="bars" id="bars"></div></div>
+        <div class="panel"><h3>Atalhos</h3><div class="quick">
+          <button class="btn g" onclick="newArt()">Escrever notícia</button>
+          <button class="btn o" onclick="show('list')">Gerenciar notícias</button>
+          <a class="btn o" style="text-align:center;text-decoration:none" href="/site" target="_blank">Abrir o site</a></div></div>
+      </div>
+      <div class="panel"><h3>Últimas notícias</h3><div class="list" id="recent"></div></div>
+    </section>
+
+    <section id="v-list" hidden>
+      <div class="top"><div><h1>Notícias</h1><p id="cnt"></p></div><button class="btn g" onclick="newArt()">+ Nova notícia</button></div>
+      <div class="tools"><input type="text" id="q" placeholder="Buscar pelo título"><button class="btn o s" data-f="all">Todas</button><button class="btn o s" data-f="pub">Publicadas</button><button class="btn o s" data-f="dr">Rascunhos</button></div>
+      <div class="list" id="all"></div>
+    </section>
+
+    <section id="v-edit" hidden>
+      <div class="top"><div><h1 id="etitle">Nova notícia</h1><p>Escreva, adicione imagens e publique.</p></div>
+        <div class="acts"><button class="btn o" onclick="show('list')">Cancelar</button><button class="btn o" onclick="save(false)">Salvar</button><button class="btn g" onclick="save(true)">Publicar</button></div></div>
+      <div class="ed">
+        <div>
+          <input type="text" id="t" placeholder="Título da notícia" style="font:400 22px 'Archivo Black';padding:14px">
+          <label>Resumo (aparece nos cards e no Google)</label>
+          <textarea id="sm" rows="2" maxlength="300"></textarea>
+          <label>Texto</label>
+          <div class="tb" onmousedown="event.preventDefault()">
+            <button data-c="bold" title="Negrito">B</button><button data-c="italic" title="Itálico"><i>I</i></button><button data-c="underline" title="Sublinhado"><u>U</u></button>
+            <button data-c="h2" title="Subtítulo">H</button><button data-c="quote" title="Citação">“ ”</button><button data-c="ul" title="Lista">• —</button>
+            <button data-c="link" title="Adicionar link">Link</button><button data-c="unlink" title="Remover link">Sem link</button><button data-c="clear" title="Limpar formatação">Limpar</button>
+          </div>
+          <div id="body" contenteditable="true" spellcheck="true"></div>
+        </div>
+        <div class="panel">
+          <h3>Publicação</h3>
+          <div class="sw"><span>Publicada no site</span><input type="checkbox" id="pub"></div>
+          <div class="sw"><span>Destaque na capa</span><input type="checkbox" id="ft"></div>
+          <label>Autor</label><input type="text" id="au" value="Redação Central do FFC">
+          <label>Imagens</label>
+          <input type="file" id="file" accept="image/*" multiple hidden>
+          <button class="btn o" style="width:100%" onclick="file.click()">Enviar imagens</button>
+          <div class="gal" id="gal"></div>
+          <p style="font-size:12px;color:var(--faint)">“Capa” define a imagem principal. “No texto” coloca a imagem onde o cursor estiver.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+  const sb = supabase.createClient(FFC_SUPABASE_URL, FFC_SUPABASE_KEY);
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let arts = [], cur = null, imgs = [], cover = '', filt = 'all', range = null;
+
+  const toast = m => { const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2400); };
+  const ago = d => new Date(d).toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
+
+  /* login */
+  async function login(e){ e.preventDefault();
+    const { error } = await sb.auth.signInWithPassword({ email: $('em').value, password: $('pw').value });
+    $('lerr').textContent = error ? 'E-mail ou senha incorretos.' : ''; return false; }
+  sb.auth.onAuthStateChange((_, s) => { $('login').hidden = !!s; $('app').hidden = !s; if (s) load(); });
+  sb.auth.getSession().then(({ data }) => { if (!data.session) $('login').hidden = false; });
+
+  /* telas */
+  function show(v){
+    ['dash','list','edit'].forEach(x => $('v-' + x).hidden = x !== v);
+    document.querySelectorAll('aside .nav[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('aside .nav[data-v]').forEach(b => b.onclick = () => b.dataset.v === 'edit' ? newArt() : show(b.dataset.v));
+
+  async function load(){
+    const { data, error } = await sb.from('articles').select('*').order('created_at', { ascending: false });
+    if (error) return toast('Erro ao carregar as notícias');
+    arts = data || []; draw();
+  }
+
+  const item = a => `<div class="it"><div class="th" style="${a.image_url ? `background-image:url('${esc(a.image_url)}')` : ''}"></div>
+    <div class="tx"><b>${esc(a.title)}</b><small><span class="badge ${a.published ? '' : 'd'}">${a.published ? 'Publicada' : 'Rascunho'}</span>${a.featured ? '<span class="badge f">Destaque</span>' : ''}${ago(a.created_at)}</small></div>
+    <div class="acts"><button class="btn o s" onclick="edit('${a.id}')">Editar</button>
+      <button class="btn o s" onclick="toggle('${a.id}','published')">${a.published ? 'Despublicar' : 'Publicar'}</button>
+      <button class="btn o s" onclick="toggle('${a.id}','featured')">${a.featured ? 'Tirar destaque' : 'Destacar'}</button>
+      <button class="btn r s" onclick="del('${a.id}')">Excluir</button></div></div>`;
+
+  function draw(){
+    const pub = arts.filter(a => a.published).length;
+    $('stats').innerHTML = [['Total de notícias', arts.length, 'hl'], ['Publicadas', pub, ''], ['Rascunhos', arts.length - pub, ''], ['Em destaque', arts.filter(a => a.featured).length, '']]
+      .map(([l, n, c]) => `<div class="st ${c}"><small>${l}</small><b>${n}</b></div>`).join('');
+    const days = [...Array(7)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return d; });
+    const cnt = days.map(d => arts.filter(a => new Date(a.created_at).toDateString() === d.toDateString()).length), mx = Math.max(1, ...cnt);
+    $('bars').innerHTML = days.map((d, i) => `<div class="bar">${cnt[i]}<i style="height:${6 + cnt[i] / mx * 84}%"></i>${d.toLocaleDateString('pt-BR', { weekday:'short' }).slice(0, 3)}</div>`).join('');
+    $('recent').innerHTML = arts.slice(0, 4).map(item).join('') || '<p style="color:var(--dim)">Nenhuma notícia ainda. Clique em “Nova notícia”.</p>';
+    const q = $('q').value.toLowerCase();
+    const l = arts.filter(a => (filt === 'all' || (filt === 'pub') === a.published) && a.title.toLowerCase().includes(q));
+    $('all').innerHTML = l.map(item).join('') || '<p style="color:var(--dim)">Nada encontrado.</p>';
+    $('cnt').textContent = `${l.length} de ${arts.length} notícias`;
+  }
+  $('q').oninput = draw;
+  document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { filt = b.dataset.f; draw(); });
+
+  async function toggle(id, k){ const a = arts.find(x => x.id === id);
+    const { error } = await sb.from('articles').update({ [k]: !a[k], updated_at: new Date().toISOString() }).eq('id', id);
+    error ? toast('Não foi possível alterar') : (a[k] = !a[k], draw()); }
+  async function del(id){ if (!confirm('Excluir esta notícia para sempre?')) return;
+    const { error } = await sb.from('articles').delete().eq('id', id);
+    error ? toast('Não foi possível excluir') : (arts = arts.filter(x => x.id !== id), draw(), toast('Notícia excluída')); }
+
+  /* editor */
+  function newArt(){ cur = null; fill({ title:'', summary:'', content:'', images:[], image_url:'', published:false, featured:false, author:'Redação Central do FFC' }); $('etitle').textContent = 'Nova notícia'; }
+  function edit(id){ cur = arts.find(a => a.id === id); fill(cur); $('etitle').textContent = 'Editar notícia'; }
+  function fill(a){
+    $('t').value = a.title; $('sm').value = a.summary || ''; $('au').value = a.author || '';
+    $('body').innerHTML = /<[a-z][\s\S]*>/i.test(a.content || '') ? a.content : (a.content || '').split(/\n{2,}/).filter(Boolean).map(p => `<p>${esc(p)}</p>`).join('');
+    imgs = [...(a.images || [])]; cover = a.image_url || ''; $('pub').checked = a.published; $('ft').checked = a.featured;
+    gal(); show('edit');
+  }
+  const slug = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 70) + '-' + Math.random().toString(36).slice(2, 6);
+
+  async function save(publish){
+    const title = $('t').value.trim(); if (!title) return toast('Escreva um título');
+    const p = { title, summary: $('sm').value.trim(), content: $('body').innerHTML, author: $('au').value.trim() || 'Redação Central do FFC',
+      images: imgs, image_url: cover || imgs[0] || null, featured: $('ft').checked, published: publish ? true : $('pub').checked,
+      updated_at: new Date().toISOString() };
+    const q = cur ? sb.from('articles').update(p).eq('id', cur.id) : sb.from('articles').insert({ ...p, slug: slug(title) });
+    const { error } = await q;
+    if (error) return toast('Erro ao salvar: ' + error.message);
+    toast(p.published ? 'Notícia publicada' : 'Salvo como rascunho'); await load(); show('list');
+  }
+
+  document.querySelector('.tb').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return; const c = b.dataset.c; $('body').focus();
+    if (c === 'link'){ let u = prompt('Endereço do link (ex.: https://...)'); if (!u) return; if (!/^(https?:|mailto:)/i.test(u)) u = 'https://' + u; document.execCommand('createLink', false, u); }
+    else if (c === 'h2') document.execCommand('formatBlock', false, 'h2');
+    else if (c === 'quote') document.execCommand('formatBlock', false, 'blockquote');
+    else if (c === 'ul') document.execCommand('insertUnorderedList');
+    else if (c === 'clear'){ document.execCommand('removeFormat'); document.execCommand('formatBlock', false, 'p'); }
+    else document.execCommand(c);
+  });
+  document.addEventListener('selectionchange', () => { const s = getSelection(); if (s.rangeCount && $('body').contains(s.anchorNode)) range = s.getRangeAt(0); });
+
+  /* imagens */
+  function gal(){
+    $('gal').innerHTML = imgs.map((u, i) => `<div class="gi ${u === cover ? 'cv' : ''}"><img src="${esc(u)}" alt=""><div><button onclick="setCover(${i})">${u === cover ? '✓ Capa' : 'Capa'}</button><button onclick="inText(${i})">No texto</button><button onclick="rmImg(${i})">✕</button></div></div>`).join('');
+  }
+  const setCover = i => { cover = imgs[i]; gal(); };
+  const rmImg = i => { if (cover === imgs[i]) cover = ''; imgs.splice(i, 1); gal(); };
+  function inText(i){
+    const b = $('body'); b.focus();
+    if (range){ const s = getSelection(); s.removeAllRanges(); s.addRange(range); }
+    document.execCommand('insertHTML', false, `<img src="${esc(imgs[i])}" alt=""><p><br></p>`);
+  }
+  function compress(f){ return new Promise((res, rej) => { const im = new Image(), u = URL.createObjectURL(f);
+    im.onload = () => { const k = Math.min(1, 1600 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = im.width * k; c.height = im.height * k;
+      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u); c.toBlob(b => b ? res(b) : rej(), 'image/jpeg', .85); };
+    im.onerror = rej; im.src = u; }); }
+  $('file').onchange = async e => {
+    const fs = [...e.target.files]; if (!fs.length) return; toast('Enviando ' + fs.length + ' imagem(ns)…');
+    for (const [i, f] of fs.entries()){
+      try { const path = `news/${Date.now()}-${i}.jpg`;
+        const { error } = await sb.storage.from('images').upload(path, await compress(f), { contentType: 'image/jpeg' });
+        if (error) throw error; imgs.push(sb.storage.from('images').getPublicUrl(path).data.publicUrl);
+      } catch { toast('Falha ao enviar ' + f.name); }
+    }
+    if (!cover && imgs.length) cover = imgs[0]; gal(); e.target.value = '';
+  };
+</script>
+</body>
+</html>
