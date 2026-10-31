@@ -8,76 +8,39 @@
 <link rel="icon" href="/mark.png">
 <link rel="stylesheet" href="/assets/fonts.css">
 <style>
-:root{--bg:#e9ebe9;--dark:#0c3020;--g:#1d754c;--g2:#103f2a;--lime:#e0eadd;--ink:#17221b;--dim:#69766e;--line:#e6eae7;--red:#bc4545;--f:'Plus Jakarta Sans',Arial,sans-serif}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--f);min-height:100dvh}
-button,input,select,textarea{font:inherit;color:inherit}[hidden]{display:none!important}
-:focus-visible{outline:3px solid #55ad7b;outline-offset:2px}
-.nav{background:var(--dark);color:#e9efe9;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 max(20px,calc((100% - 1000px)/2));padding-top:env(safe-area-inset-top,0)}
-.nav b{display:flex;align-items:center;gap:10px;font-size:15px;letter-spacing:-.02em}.nav img{width:30px;height:30px;border-radius:8px}.nav span{font-size:12px;color:#a9b9ae}
-.wrap{max-width:1000px;margin:24px auto;padding:0 16px 40px}
-.steps{background:#fff;border-radius:18px;padding:14px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 6px #0001;overflow-x:auto}
-.steps>small{font-weight:600;white-space:nowrap;margin-right:6px}
-.pill{display:flex;align-items:center;gap:7px;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:7px 14px;font-size:12px;white-space:nowrap;background:#f5f6f5}
-.pill i{font-style:normal;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:10px;border:1px solid currentColor}
-.pill.now{border-color:var(--g);color:var(--g);background:#fff}.pill.done{background:linear-gradient(160deg,#218052,#0d3623);border-color:var(--g);color:#fff}
-.bar{flex:1;min-width:10px;height:1px;background:var(--line)}
-.grid{display:grid;grid-template-columns:300px 1fr;gap:16px;margin-top:16px;align-items:start}
-.side{background:radial-gradient(ellipse at bottom right,#216044,transparent 65%),#0c3020;color:#fff;border-radius:18px;padding:24px 20px;display:flex;flex-direction:column;gap:14px;min-height:480px;box-shadow:0 8px 24px #0c302040}
-.side h1{font-size:21px;line-height:1.25;margin:0;letter-spacing:-.03em}.side p{margin:0;color:#c6dccd;font-size:13px;white-space:pre-line}
-.side hr{border:0;border-top:1px solid #ffffff2e;width:100%;margin:2px 0}
-.side small{color:#c6dccd;font-size:12px}
-.list{display:flex;flex-direction:column;gap:8px}
-.li{display:flex;justify-content:space-between;align-items:center;border:1px solid #ffffff55;border-radius:9px;padding:11px 14px;font-size:13px}
-.li.now{background:var(--lime);color:var(--g2);border-color:var(--lime);font-weight:600}.li.done{opacity:.75}
-.sp{flex:1}.nv{display:flex;gap:10px}
-.b{border:0;border-radius:99px;padding:12px 18px;font-weight:600;font-size:13px;min-height:44px;flex:1;cursor:pointer}
-.b.w{background:#fff;color:var(--ink)}.b.l{background:#1e754a;color:#fff}.b:disabled{opacity:.5;cursor:not-allowed}
-.card{background:#fff;border-radius:18px;padding:28px;box-shadow:0 2px 6px #0001}
-.card h2{font-size:15px;margin:0 0 18px;font-weight:600}
-.f{margin-bottom:18px}.f>label,.f>.l{display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;font-weight:500;margin-bottom:6px}
-.f em{color:var(--red);font-style:normal}
-input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],select,textarea{width:100%;background:#f5f6f5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px}
-textarea{min-height:110px;resize:vertical}
-.opts{display:flex;flex-wrap:wrap;gap:10px 22px}.opts label{display:flex;gap:8px;align-items:center;cursor:pointer;font-size:14px}
-.opts input{accent-color:var(--g);width:17px;height:17px;margin:0}
-.err{color:var(--red);font-size:12px;margin-top:5px}.f.bad input,.f.bad select,.f.bad textarea{border-color:var(--red)}
-.ok{text-align:center;padding:50px 10px}.ok .c{width:62px;height:62px;border-radius:50%;background:var(--lime);color:var(--g2);display:grid;place-items:center;margin:0 auto 18px;font-size:28px}
-.ok h2{font-size:22px;margin-bottom:8px}.ok p{color:var(--dim);margin:0 0 10px;white-space:pre-line;max-width:440px;margin-inline:auto}
-.msg{text-align:center;padding:80px 20px;color:var(--dim)}
-@media(max-width:820px){.grid{grid-template-columns:1fr}.side{min-height:0}.side .sp{display:none}.card{padding:20px}.steps>small{display:none}}
-
-.auth{position:relative;max-width:900px;margin:30px auto 0;background:#fff;border-radius:22px;overflow:hidden;min-height:470px;box-shadow:0 18px 50px #10261b40}
-.pane{position:absolute;top:0;bottom:0;width:50%;padding:46px 44px;display:flex;flex-direction:column;justify-content:center;transition:opacity .4s,visibility .4s}
-.pane.in{left:0}.pane.up{right:0;opacity:0;visibility:hidden}.auth.signup .pane.in{opacity:0;visibility:hidden}.auth.signup .pane.up{opacity:1;visibility:visible}
-.pane h2{font-size:22px;margin:0 0 4px;letter-spacing:-.03em}.pane h2:after{content:'';display:block;width:28px;height:2px;background:var(--g);margin-top:8px}
-.pane .f{margin:14px 0 0}.pane .f label{text-transform:none;font-size:12px;letter-spacing:0;color:var(--dim)}
-.pane input{background:transparent!important;border:0!important;border-bottom:1px solid #cfd6d1!important;border-radius:0!important;padding:8px 0!important}
-.pane input:focus{outline:0;border-bottom-color:var(--g)!important}
-.pw{position:relative}.pw button{position:absolute;right:0;bottom:6px;border:0;background:0;color:var(--dim);font-size:11px;cursor:pointer}
-.go{border:0;background:linear-gradient(160deg,#218052,#0d3623);color:#fff;border-radius:99px;padding:13px;font-weight:600;margin-top:20px;cursor:pointer;min-height:46px}.go:disabled{opacity:.55;cursor:wait}
-.lk{background:0;border:0;color:var(--g2);font-weight:600;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit}
-.sm{font-size:12px;color:var(--dim);margin-top:14px}.hint{font-size:11px;color:var(--dim);margin-top:4px}
-.blade{position:absolute;top:0;bottom:0;right:0;width:52%;background:radial-gradient(ellipse at bottom right,#216044,transparent 65%),#0c3020;color:#fff;clip-path:polygon(18% 0,100% 0,100% 100%,0 100%);transition:transform .7s cubic-bezier(.7,0,.2,1),clip-path .7s cubic-bezier(.7,0,.2,1);padding:0 44px 0 14%;display:flex;flex-direction:column;justify-content:center;pointer-events:none}
-.auth.signup .blade{transform:translateX(-92.3%);clip-path:polygon(0 0,82% 0,100% 100%,0 100%);padding:0 14% 0 44px}
-.blade h3{font-size:30px;line-height:1.1;margin:0 0 10px;font-weight:400;letter-spacing:-.03em}.blade h3 em{color:#8fd3ab;font-family:Georgia,serif}.blade p{font-size:13px;color:#b9d2c3;margin:0;max-width:240px}
-.blade .w2{display:none}.auth.signup .blade .w1{display:none}.auth.signup .blade .w2{display:block}
-.otp{max-width:460px;margin:30px auto 0;background:#0e1512;color:#fff;border-radius:26px;padding:44px 28px 30px;text-align:center;box-shadow:0 18px 50px #10261b40;position:relative;overflow:hidden}
-.otp h2{font-size:22px;margin:0 0 8px}.otp p{margin:0;color:#8e9a93;font-size:13px}.otp b{color:#fff}
-.boxes{display:flex;gap:10px;justify-content:center;margin:26px 0}
-.boxes input{width:46px;height:54px;text-align:center;font-size:22px;font-weight:600;background:#161e1a;border:1px solid #2b3731;border-radius:12px;color:#fff;padding:0;caret-color:#ff6a4d}
-.boxes input:focus{outline:0;border-color:#ff6a4d;box-shadow:0 0 0 3px #ff6a4d30}.boxes.bad input{border-color:#ff6a4d;animation:sh .3s}
-@keyframes sh{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-.otp .rs{font-size:12px;color:#8e9a93}.otp .lk{color:#fff}.otp .lk:disabled{color:#6b776f;text-decoration:none;cursor:default}
-.spin{width:30px;height:30px;border:3px solid #2b3731;border-top-color:#4cd08a;border-radius:50%;margin:14px auto;animation:rt .8s linear infinite}@keyframes rt{to{transform:rotate(360deg)}}
-.glow{width:58px;height:58px;border-radius:50%;border:2px solid #4cd08a;display:grid;place-items:center;margin:20px auto;font-size:26px;color:#4cd08a;box-shadow:0 0 40px #4cd08a60;animation:pop .5s}@keyframes pop{from{transform:scale(.4);opacity:0}}
-.otp.okk{background:radial-gradient(circle at 50% 40%,#0f3a27,#0e1512 70%)}
-.me{font-size:12px;color:#c6dccd;word-break:break-all}.me .lk{color:#fff;font-size:12px}
-@media(max-width:760px){.auth{min-height:0}.blade{display:none}.pane{position:static;width:auto;padding:30px 24px}.pane.up{display:none;opacity:1;visibility:visible}.auth.signup .pane.in{display:none}.auth.signup .pane.up{display:flex}}
+:root{--bg:#e9ebe9;--side:#f5f6f5;--line:#e6eae7;--acc:#1d754c;--hi:#1d754c;--g:#103f2a;--ink:#17221b;--dim:#69766e;--red:#bc4545;--font:'Plus Jakarta Sans',Arial,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--font);min-height:100dvh}
+button,input{font:inherit;color:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}button:disabled{opacity:.5;cursor:not-allowed}
+h2,p{margin-top:0}h2{font-weight:600;letter-spacing:-.04em}[hidden]{display:none!important}
+:focus-visible{outline:3px solid #55ad7b;outline-offset:3px}
+#login{min-height:100dvh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at bottom left,#d4e4d8,transparent 65%),var(--bg)}
+.lbox{width:min(100%,410px);padding:36px;background:#fff;border-radius:28px;display:grid;gap:14px;box-shadow:0 16px 60px #173a2010}
+.brand{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:17px;font-weight:700;letter-spacing:-.04em}
+.brand img{height:38px;width:38px;object-fit:contain;border-radius:10px}
+.brand small{display:block;font-size:10px;color:var(--dim);font-weight:500;letter-spacing:.12em;text-transform:uppercase}
+.lbox h2{font-size:27px;margin:0}
+.lbox p{font-size:12px;color:var(--dim);margin:0 0 6px}.lbox p b{color:var(--ink);word-break:break-all}
+.lbox label{display:block;margin:0;font-size:12px;color:var(--dim)}
+input[type=text],input[type=email],input[type=password]{width:100%;background:#fff;border:1px solid #dce4de;border-radius:12px;padding:11px 13px;min-width:0;color:var(--ink)}
+.lbox label input{margin-top:6px}
+.pw{position:relative}.pw button{position:absolute;right:12px;bottom:12px;border:0;background:0;color:var(--dim);font-size:11px;padding:0}
+.hint{font-size:11px;color:var(--dim);margin-top:4px}
+.err{color:var(--red);font-size:12px;min-height:18px}.ok{color:var(--acc);font-size:12px}
+.btn{border:0;border-radius:99px;padding:12px 20px;font-size:12px;font-weight:600;background:var(--hi);color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;width:100%;transition:background .15s,transform .15s}
+.lk{background:0;border:0;color:var(--g);font-weight:600;text-decoration:underline;padding:0;font-size:inherit}
+.lk:disabled{color:var(--dim);text-decoration:none;cursor:default}
+.sm{font-size:12px;color:var(--dim);text-align:center}
+.boxes{display:flex;gap:8px;justify-content:center;margin:6px 0}
+.boxes input{width:44px;height:52px;text-align:center;font-size:22px;font-weight:600;padding:0;border-radius:12px;caret-color:var(--acc)}
+.boxes input:focus{outline:0;border-color:var(--acc);box-shadow:0 0 0 3px #1d754c26}
+.boxes.bad input{border-color:var(--red);animation:sh .3s}@keyframes sh{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.done{text-align:center;display:grid;gap:10px;justify-items:center;padding:14px 0}
+.done .c{width:58px;height:58px;border-radius:50%;background:#e0eadd;color:var(--g);display:grid;place-items:center;font-size:26px}
+@media(max-width:620px){.lbox{padding:26px}.boxes input{width:40px;height:50px}}
 </style>
 </head>
 <body>
-<div class="nav"><b><img src="/mark.png" alt="">Central do FFC</b><span>Entrar</span></div>
-<div class="wrap" id="app"></div>
+<div id="login"><div class="lbox" id="app"></div></div>
 <script src="/assets/supabase.min.js"></script>
 <script src="/config.js"></script>
 <script>
@@ -91,25 +54,36 @@ const tr=e=>{const m=(e&&e.message||'').toLowerCase();
   return m.includes('invalid login')?'E-mail ou senha incorretos.':m.includes('rate limit')||m.includes('seconds')?'Muitas tentativas. Aguarde um pouco e tente de novo.':m.includes('expired')||m.includes('invalid')?'Código inválido ou expirado.':m.includes('password')?'Senha fraca. Use 8 ou mais caracteres.':'Algo deu errado. Tente novamente.'};
 
 /* ---------- login ---------- */
+const BRAND='<div class="brand"><img src="/mark.png" alt=""><div>Central do FFC<small>Painel editorial</small></div></div>';
+const lock=(id,on)=>{const b=$(id);if(b)b.disabled=!!on};
+function eyes(){document.querySelectorAll('[data-eye]').forEach(b=>b.onclick=()=>{const i=$(b.dataset.eye);i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'mostrar':'ocultar'})}
 function showAuth(mode){
-  $('app').innerHTML=`<div class="auth ${mode==='up'?'signup':''}" id="auth">
-  <form class="pane in" id="fin" novalidate><h2>Entrar</h2>
-    <div class="f"><label for="ie">E-mail</label><input type="email" id="ie" autocomplete="username" required></div>
-    <div class="f pw"><label for="ip">Senha</label><input type="password" id="ip" autocomplete="current-password" required><button type="button" data-eye="ip">mostrar</button></div>
-    <div class="err" id="ien" role="alert"></div>
-    <button class="go" id="igo">Entrar</button>
-    <div class="sm"><button type="button" class="lk" id="icode">Entrar com código por e-mail</button></div>
-    <div class="sm">Novo por aqui? <button type="button" class="lk" data-sw="up">Criar conta</button></div></form>
-  <form class="pane up" id="fup" novalidate><h2>Criar conta</h2>
-    <div class="f"><label for="un">Nome</label><input type="text" id="un" autocomplete="name" maxlength="80" required></div>
-    <div class="f"><label for="ue">E-mail</label><input type="email" id="ue" autocomplete="email" required></div>
-    <div class="f pw"><label for="up">Senha</label><input type="password" id="up" autocomplete="new-password" minlength="8" required><button type="button" data-eye="up">mostrar</button><div class="hint">Mínimo de 8 caracteres.</div></div>
+  if(mode==='up'){
+  $('app').innerHTML=`${BRAND}<h2>Crie sua conta.</h2><p>Confirmamos seu e-mail com um código. Leva menos de um minuto.</p>
+  <form id="fup" novalidate style="display:grid;gap:14px">
+    <label>Nome<input type="text" id="un" placeholder="Nome" autocomplete="name" maxlength="80" required></label>
+    <label>E-mail<input type="email" id="ue" placeholder="E-mail" autocomplete="email" required></label>
+    <label class="pw">Senha<input type="password" id="up" placeholder="Senha" autocomplete="new-password" minlength="8" required><button type="button" data-eye="up">mostrar</button><div class="hint">Mínimo de 8 caracteres.</div></label>
     <div class="err" id="uen" role="alert"></div>
-    <button class="go" id="ugo">Criar conta</button>
-    <div class="sm">Já tem conta? <button type="button" class="lk" data-sw="in">Entrar</button></div></form>
-  <div class="blade"><div class="w1"><h3>Bem-vindo<br><em>de volta.</em></h3><p>Entre para responder ao formulário.</p></div><div class="w2"><h3>Crie sua<br><em>conta.</em></h3><p>Confirmamos seu e-mail com um código. Leva menos de um minuto.</p></div></div></div>`;
-  document.querySelectorAll('[data-sw]').forEach(b=>b.onclick=()=>$('auth').classList.toggle('signup',b.dataset.sw==='up'));
-  document.querySelectorAll('[data-eye]').forEach(b=>b.onclick=()=>{const i=$(b.dataset.eye);i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'mostrar':'ocultar'});
+    <button class="btn" id="ugo" type="submit">Criar conta</button></form>
+  <div class="sm">Já tem conta? <button type="button" class="lk" id="sw">Entrar</button></div>`;
+  eyes();$('sw').onclick=()=>showAuth('in');
+  $('fup').onsubmit=async e=>{e.preventDefault();const n=$('un').value.trim(),em=$('ue').value.trim(),pw=$('up').value;
+    if(!n||!em)return $('uen').textContent='Preencha nome e e-mail.';if(pw.length<8)return $('uen').textContent='A senha precisa ter 8 ou mais caracteres.';
+    lock('ugo',1);const {data,error}=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:n}}});lock('ugo',0);
+    if(error)return $('uen').textContent=tr(error);
+    if(data.user&&data.user.identities&&!data.user.identities.length)return $('uen').textContent='Este e-mail já tem conta. Use “Entrar”.';
+    data.session?start():showOtp(em,'signup')};
+  return}
+  $('app').innerHTML=`${BRAND}<h2>Bem-vindo de volta.</h2><p>Entre para responder ao formulário.</p>
+  <form id="fin" novalidate style="display:grid;gap:14px">
+    <label>E-mail<input type="email" id="ie" placeholder="E-mail" autocomplete="username" required></label>
+    <label class="pw">Senha<input type="password" id="ip" placeholder="Senha" autocomplete="current-password" required><button type="button" data-eye="ip">mostrar</button></label>
+    <div class="err" id="ien" role="alert"></div>
+    <button class="btn" id="igo" type="submit">Entrar</button></form>
+  <div class="sm"><button type="button" class="lk" id="icode">Entrar com código por e-mail</button></div>
+  <div class="sm">Novo por aqui? <button type="button" class="lk" id="sw">Criar conta</button></div>`;
+  eyes();$('sw').onclick=()=>showAuth('up');
   $('fin').onsubmit=async e=>{e.preventDefault();const em=$('ie').value.trim();if(!em||!$('ip').value)return $('ien').textContent='Preencha e-mail e senha.';
     lock('igo',1);const {error}=await sb.auth.signInWithPassword({email:em,password:$('ip').value});lock('igo',0);
     if(error){ if(/not confirmed/i.test(error.message)){await sb.auth.resend({type:'signup',email:em});return showOtp(em,'signup')}
@@ -118,22 +92,15 @@ function showAuth(mode){
   $('icode').onclick=async()=>{const em=$('ie').value.trim();if(!em)return $('ien').textContent='Digite seu e-mail para receber o código.';
     const {error}=await sb.auth.signInWithOtp({email:em,options:{shouldCreateUser:false}});
     error?$('ien').textContent=tr(error):showOtp(em,'email')};
-  $('fup').onsubmit=async e=>{e.preventDefault();const n=$('un').value.trim(),em=$('ue').value.trim(),pw=$('up').value;
-    if(!n||!em)return $('uen').textContent='Preencha nome e e-mail.';if(pw.length<8)return $('uen').textContent='A senha precisa ter 8 ou mais caracteres.';
-    lock('ugo',1);const {data,error}=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:n}}});lock('ugo',0);
-    if(error)return $('uen').textContent=tr(error);
-    if(data.user&&data.user.identities&&!data.user.identities.length)return $('uen').textContent='Este e-mail já tem conta. Use “Entrar”.';
-    data.session?start():showOtp(em,'signup')};
 }
-const lock=(id,on)=>{const b=$(id);b.disabled=!!on};
 
 /* ---------- código OTP ---------- */
 function showOtp(email,type){
-  $('app').innerHTML=`<div class="otp" id="otp"><h2>Verifique seu e-mail</h2><p>Enviamos um código de ${OTP_LEN} dígitos para<br><b>${esc(email)}</b></p>
-  <div class="boxes" id="bx">${[...Array(OTP_LEN)].map((_,i)=>`<input inputmode="numeric" maxlength="1" autocomplete="${i?'off':'one-time-code'}" aria-label="Dígito ${i+1}">`).join('')}</div>
-  <div class="err" id="oer" role="alert" style="min-height:18px"></div>
-  <div class="rs">Não recebeu o código? <button class="lk" id="rsb">Reenviar</button></div>
-  <div class="rs" style="margin-top:12px"><button class="lk" id="back" style="font-weight:400">Voltar</button></div></div>`;
+  $('app').innerHTML=`${BRAND}<h2>Verifique seu e-mail</h2><p>Enviamos um código de ${OTP_LEN} dígitos para <b>${esc(email)}</b></p>
+  <div class="boxes" id="bx">${[...Array(OTP_LEN)].map((_,i)=>`<input type="text" inputmode="numeric" maxlength="1" autocomplete="${i?'off':'one-time-code'}" aria-label="Dígito ${i+1}">`).join('')}</div>
+  <div class="err" id="oer" role="alert"></div>
+  <div class="sm">Não recebeu o código? <button class="lk" id="rsb" type="button">Reenviar</button></div>
+  <div class="sm"><button class="lk" id="back" type="button" style="font-weight:400">Voltar</button></div>`;
   const ins=[...document.querySelectorAll('#bx input')];ins[0].focus();
   const code=()=>ins.map(i=>i.value).join('');
   const fill=s=>{s=s.replace(/\D/g,'').slice(0,OTP_LEN);ins.forEach((i,k)=>i.value=s[k]||'');(ins[Math.min(s.length,OTP_LEN-1)]).focus();if(s.length===OTP_LEN)verify()};
@@ -146,7 +113,7 @@ function showOtp(email,type){
     if(busy)return;busy=true;ins.forEach(i=>i.disabled=true);$('oer').textContent='';
     const {error}=await sb.auth.verifyOtp({email,token:code(),type});busy=false;
     if(error){ins.forEach(i=>{i.disabled=false;i.value=''});$('bx').classList.add('bad');setTimeout(()=>$('bx').classList.remove('bad'),600);ins[0].focus();return $('oer').textContent=tr(error)}
-    const o=$('otp');o.classList.add('okk');o.innerHTML='<div class="glow">✓</div><h2>Verificado!</h2><p>Sua conta foi confirmada.</p>';setTimeout(start,1100);
+    $('app').innerHTML=`${BRAND}<div class="done"><div class="c">✓</div><h2>Verificado!</h2><p>Sua conta foi confirmada.</p></div>`;setTimeout(start,1100);
   }
   let t=0;const rsb=$('rsb');
   const cool=()=>{t=30;rsb.disabled=true;const iv=setInterval(()=>{t--;rsb.textContent=t>0?`Reenviar (${t}s)`:'Reenviar';if(t<=0){clearInterval(iv);rsb.disabled=false}},1000);rsb.textContent='Reenviar (30s)'};cool();
@@ -154,7 +121,6 @@ function showOtp(email,type){
     $('oer').textContent=error?tr(error):'Código reenviado.';if(!error)cool()};
   $('back').onclick=()=>showAuth('in');
 }
-
 
 async function go(){const {data}=await sb.auth.getSession();if(data.session&&data.session.user.email_confirmed_at)return location.replace(dest);showAuth('in')}
 const start=go;
