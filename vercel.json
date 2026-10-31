@@ -1,0 +1,39 @@
+{
+  "redirects": [
+    {
+      "source": "/linkdabio.html",
+      "destination": "/",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/linkdabio.html"
+    },
+    {
+      "source": "/site",
+      "destination": "/site.html"
+    },
+    {
+      "source": "/gerenciar",
+      "destination": "/gerenciar.html"
+    },
+    {
+      "source": "/noticia/:slug",
+      "destination": "/api/noticia?slug=:slug"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/news-sitemap.xml",
+      "destination": "/api/sitemap?news=1"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/api/robots"
+    }
+  ]
+}

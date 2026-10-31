@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central do FFC — Notícias do Feira FC</title>
+<meta name="description" content="Notícias, jogos e bastidores do Feira Futebol Clube.">
+<link rel="icon" href="/mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050f0d; --accent:#6FA89E; --hi:#8CC4B9; --ink:#EDF3F1;
+    --dim:rgba(237,243,241,.66); --faint:rgba(237,243,241,.42);
+    --card:#0c1a17; --line:rgba(120,160,155,.16);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:'Inter',-apple-system,sans-serif;color:var(--ink);min-height:100dvh;
+    background:radial-gradient(100% 45% at 0 100%,#10302a 0,transparent 60%),var(--bg)}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit}
+  .wrap{width:min(100%,1120px);margin:0 auto;padding:0 16px}
+
+  /* topo */
+  .top{position:sticky;top:0;z-index:20;background:rgba(5,15,13,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;height:58px}
+  .brand{display:flex;align-items:center;gap:9px;font-family:'Archivo Black',sans-serif;font-size:16px;white-space:nowrap}
+  .brand img{width:32px;height:32px;border-radius:50%;border:1px solid var(--line)}
+  .date{font-size:12px;color:var(--faint);text-transform:capitalize;display:none}
+  .nav{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav button{flex:none;font-size:13px;font-weight:500;color:var(--dim);background:none;border:0;border-radius:99px;padding:7px 14px;cursor:pointer;transition:background .2s,color .2s}
+  .nav button:hover{color:var(--ink)}
+  .nav button.on{background:var(--accent);color:#04120f;font-weight:700}
+  button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+  /* imagens e etiquetas */
+  .ph{position:relative;background:#12302a center/cover no-repeat;overflow:hidden}
+  .ph.logo::before{content:"";position:absolute;inset:0;background:url(/mark.png) center/34% no-repeat;opacity:.16}
+  .ph.logo{background-image:linear-gradient(135deg,#17413a,#0a1c18)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;background:var(--accent);color:#04120f}
+  .meta{font-size:12px;color:var(--faint)}
+
+  /* destaques */
+  .top-grid{display:grid;gap:14px;padding:18px 0 8px}
+  .hero{position:relative;display:flex;align-items:flex-end;min-height:min(86vw,430px);border-radius:18px;overflow:hidden}
+  .hero .ph{position:absolute;inset:0}
+  .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(4,12,10,.96) 10%,rgba(4,12,10,.2) 75%)}
+  .hero .in{position:relative;z-index:1;padding:20px}
+  .hero h2{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:clamp(22px,6.2vw,36px);line-height:1.1;margin:10px 0 8px}
+  .hero p{margin:0 0 8px;font-size:14px;line-height:1.5;color:var(--dim);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .side{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+  .mini{position:relative;display:flex;align-items:flex-end;min-height:170px;border-radius:14px;overflow:hidden}
+  .mini .ph{position:absolute;inset:0}
+  .mini::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(4,12,10,.95) 5%,rgba(4,12,10,.1) 80%)}
+  .mini .in{position:relative;z-index:1;padding:12px}
+  .mini h3{margin:8px 0 4px;font-size:14px;line-height:1.28;font-weight:700}
+
+  /* corpo */
+  .main{display:grid;gap:26px;padding:22px 0 44px}
+  .sec{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 14px}
+  .sec h2{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:21px;margin:0}
+  .sec span{font-size:12px;color:var(--faint)}
+  .grid{display:grid;gap:14px;grid-template-columns:1fr}
+  .card{display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:var(--card);border:1px solid var(--line);transition:border-color .2s,transform .2s}
+  .card:hover{border-color:rgba(111,168,158,.55);transform:translateY(-2px)}
+  .card .ph{aspect-ratio:16/9}
+  .card .bd{padding:13px 14px 15px;display:flex;flex-direction:column;gap:7px;flex:1}
+  .card h3{margin:0;font-size:16px;line-height:1.3;font-weight:700}
+  .card p{margin:0;font-size:13.5px;line-height:1.5;color:var(--dim);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .more{display:block;margin:20px auto 0;font-size:13.5px;font-weight:600;color:var(--ink);background:none;border:1px solid var(--line);border-radius:99px;padding:10px 24px;cursor:pointer}
+  .more:hover{border-color:var(--accent)}
+
+  /* notícia aberta */
+  .art{max-width:720px;margin:0 auto;padding:22px 0 30px}
+  .back{display:inline-block;font-size:13.5px;font-weight:600;color:var(--hi);background:none;border:0;padding:6px 0;cursor:pointer;margin-bottom:12px}
+  .art h1{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:clamp(26px,7vw,42px);line-height:1.1;margin:12px 0}
+  .art .lead{font-size:17px;line-height:1.55;color:var(--dim);margin:0 0 18px}
+  .art .ph{aspect-ratio:16/9;border-radius:16px;margin:16px 0 22px}
+  .art .txt p{font-size:16.5px;line-height:1.75;margin:0 0 18px}
+
+  .art .txt h2,.art .txt h3{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:24px;line-height:1.2;margin:30px 0 10px}
+  .art .txt a{color:var(--hi);text-decoration:underline}
+  .art .txt img{display:block;max-width:100%;height:auto;border-radius:12px;margin:8px auto 20px}
+  .art .txt blockquote{margin:0 0 18px;padding:4px 0 4px 16px;border-left:3px solid var(--accent);color:var(--dim)}
+  .art .txt ul,.art .txt ol{padding-left:22px;margin:0 0 18px;font-size:16.5px;line-height:1.7}
+  .empty{padding:50px 10px;text-align:center;color:var(--dim)}
+  [hidden]{display:none!important}
+
+  @media (min-width:720px){
+    .date{display:block}
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .top-grid{grid-template-columns:2fr 1fr}
+    .side{grid-template-columns:1fr}
+    .hero{min-height:430px}
+    .mini{min-height:208px}
+    
+  }
+  @media (min-width:1000px){ .grid{grid-template-columns:repeat(3,1fr)} }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="#/"><img src="/mark.png" alt="" width="32" height="32">Central do FFC</a>
+      <span class="date" id="date"></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap" id="home">
+  <section class="top-grid" id="top"></section>
+  <div class="main">
+    <section>
+      <div class="sec"><h2 id="gridTitle">Últimas notícias</h2><span id="count"></span></div>
+      <div class="grid" id="grid"></div>
+      <p class="empty" id="empty" hidden>Nenhuma notícia por aqui ainda.</p>
+      <button class="more" id="more" hidden>Carregar mais notícias</button>
+    </section>
+  </div>
+</div>
+
+<div class="wrap" id="article" hidden></div>
+
+
+<script>
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const PAGE = 6;
+  let all = [], shown = PAGE, loaded = false;
+
+  $('date').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
+
+  function ago(d){
+    const m = Math.round((Date.now() - new Date(d)) / 60000);
+    if (m < 60) return `há ${Math.max(m,1)} min`;
+    if (m < 1440) return `há ${Math.round(m/60)} h`;
+    if (m < 43200) return `há ${Math.round(m/1440)} d`;
+    return new Date(d).toLocaleDateString('pt-BR');
+  }
+  const ph = (a, extra='') => `<div class="ph ${a.image_url ? '' : 'logo'} ${extra}"${a.image_url ? ` style="background-image:url('${esc(a.image_url)}')"` : ''}></div>`;
+  const href = a => a.slug ? `/noticia/${a.slug}` : `#/n/${a.id}`;
+
+  function renderHome(){
+    const list = all;
+    const hero = list.find(a => a.featured) || list[0];
+    const rest = list.filter(a => a !== hero);
+    const side = rest.slice(0, 2), feed = rest.slice(2);
+
+    $('top').innerHTML = hero ? `
+      <a class="hero" href="${href(hero)}">${ph(hero)}<div class="in"><h2>${esc(hero.title)}</h2>${hero.summary ? `<p>${esc(hero.summary)}</p>` : ''}<span class="meta">${ago(hero.created_at)}</span></div></a>
+      <div class="side">${side.map(a => `<a class="mini" href="${href(a)}">${ph(a)}<div class="in"><h3>${esc(a.title)}</h3><span class="meta">${ago(a.created_at)}</span></div></a>`).join('')}</div>` : '';
+
+    $('grid').innerHTML = feed.slice(0, shown).map(a => `
+      <a class="card" href="${href(a)}">${ph(a)}<div class="bd"><h3>${esc(a.title)}</h3>${a.summary ? `<p>${esc(a.summary)}</p>` : ''}<span class="meta">${ago(a.created_at)}</span></div></a>`).join('');
+
+    $('count').textContent = list.length ? `${list.length} ${list.length === 1 ? 'notícia' : 'notícias'}` : '';
+    $('more').hidden = feed.length <= shown;
+    $('empty').hidden = list.length > 0;
+    $('grid').parentElement.querySelector('.sec').hidden = !feed.length;
+  }
+
+  const OK = new Set(['P','BR','B','STRONG','I','EM','U','A','H2','H3','UL','OL','LI','BLOCKQUOTE','IMG','FIGURE','FIGCAPTION','DIV','SPAN']);
+  function clean(root){
+    root.querySelectorAll('*').forEach(el => {
+      const t = el.tagName;
+      if (!OK.has(t)){ /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|FORM|LINK|META)$/.test(t) ? el.remove() : el.replaceWith(...el.childNodes); return; }
+      [...el.attributes].forEach(at => { if (!((t === 'A' && at.name === 'href') || (t === 'IMG' && (at.name === 'src' || at.name === 'alt')))) el.removeAttribute(at.name); });
+      if (t === 'A'){ if (!/^(https?:|mailto:)/i.test(el.getAttribute('href') || '')) el.removeAttribute('href'); el.target = '_blank'; el.rel = 'noopener noreferrer'; }
+      if (t === 'IMG' && !/^https:/i.test(el.getAttribute('src') || '')) el.remove();
+    });
+  }
+
+  async function renderArticle(id){
+    let a = null;
+    try { const r = await fetch('/api/noticias?id=' + encodeURIComponent(id)); if (r.ok) a = await r.json(); } catch {}
+    if (!a){ location.hash = '#/'; return; }
+    const paras = (a.content || '').split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+    $('article').innerHTML = `<article class="art">
+      <button class="back" onclick="location.hash='#/'">Voltar para as notícias</button><br>
+      <h1>${esc(a.title)}</h1>
+      ${a.summary ? `<p class="lead">${esc(a.summary)}</p>` : ''}
+      <span class="meta">${new Date(a.created_at).toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}</span>
+      ${ph(a)}
+      <div class="txt">${/<[a-z][\s\S]*>/i.test(a.content || '') ? a.content : paras.map(p => `<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('')}</div></article>`;
+    clean(document.querySelector('.art .txt'));
+    document.title = `${a.title} — Central do FFC`;
+  }
+
+  function route(){
+    if (!loaded) return;
+    const m = location.hash.match(/^#\/n\/(.+)$/);
+    $('home').hidden = !!m; $('article').hidden = !m;
+    if (m) renderArticle(m[1]); else document.title = 'Central do FFC — Notícias do Feira FC';
+    window.scrollTo(0, 0);
+  }
+
+  $('more').onclick = () => { shown += PAGE; renderHome(); };
+  window.addEventListener('hashchange', route);
+
+  (async () => {
+    try {
+      const r = await fetch('/api/noticias?limit=50');
+      if (!r.ok) throw new Error('api');
+      all = (await r.json()).items || [];
+    } catch (e) { $('empty').textContent = 'Não foi possível carregar as notícias agora. Tente de novo em instantes.'; $('empty').hidden = false; return; }
+    loaded = true; renderHome(); route();
+  })();
+</script>
+</body>
+</html>
