@@ -8,7 +8,7 @@
 <link rel="icon" href="/mark.png">
 <link rel="stylesheet" href="/assets/fonts.css">
 <style>
-:root{--bg:#d9d5d0;--dark:#10261b;--g:#175a3b;--g2:#0f4129;--lime:#e3fcba;--ink:#17221b;--dim:#69766e;--line:#d9dfdb;--red:#bc4545;--f:'Plus Jakarta Sans',Arial,sans-serif}
+:root{--bg:#e9ebe9;--dark:#0c3020;--g:#1d754c;--g2:#103f2a;--lime:#e0eadd;--ink:#17221b;--dim:#69766e;--line:#e6eae7;--red:#bc4545;--f:'Plus Jakarta Sans',Arial,sans-serif}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--f);min-height:100dvh}
 button,input,select,textarea{font:inherit;color:inherit}[hidden]{display:none!important}
 :focus-visible{outline:3px solid #55ad7b;outline-offset:2px}
@@ -17,13 +17,13 @@ button,input,select,textarea{font:inherit;color:inherit}[hidden]{display:none!im
 .wrap{max-width:1000px;margin:24px auto;padding:0 16px 40px}
 .steps{background:#fff;border-radius:18px;padding:14px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 6px #0001;overflow-x:auto}
 .steps>small{font-weight:600;white-space:nowrap;margin-right:6px}
-.pill{display:flex;align-items:center;gap:7px;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:7px 14px;font-size:12px;white-space:nowrap;background:#f6f7f6}
+.pill{display:flex;align-items:center;gap:7px;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:7px 14px;font-size:12px;white-space:nowrap;background:#f5f6f5}
 .pill i{font-style:normal;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:10px;border:1px solid currentColor}
-.pill.now{border-color:var(--g);color:var(--g);background:#fff}.pill.done{background:var(--g);border-color:var(--g);color:#fff}
+.pill.now{border-color:var(--g);color:var(--g);background:#fff}.pill.done{background:linear-gradient(160deg,#218052,#0d3623);border-color:var(--g);color:#fff}
 .bar{flex:1;min-width:10px;height:1px;background:var(--line)}
 .grid{display:grid;grid-template-columns:300px 1fr;gap:16px;margin-top:16px;align-items:start}
-.side{background:var(--g);color:#fff;border-radius:18px;padding:24px 20px;display:flex;flex-direction:column;gap:14px;min-height:480px;box-shadow:0 8px 24px #10412a40}
-.side h1{font-size:21px;line-height:1.25;margin:0;letter-spacing:-.03em}.side p{margin:0;color:#c6dccd;font-size:13px}
+.side{background:radial-gradient(ellipse at bottom right,#216044,transparent 65%),#0c3020;color:#fff;border-radius:18px;padding:24px 20px;display:flex;flex-direction:column;gap:14px;min-height:480px;box-shadow:0 8px 24px #0c302040}
+.side h1{font-size:21px;line-height:1.25;margin:0;letter-spacing:-.03em}.side p{margin:0;color:#c6dccd;font-size:13px;white-space:pre-line}
 .side hr{border:0;border-top:1px solid #ffffff2e;width:100%;margin:2px 0}
 .side small{color:#c6dccd;font-size:12px}
 .list{display:flex;flex-direction:column;gap:8px}
@@ -31,18 +31,18 @@ button,input,select,textarea{font:inherit;color:inherit}[hidden]{display:none!im
 .li.now{background:var(--lime);color:var(--g2);border-color:var(--lime);font-weight:600}.li.done{opacity:.75}
 .sp{flex:1}.nv{display:flex;gap:10px}
 .b{border:0;border-radius:99px;padding:12px 18px;font-weight:600;font-size:13px;min-height:44px;flex:1;cursor:pointer}
-.b.w{background:#fff;color:var(--ink)}.b.l{background:var(--lime);color:var(--g2)}.b:disabled{opacity:.5;cursor:not-allowed}
-.card{background:#fcfcfb;border-radius:18px;padding:28px;box-shadow:0 2px 6px #0001}
+.b.w{background:#fff;color:var(--ink)}.b.l{background:#1e754a;color:#fff}.b:disabled{opacity:.5;cursor:not-allowed}
+.card{background:#fff;border-radius:18px;padding:28px;box-shadow:0 2px 6px #0001}
 .card h2{font-size:15px;margin:0 0 18px;font-weight:600}
 .f{margin-bottom:18px}.f>label,.f>.l{display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;font-weight:500;margin-bottom:6px}
 .f em{color:var(--red);font-style:normal}
-input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],select,textarea{width:100%;background:#f7f7f6;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px}
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],select,textarea{width:100%;background:#f5f6f5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px}
 textarea{min-height:110px;resize:vertical}
 .opts{display:flex;flex-wrap:wrap;gap:10px 22px}.opts label{display:flex;gap:8px;align-items:center;cursor:pointer;font-size:14px}
 .opts input{accent-color:var(--g);width:17px;height:17px;margin:0}
 .err{color:var(--red);font-size:12px;margin-top:5px}.f.bad input,.f.bad select,.f.bad textarea{border-color:var(--red)}
 .ok{text-align:center;padding:50px 10px}.ok .c{width:62px;height:62px;border-radius:50%;background:var(--lime);color:var(--g2);display:grid;place-items:center;margin:0 auto 18px;font-size:28px}
-.ok h2{font-size:22px;margin-bottom:8px}.ok p{color:var(--dim);margin:0}
+.ok h2{font-size:22px;margin-bottom:8px}.ok p{color:var(--dim);margin:0 0 10px;white-space:pre-line;max-width:440px;margin-inline:auto}
 .msg{text-align:center;padding:80px 20px;color:var(--dim)}
 @media(max-width:820px){.grid{grid-template-columns:1fr}.side{min-height:0}.side .sp{display:none}.card{padding:20px}.steps>small{display:none}}
 
@@ -122,7 +122,7 @@ async function next(){
   try{
     const r=await fetch('/api/formularios?slug='+encodeURIComponent(slug),{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+data.session.access_token},body:JSON.stringify({answers:val})});
     const j=await r.json().catch(()=>({}));
-    if(r.status===201)return $('app').innerHTML=`<div class="card ok"><div class="c">✓</div><h2>Resposta enviada!</h2><p>Obrigado por participar, ${esc(me.name.split(' ')[0])}.</p></div>`;
+    if(r.status===201)return $('app').innerHTML=`<div class="card ok"><div class="c">✓</div><h2>${esc(form.success_title||'Resposta enviada!')}</h2><p>${esc(form.success_message||'Obrigado por participar, '+me.name.split(' ')[0]+'.')}</p></div>`;
     if(r.status===409)return msg('Você já respondeu','Cada conta responde uma vez.');
     if(r.status===401){await sb.auth.signOut();return toLogin()}
     if(r.status===422&&j.fields){errs={};const i=steps.findIndex(s=>s.fields.some(f=>j.fields[f.id]));if(i>=0){cur=i;steps[i].fields.forEach(f=>{if(j.fields[f.id])errs[f.id]='Confira este campo.'})}}else errs={};
