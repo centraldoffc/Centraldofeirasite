@@ -100,13 +100,16 @@
   @media (min-width:1000px){ .grid{grid-template-columns:repeat(3,1fr)} }
   @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
 </style>
+<link rel="stylesheet" href="/assets/fonts.css">
+<link rel="stylesheet" href="/assets/leitura.css">
+<script defer src="/assets/leitura.js"></script>
 </head>
 <body>
 <header class="top">
   <div class="wrap">
     <div class="bar">
       <a class="brand" href="#/"><img src="/mark.png" alt="" width="32" height="32">Central do FFC</a>
-      <span class="date" id="date"></span>
+      <span class="date" id="date"></span><details class="news-menu"><summary aria-label="Menu de navegação"><span></span><span></span><span></span></summary><nav aria-label="Navegação"><a href="/">Início</a><a href="/site">Todas as notícias</a><a href="/login">Entrar</a></nav></details>
     </div>
   </div>
 </header>
@@ -180,12 +183,14 @@
     if (!a){ location.hash = '#/'; return; }
     const paras = (a.content || '').split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
     $('article').innerHTML = `<article class="art">
-      <button class="back" onclick="location.hash='#/'">Voltar para as notícias</button><br>
+      <a class="news-back" href="#/">← Todas as notícias</a>
+<div class="reading-tools" role="group" aria-label="Preferências de leitura"><button type="button" data-reading-action="size" aria-label="Aumentar texto. Tamanho padrão">Texto padrão</button><button type="button" data-reading-action="theme" aria-pressed="false">Leitura escura</button><span class="reading-status" role="status" aria-live="polite"></span></div>
+      <p class="news-category">FEIRA FUTEBOL CLUBE</p>
       <h1>${esc(a.title)}</h1>
       ${a.summary ? `<p class="lead">${esc(a.summary)}</p>` : ''}
-      <span class="meta">${new Date(a.created_at).toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}</span>
-      ${ph(a)}
-      <div class="txt">${/<[a-z][\s\S]*>/i.test(a.content || '') ? a.content : paras.map(p => `<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('')}</div></article>`;
+      <div class="news-meta"><time datetime="${esc(a.created_at)}">${new Date(a.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric',timeZone:'America/Bahia'})}</time><span>${esc(a.author || 'Redação Central do FFC')}</span><span>${Math.max(1,Math.ceil(String(a.content || '').replace(/<[^>]*>/g,' ').trim().split(/\s+/).length/200))} min de leitura</span></div>
+      ${a.image_url ? ph(a) : ''}
+      <div class="txt news-content">${/<[a-z][\s\S]*>/i.test(a.content || '') ? a.content : paras.map(p => `<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('')}</div><a class="news-back news-bottom" href="#/">← Voltar às notícias</a></article>`;
     clean(document.querySelector('.art .txt'));
     document.title = `${a.title} — Central do FFC`;
   }
