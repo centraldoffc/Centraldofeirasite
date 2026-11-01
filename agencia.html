@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#03123a">
+<title>Agência | Central do FFC</title>
+<link rel="icon" href="/mark.png">
+<link rel="stylesheet" href="assets/fonts.css">
+<style>
+:root{--bg:#03123a;--bg2:#06194d;--card:#0a1f58;--card2:#0d2663;--line:#1a3478;--ink:#eef2ff;--dim:#9aa8d6;--faint:#6f7fb3;--acc:#2f63e8;--acc2:#4b7bff;--ok:#2fbf7a;--warn:#e8a93a;--red:#e55b5b;--font:'Plus Jakarta Sans',Arial,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--font)}
+body{min-height:100dvh;background:radial-gradient(120% 50% at 50% 0,#0a2268 0,transparent 60%),var(--bg);padding-top:env(safe-area-inset-top)}
+button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer}button:disabled{opacity:.45}
+[hidden]{display:none!important}h1,h2,h3,p{margin:0}
+a{color:var(--acc2)}
+:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+input,textarea,select{width:100%;background:#0b2258;border:1px solid var(--line);border-radius:14px;padding:13px 14px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--acc2)}
+input::placeholder,textarea::placeholder{color:var(--faint)}
+select option{background:#0b2258}
+textarea{resize:vertical;min-height:90px}
+label{display:block;font-size:12px;color:var(--dim);margin:14px 0 6px;font-weight:500}
+.btn{border:0;border-radius:14px;padding:13px 18px;font-weight:600;background:var(--acc);color:#fff;display:inline-flex;gap:8px;align-items:center;justify-content:center;min-height:46px}
+.btn.w{background:#fff;color:#0a1f58}.btn.o{background:transparent;border:1px solid var(--line);color:var(--ink)}.btn.r{background:transparent;border:1px solid #6a2b3a;color:#ff9a9a}
+.btn.s{min-height:36px;padding:7px 13px;font-size:12px;border-radius:11px}.btn.full{width:100%}
+.chip{border:1px solid var(--line);background:transparent;border-radius:99px;padding:8px 16px;font-size:13px;font-weight:500;color:var(--dim)}
+.chip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;border-radius:7px;padding:2px 8px;background:#12307a;color:#b9ccff;border:1px solid #1f4096}
+.badge.ok{background:#0e3a2c;color:#6ee0aa;border-color:#18614a}.badge.warn{background:#3d2e0c;color:#f0c068;border-color:#6d5217}.badge.red{background:#471821;color:#ff9a9a;border-color:#7a2a38}.badge.pink{background:#4a1432;color:#ff9fd0;border-color:#7b2559}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px}
+.muted{color:var(--dim)}.small{font-size:12px}
+
+/* login / bloqueio */
+.gate{min-height:100dvh;display:grid;place-items:center;padding:26px;text-align:center}
+.gate form{width:min(100%,400px);display:grid;gap:12px;justify-items:center}
+.gate .logo{width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid #3a4f8f;background:var(--card)}
+.gate h1{font-size:30px;letter-spacing:-.04em;margin-top:6px}.gate p{color:var(--dim);font-size:15px}
+.gate .pill{display:inline-flex;gap:8px;align-items:center;background:#0e2563;border-radius:99px;padding:9px 18px;font-weight:600;font-size:14px;color:#cfdcff}
+.gate .field{width:100%;position:relative}.gate .field input{text-align:center;padding:16px;font-size:16px}
+.gate .eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--dim);padding:8px}
+.gate .btn{width:100%;min-height:54px;font-size:16px}.gate .err{color:#ff9a9a;font-size:13px;min-height:18px}
+.link{background:none;border:0;color:#c8d6ff;font-weight:600;padding:8px}
+
+/* app */
+.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:12px 14px;background:#03123aee;backdrop-filter:blur(10px);border-bottom:1px solid #0f2a6b}
+.top h2{font-size:21px;letter-spacing:-.03em;flex:1}
+.ib{width:42px;height:42px;border-radius:13px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;position:relative;padding:0}
+.ib .dot{position:absolute;right:-4px;top:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:grid;place-items:center;padding:0 4px}
+.av{border-radius:50%;object-fit:cover;display:grid;place-items:center;font-weight:700;color:#fff;flex:none;background:#1b3a8f;border:2px solid #0b2258;overflow:hidden}
+main{padding:16px 14px 90px;max-width:760px;margin:0 auto}
+.drawer-bg{position:fixed;inset:0;background:#00081f99;z-index:40}
+.drawer{position:fixed;left:0;top:0;bottom:0;width:min(86vw,300px);background:#071a4d;z-index:50;display:flex;flex-direction:column;padding:calc(18px + env(safe-area-inset-top)) 14px 18px;border-right:1px solid var(--line);transform:translateX(-105%);transition:transform .2s}
+.drawer.open{transform:none}
+.drawer .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:-.03em;margin-bottom:20px;padding:0 6px}.drawer .brand img{width:38px;height:38px;border-radius:10px}
+.drawer .brand small{display:block;font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.nav{display:flex;align-items:center;gap:14px;width:100%;background:none;border:0;text-align:left;border-radius:13px;padding:13px 12px;color:var(--dim);font-weight:500;font-size:15px}
+.nav.on{background:#12307a;color:#fff;font-weight:600}
+.drawer .sp{flex:1}.drawer .me{display:flex;align-items:center;gap:12px;padding:12px 8px;border-top:1px solid var(--line)}
+.drawer .me b{display:block}.drawer .me small{color:var(--dim)}.ver{font-size:11px;color:var(--faint);padding:8px 12px 0}
+
+.sec{display:flex;justify-content:space-between;align-items:center;margin:20px 2px 10px}.sec h3{font-size:17px;letter-spacing:-.02em}.sec:first-child{margin-top:0}
+.row{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0;padding-bottom:0}.row:first-child{padding-top:0}
+.row .tx{flex:1;min-width:0}.row b{display:block;font-weight:600}.row small{color:var(--dim);font-size:12px;display:block}
+.date{width:44px;text-align:center;flex:none}.date b{font-size:20px;line-height:1}.date small{text-transform:uppercase;font-size:10px;letter-spacing:.06em}
+.banner{display:flex;gap:10px;align-items:center;background:#3a1230;border:1px solid #7b2559;border-radius:16px;padding:13px 14px;margin-bottom:14px;font-size:13px}
+.hello h1{font-size:26px;letter-spacing:-.04em}.hello p{color:var(--dim);margin-top:2px}
+.empty{color:var(--dim);font-size:13px;padding:6px 0}
+.notice{border-left:4px solid var(--acc);border-radius:6px 18px 18px 6px}
+.notice.importante{border-left-color:var(--warn)}.notice.urgente{border-left-color:var(--red)}
+.notice h3{font-size:16px;margin:6px 0}.notice p{white-space:pre-wrap;overflow-wrap:anywhere;color:#d3dcff}
+.stack{display:grid;gap:12px}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}.chips::-webkit-scrollbar{display:none}
+.tabs{display:flex;gap:4px;margin:14px 0;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;color:var(--dim);font-weight:600;white-space:nowrap;font-size:13px}
+.tabs button[aria-selected=true]{color:#fff;border-color:var(--acc2)}
+.tabs i{font-style:normal;background:#12307a;border-radius:7px;font-size:10px;padding:1px 6px;margin-left:4px}
+.task{width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;display:grid;gap:8px}
+.task b{font-size:15px;line-height:1.35}.task .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.avs{display:flex}.avs .av{margin-left:-8px}.avs .av:first-child{margin-left:0}
+.member{width:100%;text-align:left;display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px}
+.member b{font-size:15px}.member small{display:block;color:var(--dim);font-size:12px}.member .tx{flex:1;min-width:0}
+.member.off{opacity:.55}
+.cover{height:110px;border-radius:22px 22px 0 0;background:linear-gradient(120deg,#2f63e8,#5b2fe8)}
+.prof{background:var(--card);border:1px solid var(--line);border-radius:22px;text-align:center;padding-bottom:18px;overflow:hidden}
+.prof .av{margin:-48px auto 8px;border:4px solid var(--card)}.prof h2{font-size:22px;letter-spacing:-.03em}
+.prof .bio{color:var(--dim);margin:10px 18px}
+.info{margin:14px 14px 0;border:1px solid var(--line);border-radius:16px;text-align:left}
+.info div{display:flex;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}.info div:last-child{border:0}.info span{color:var(--dim)}.info b{font-weight:600;text-align:right}
+.back{background:none;border:0;color:var(--acc2);font-weight:600;padding:6px 0;margin-bottom:10px;display:inline-flex;gap:6px;align-items:center}
+.fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:20;box-shadow:0 8px 24px #0008;border-radius:18px;min-height:54px}
+
+.sheet-bg{position:fixed;inset:0;background:#00081fb3;z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#071a4d;border:1px solid var(--line);border-radius:26px 26px 0 0;width:min(100%,560px);max-height:92dvh;overflow:auto;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+.sheet .hd{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}.sheet h3{font-size:19px}
+.sheet .x{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;padding:0}
+.checks{display:grid;gap:6px;max-height:190px;overflow:auto;border:1px solid var(--line);border-radius:14px;padding:8px}
+.checks label{display:flex;gap:10px;align-items:center;margin:0;padding:6px;font-size:14px;color:var(--ink)}.checks input{width:18px;height:18px;accent-color:var(--acc)}
+.cred{background:#0b2258;border:1px dashed #3b5bb8;border-radius:16px;padding:14px;text-align:center;margin:14px 0}.cred b{display:block;font-size:24px;letter-spacing:.04em;font-variant-numeric:tabular-nums}.cred small{color:var(--dim)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#fff;color:#0a1f58;padding:12px 20px;border-radius:99px;font-weight:600;font-size:13px;z-index:90;max-width:90vw;text-align:center}
+.skel{height:64px;border-radius:18px;background:linear-gradient(90deg,#0a1f58,#0d2663,#0a1f58);background-size:200% 100%;animation:sk 1.2s infinite;margin-bottom:10px}@keyframes sk{to{background-position:-200% 0}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="9" rx="2"/><rect x="13.5" y="3.5" width="7" height="5" rx="2"/><rect x="13.5" y="11.5" width="7" height="9" rx="2"/><rect x="3.5" y="15.5" width="7" height="5" rx="2"/></symbol>
+  <symbol id="i-mega" viewBox="0 0 24 24"><path d="M4 10v4h3l7 4V6L7 10H4Z"/><path d="M17.5 9.5a4 4 0 0 1 0 5"/></symbol>
+  <symbol id="i-task" viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+  <symbol id="i-team" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.3A6 6 0 0 1 21 20"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 4h3.5A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5H14"/><path d="M10 8l-4 4 4 4M6 12h9"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m14 7-5 5 5 5"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m10 7 5 5-5 5"/></symbol>
+  <symbol id="i-cake" viewBox="0 0 24 24"><path d="M4 20h16v-7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7Z"/><path d="M4 16c2 1.5 3 1.5 4 0s2-1.5 4 0 3 1.5 4 0 2-1.5 4 0M12 11V7M12 5.2v.1"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+</svg>
+
+<!-- LOGIN -->
+<div class="gate" id="gLogin" hidden>
+  <form id="fLogin" autocomplete="on">
+    <img class="logo" src="/mark.png" alt="">
+    <span class="pill"><svg class="icon"><use href="#i-lock"/></svg>Área dos membros</span>
+    <h1>Agência Central do FFC</h1>
+    <p>Entre com seu ID e sua senha para acessar o painel da equipe.</p>
+    <div class="field" style="margin-top:8px"><input id="lid" inputmode="text" autocapitalize="none" autocomplete="username" placeholder="Seu ID" required></div>
+    <div class="field"><input id="lpw" type="password" autocomplete="current-password" placeholder="Sua senha" required><button class="eye" type="button" data-act="eye" aria-label="Mostrar senha"><svg class="icon"><use href="#i-eye"/></svg></button></div>
+    <div class="err" id="lerr" role="alert"></div>
+    <button class="btn w" type="submit">Entrar</button>
+  </form>
+</div>
+
+<!-- BLOQUEIO -->
+<div class="gate" id="gLock" hidden>
+  <form id="fLock">
+    <span id="lkAv"></span>
+    <span class="pill"><svg class="icon"><use href="#i-lock"/></svg>Painel bloqueado</span>
+    <h1 id="lkName"></h1>
+    <p>O painel foi bloqueado para proteger sua conta. Digite sua senha para continuar de onde parou.</p>
+    <div class="field" style="margin-top:8px"><input id="lkpw" type="password" autocomplete="current-password" placeholder="Sua senha" required><button class="eye" type="button" data-act="eye" aria-label="Mostrar senha"><svg class="icon"><use href="#i-eye"/></svg></button></div>
+    <div class="err" id="lkerr" role="alert"></div>
+    <button class="btn w" type="submit"><svg class="icon"><use href="#i-lock"/></svg>Desbloquear</button>
+    <button class="link" type="button" data-act="logout">Não é você? Sair</button>
+  </form>
+</div>
+
+<!-- APP -->
+<div id="app" hidden>
+  <header class="top">
+    <button class="ib" data-act="menu" aria-label="Abrir menu"><svg class="icon"><use href="#i-menu"/></svg></button>
+    <h2 id="title">Início</h2>
+    <button class="ib" data-act="bell" aria-label="Avisos novos"><svg class="icon"><use href="#i-bell"/></svg><span class="dot" id="bellDot" hidden></span></button>
+    <button class="ib" data-act="nav" data-v="equipe" data-id="me" aria-label="Meu perfil" style="padding:0;overflow:hidden" id="topAv"></button>
+  </header>
+  <div class="drawer-bg" id="dbg" data-act="close-menu" hidden></div>
+  <aside class="drawer" id="drawer" aria-label="Menu">
+    <div class="brand"><img src="/mark.png" alt=""><div>Central do FFC<small>Agência</small></div></div>
+    <button class="nav" data-act="nav" data-v="inicio"><svg class="icon"><use href="#i-home"/></svg>Início</button>
+    <button class="nav" data-act="nav" data-v="avisos"><svg class="icon"><use href="#i-mega"/></svg>Avisos</button>
+    <button class="nav" data-act="nav" data-v="tarefas"><svg class="icon"><use href="#i-task"/></svg>Tarefas</button>
+    <button class="nav" data-act="nav" data-v="equipe"><svg class="icon"><use href="#i-team"/></svg>Equipe</button>
+    <div class="sp"></div>
+    <button class="nav" data-act="lock"><svg class="icon"><use href="#i-lock"/></svg>Bloquear painel</button>
+    <button class="nav" data-act="logout"><svg class="icon"><use href="#i-out"/></svg>Sair</button>
+    <div class="me" id="drMe"></div>
+    <div class="ver">Versão 1.0</div>
+  </aside>
+  <main id="view"></main>
+</div>
+<div id="layer"></div>
+
+<script src="assets/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+const sb = supabase.createClient(FFC_SUPABASE_URL, FFC_SUPABASE_KEY);
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DOMAIN = 'membros.centraldoffc.app', IDLE = 15 * 60 * 1000;
+const LV = { super: 'Super Administrador', lider: 'Líder', membro: 'Membro' };
+const ST = [['todo', 'A fazer'], ['doing', 'Fazendo'], ['review', 'Revisão'], ['done', 'Entregue']];
+const PR = { baixa: 'Baixa', media: 'Média', alta: 'Alta' };
+const MES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const COLORS = ['#2f63e8','#7a3fe0','#c2398a','#d9772b','#1f9d6e','#1a8fb8','#b8443f'];
+const icon = n => `<svg class="icon"><use href="#i-${n}"/></svg>`;
+
+let me = null, sessionEmail = '', members = [], notices = [], tasks = [], acts = [];
+let view = 'inicio', arg = null, tFilter = 'all', tStatus = 'todo', tQ = '', lastAct = Date.now(), loadedAt = 0, justLogged = false, locked = false;
+
+/* ---------- utilidades ---------- */
+const pad = n => String(n).padStart(2, '0');
+const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+const dmy = s => { if (!s) return '—'; const [y, m, d] = s.split('-'); return `${+d} de ${MES[+m - 1]}${y ? ' de ' + y : ''}`; };
+const dm = s => { const [, m, d] = s.split('-'); return `${+d} de ${MES[+m - 1]}`; };
+const rel = d => { const m = Math.max(0, (Date.now() - new Date(d)) / 6e4); if (m < 1) return 'agora'; if (m < 60) return `há ${Math.floor(m)} min`; if (m < 1440) return `há ${Math.floor(m / 60)} h`; const k = Math.floor(m / 1440); return k < 30 ? `há ${k} dia${k > 1 ? 's' : ''}` : new Date(d).toLocaleDateString('pt-BR'); };
+const when = d => new Date(d).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+const first = n => String(n || '').split(' ')[0];
+const toast = m => { const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2600); };
+const mem = id => members.find(m => m.id === id);
+const isLeader = () => me && (me.access_level === 'super' || me.access_level === 'lider');
+const ini = n => { const w = String(n || '?').trim().split(/\s+/); return ((w[0] || '?')[0] + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase(); };
+const hue = n => COLORS[[...String(n)].reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
+const av = (m, s = 42) => m && m.avatar_url ? `<img class="av" style="width:${s}px;height:${s}px" src="${esc(m.avatar_url)}" alt="">` : `<span class="av" style="width:${s}px;height:${s}px;font-size:${Math.round(s * .36)}px;background:${hue(m ? m.name : '?')}" aria-hidden="true">${esc(ini(m ? m.name : '?'))}</span>`;
+const lvBadge = m => m.role_title === LV[m.access_level] ? '' : m.access_level === 'super' ? `<span class="badge">${LV.super}</span>` : m.access_level === 'lider' ? `<span class="badge warn">Líder</span>` : '';
+const isOver = t => t.due_date && t.status !== 'done' && t.due_date < todayStr();
+const lastLoginKey = () => 'ag_seen_' + (me ? me.id : '');
+
+/* ---------- autenticação ---------- */
+function gate(which) { $('#gLogin').hidden = which !== 'login'; $('#gLock').hidden = which !== 'lock'; $('#app').hidden = which !== 'app'; }
+document.addEventListener('click', e => { const b = e.target.closest('[data-act="eye"]'); if (!b) return; const i = b.parentElement.querySelector('input'); i.type = i.type === 'password' ? 'text' : 'password'; });
+
+$('#fLogin').onsubmit = async e => {
+  e.preventDefault(); const id = $('#lid').value.trim().toLowerCase(); $('#lerr').textContent = '';
+  const email = id.includes('@') ? id : `${id}@${DOMAIN}`;
+  justLogged = true;
+  const { error } = await sb.auth.signInWithPassword({ email, password: $('#lpw').value });
+  if (error) { justLogged = false; $('#lerr').textContent = 'ID ou senha incorretos.'; }
+};
+$('#fLock').onsubmit = async e => {
+  e.preventDefault(); $('#lkerr').textContent = '';
+  const { error } = await sb.auth.signInWithPassword({ email: sessionEmail, password: $('#lkpw').value });
+  if (error) { $('#lkerr').textContent = 'Senha incorreta.'; return; }
+  $('#lkpw').value = ''; locked = false; lastAct = Date.now(); gate('app'); log('desbloqueou o painel');
+};
+async function logout() { me = null; locked = false; await sb.auth.signOut(); }
+
+sb.auth.onAuthStateChange((ev, s) => {
+  if (!s) { me = null; gate('login'); return; }
+  if (me && me.id === s.user.id) return;
+  const fresh = justLogged; justLogged = false; sessionEmail = s.user.email || '';
+  setTimeout(() => boot(fresh), 0);
+});
+sb.auth.getSession().then(({ data }) => { if (!data.session) gate('login'); });
+
+async function boot(fresh) {
+  await sb.rpc('agency_bootstrap');
+  const { data: m } = await sb.from('agency_members').select('*').eq('id', (await sb.auth.getUser()).data.user.id).maybeSingle();
+  if (!m || !m.active) { await sb.auth.signOut(); gate('login'); $('#lerr').textContent = 'Esta conta não tem acesso à agência.'; return; }
+  me = m; gate('app'); view = 'inicio'; arg = null; lastAct = Date.now();
+  await loadAll(); if (fresh) log('entrou no painel');
+}
+const log = a => me && sb.from('agency_activity').insert({ member_id: me.id, action: a }).then(() => {});
+
+/* bloqueio por inatividade */
+['click', 'keydown', 'touchstart', 'scroll'].forEach(ev => addEventListener(ev, () => { if (!locked) lastAct = Date.now(); }, { passive: true }));
+setInterval(() => { if (me && !locked && Date.now() - lastAct > IDLE) lock(true); }, 20000);
+function lock(auto) {
+  if (!me) return; locked = true; closeMenu(); closeSheet();
+  $('#lkAv').innerHTML = av(me, 96); $('#lkName').textContent = first(me.name); gate('lock');
+  if (auto) log('teve o painel bloqueado por inatividade'); else log('bloqueou o painel');
+}
+
+/* ---------- dados ---------- */
+async function loadAll() {
+  const [m, n, t, a] = await Promise.all([
+    sb.from('agency_members').select('*').order('created_at'),
+    sb.from('agency_notices').select('*').order('created_at', { ascending: false }),
+    sb.from('agency_tasks').select('*').order('created_at', { ascending: false }),
+    sb.from('agency_activity').select('*').eq('member_id', me.id).order('created_at', { ascending: false }).limit(6)
+  ]);
+  if (m.error || n.error || t.error) toast('Erro ao carregar os dados');
+  members = m.data || []; notices = n.data || []; tasks = t.data || []; acts = a.data || []; loadedAt = Date.now();
+  me = mem(me.id) || me; render();
+}
+
+/* ---------- navegação ---------- */
+const TITLES = { inicio: 'Início', avisos: 'Avisos', tarefas: 'Tarefas', equipe: 'Equipe' };
+function go(v, a) { view = v; arg = a || null; closeMenu(); closeSheet(); window.scrollTo(0, 0); if (Date.now() - loadedAt > 30000) loadAll(); else render(); }
+function openMenu() { $('#drawer').classList.add('open'); $('#dbg').hidden = false; }
+function closeMenu() { $('#drawer').classList.remove('open'); $('#dbg').hidden = true; }
+function unseen() { const s = localStorage.getItem(lastLoginKey()) || '1970-01-01'; return notices.filter(n => n.created_at > s && n.author_id !== me.id).length; }
+
+function render() {
+  if (!me) return;
+  $('#title').textContent = view === 'equipe' && arg ? 'Equipe' : TITLES[view];
+  document.querySelectorAll('.drawer .nav[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === view));
+  $('#topAv').innerHTML = av(me, 42); $('#drMe').innerHTML = `${av(me, 42)}<div><b>${esc(first(me.name))}</b><small>${esc(me.role_title)}</small></div>`;
+  const u = unseen(); $('#bellDot').hidden = !u; $('#bellDot').textContent = u > 9 ? '9+' : u;
+  $('#view').innerHTML = ({ inicio: vInicio, avisos: vAvisos, tarefas: vTarefas, equipe: vEquipe })[view]();
+}
+
+/* ---------- Início ---------- */
+function bdays() {
+  const t = new Date(); t.setHours(0, 0, 0, 0);
+  return members.filter(m => m.active && m.birthday).map(m => { const [, mo, d] = m.birthday.split('-').map(Number); let n = new Date(t.getFullYear(), mo - 1, d); if (n < t) n = new Date(t.getFullYear() + 1, mo - 1, d); return { m, days: Math.round((n - t) / 864e5), mo, d }; }).sort((a, b) => a.days - b.days);
+}
+const inDays = k => k === 0 ? 'Hoje' : k === 1 ? 'Amanhã' : k < 60 ? `Em ${k} dias` : `Em ${Math.round(k / 30)} meses`;
+function vInicio() {
+  const bd = bdays(), today = bd.filter(b => b.days === 0), mine = tasks.filter(t => t.assignees.includes(me.id) && t.status !== 'done').sort((a, b) => (a.due_date || '9') < (b.due_date || '9') ? -1 : 1);
+  const fresh = notices.slice(0, 3);
+  return `<div class="hello" style="margin-bottom:16px"><h1>Olá, ${esc(first(me.name))}</h1><p>${mine.length ? `Você tem ${mine.length} tarefa${mine.length > 1 ? 's' : ''} em aberto.` : 'Nenhuma tarefa com você agora.'}</p></div>
+  ${today.map(b => `<div class="banner">${icon('cake')}<span>${b.m.id === me.id ? 'Hoje é seu aniversário! Parabéns!' : `Hoje é aniversário de <b>${esc(b.m.name)}</b>. Deixe seus parabéns!`}</span></div>`).join('')}
+  <div class="sec"><h3>Minhas tarefas</h3><button class="btn o s" data-act="nav" data-v="tarefas">Ver quadro</button></div>
+  <div class="card">${mine.slice(0, 4).map(t => `<button class="row" style="width:100%;background:none;border:0;border-bottom:1px solid var(--line);text-align:left;color:inherit" data-act="task" data-id="${t.id}"><div class="tx"><b>${esc(t.title)}</b><small>${esc(t.category)} · ${ST.find(s => s[0] === t.status)[1]}${t.due_date ? ' · prazo ' + dm(t.due_date) : ''}</small></div>${isOver(t) ? '<span class="badge red">Atrasada</span>' : ''}</button>`).join('') || '<p class="empty">Nenhuma tarefa com você agora.</p>'}</div>
+  <div class="sec"><h3>Próximas datas</h3></div>
+  <div class="card">${bd.slice(0, 3).map(b => `<div class="row"><div class="date"><b>${b.d}</b><small>${MES[b.mo - 1].slice(0, 3)}</small></div><div class="tx"><b>Aniversário de ${esc(first(b.m.name))}</b><small>${esc(b.m.role_title)}</small></div><span class="badge ${b.days < 8 ? 'pink' : ''}">${inDays(b.days)}</span></div>`).join('') || '<p class="empty">Nenhum aniversário cadastrado ainda.</p>'}</div>
+  <div class="sec"><h3>Avisos recentes</h3><button class="btn o s" data-act="nav" data-v="avisos">Ver todos</button></div>
+  <div class="stack">${fresh.map(noticeCard).join('') || '<div class="card"><p class="empty">Nenhum aviso ainda.</p></div>'}</div>
+  <div class="sec"><h3>Minha atividade</h3></div>
+  <div class="card">${acts.map(a => `<div class="row"><div class="tx"><b>Você ${esc(a.action)}</b><small>${when(a.created_at)}</small></div></div>`).join('') || '<p class="empty">Sem atividade ainda.</p>'}</div>`;
+}
+
+/* ---------- Avisos ---------- */
+function noticeCard(n) {
+  const a = mem(n.author_id), imp = n.importance;
+  return `<article class="card notice ${imp}"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${imp !== 'normal' ? `<span class="badge ${imp === 'urgente' ? 'red' : 'warn'}">${imp === 'urgente' ? 'Urgente' : 'Importante'}</span>` : ''}<span class="small muted">${a ? esc(a.name) + ' · ' : ''}${when(n.created_at)}</span></div><h3>${esc(n.title)}</h3>${n.body ? `<p>${esc(n.body)}</p>` : ''}${isLeader() && view === 'avisos' ? `<div style="display:flex;gap:8px;margin-top:12px"><button class="btn o s" data-act="edit-notice" data-id="${n.id}">Editar</button><button class="btn r s" data-act="del-notice" data-id="${n.id}">Excluir</button></div>` : ''}</article>`;
+}
+function vAvisos() {
+  return `${isLeader() ? `<button class="btn full" data-act="edit-notice" style="margin-bottom:14px">${icon('plus')}Novo aviso</button>` : ''}<div class="stack">${notices.map(noticeCard).join('') || '<div class="card"><p class="empty">Nenhum aviso ainda.</p></div>'}</div>`;
+}
+function noticeForm(id) {
+  const n = notices.find(x => x.id === id) || { title: '', body: '', importance: 'normal' };
+  sheet(id ? 'Editar aviso' : 'Novo aviso', `<label for="nt">Título</label><input id="nt" value="${esc(n.title)}" maxlength="120"><label for="nb">Mensagem</label><textarea id="nb" rows="5">${esc(n.body)}</textarea><label for="ni">Importância</label><select id="ni">${[['normal', 'Normal'], ['importante', 'Importante'], ['urgente', 'Urgente']].map(([v, l]) => `<option value="${v}" ${n.importance === v ? 'selected' : ''}>${l}</option>`).join('')}</select><button class="btn full" style="margin-top:18px" data-act="save-notice" data-id="${id || ''}">Publicar aviso</button>`);
+}
+async function saveNotice(id) {
+  const title = $('#nt').value.trim(); if (!title) return toast('Escreva um título');
+  const p = { title, body: $('#nb').value.trim(), importance: $('#ni').value };
+  const { error } = id ? await sb.from('agency_notices').update(p).eq('id', id) : await sb.from('agency_notices').insert({ ...p, author_id: me.id });
+  if (error) return toast('Não foi possível salvar'); closeSheet(); toast('Aviso salvo'); loadAll();
+}
+
+/* ---------- Tarefas ---------- */
+function vTarefas() {
+  const q = tQ.toLowerCase();
+  const list = tasks.filter(t => (tFilter === 'all' || (tFilter === 'mine' && t.assignees.includes(me.id)) || (tFilter === 'late' && isOver(t))) && t.title.toLowerCase().includes(q));
+  const cnt = s => list.filter(t => t.status === s).length, shown = list.filter(t => t.status === tStatus);
+  return `<div class="card" style="padding:14px"><input id="tq" type="search" placeholder="Buscar tarefa…" value="${esc(tQ)}" aria-label="Buscar tarefa">
+  <div class="chips" style="margin-top:12px">${[['all', 'Todas'], ['mine', 'Minhas'], ['late', 'Atrasadas']].map(([v, l]) => `<button class="chip" data-act="tfilter" data-v="${v}" aria-pressed="${tFilter === v}">${l}</button>`).join('')}</div></div>
+  <div class="tabs" role="tablist">${ST.map(([k, l]) => `<button role="tab" data-act="tstatus" data-v="${k}" aria-selected="${tStatus === k}">${l}<i>${cnt(k)}</i></button>`).join('')}</div>
+  <div class="stack">${shown.map(taskCard).join('') || '<p class="empty" style="text-align:center;padding:30px 0">Nada por aqui.</p>'}</div>
+  ${isLeader() ? `<button class="btn fab" data-act="edit-task" aria-label="Nova tarefa">${icon('plus')}Nova tarefa</button>` : ''}`;
+}
+function taskCard(t) {
+  const as = t.assignees.map(mem).filter(Boolean);
+  return `<button class="task" data-act="task" data-id="${t.id}" style="color:inherit"><div class="meta"><span class="badge">${esc(t.category)}</span>${t.priority === 'alta' ? '<span class="badge red">Prioridade alta</span>' : ''}${isOver(t) ? '<span class="badge red">Atrasada</span>' : ''}</div><b>${esc(t.title)}</b><div class="meta" style="justify-content:space-between"><span class="avs">${as.slice(0, 4).map(m => av(m, 26)).join('')}${as.length > 4 ? `<span class="av" style="width:26px;height:26px;font-size:10px;margin-left:-8px">+${as.length - 4}</span>` : ''}</span>${t.due_date ? `<span class="small muted">${icon('cal').replace('class="icon"', 'class="icon" style="width:14px;height:14px;vertical-align:-2px"')} ${dm(t.due_date)}</span>` : ''}</div></button>`;
+}
+function taskSheet(id) {
+  const t = tasks.find(x => x.id === id); if (!t) return;
+  const canMove = isLeader() || t.assignees.includes(me.id), as = t.assignees.map(mem).filter(Boolean);
+  sheet(esc(t.title), `<div class="meta" style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px"><span class="badge">${esc(t.category)}</span><span class="badge ${t.priority === 'alta' ? 'red' : t.priority === 'baixa' ? 'ok' : 'warn'}">Prioridade ${PR[t.priority].toLowerCase()}</span>${isOver(t) ? '<span class="badge red">Atrasada</span>' : ''}</div>
+  <div class="info" style="margin:0"><div><span>Responsáveis</span><b>${as.map(m => esc(first(m.name))).join(', ') || '—'}</b></div><div><span>Prazo</span><b>${t.due_date ? dmy(t.due_date) : 'Sem prazo'}</b></div><div><span>Criada em</span><b>${when(t.created_at)}</b></div></div>
+  ${t.description ? `<label>Descrição</label><p style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(t.description)}</p>` : ''}
+  <label>Andamento</label>${canMove ? `<div class="chips" style="flex-wrap:wrap">${ST.map(([k, l]) => `<button class="chip" data-act="set-status" data-id="${t.id}" data-v="${k}" aria-pressed="${t.status === k}">${l}</button>`).join('')}</div>` : `<p class="muted small">Só os responsáveis podem mudar o andamento desta tarefa.</p>`}
+  ${isLeader() ? `<div style="display:flex;gap:8px;margin-top:20px"><button class="btn o" style="flex:1" data-act="edit-task" data-id="${t.id}">Editar</button><button class="btn r" style="flex:1" data-act="del-task" data-id="${t.id}">Excluir</button></div>` : ''}`);
+}
+function taskForm(id) {
+  const t = tasks.find(x => x.id === id) || { title: '', description: '', category: 'Geral', priority: 'media', status: 'todo', assignees: [], due_date: '' };
+  sheet(id ? 'Editar tarefa' : 'Nova tarefa', `<label for="tt">Título</label><input id="tt" value="${esc(t.title)}" maxlength="140"><label for="td">Descrição</label><textarea id="td" rows="4">${esc(t.description)}</textarea>
+  <label for="tc">Categoria</label><input id="tc" list="cats" value="${esc(t.category)}" maxlength="30"><datalist id="cats"><option>Design</option><option>Redação</option><option>Redes sociais</option><option>Vídeo</option><option>Geral</option></datalist>
+  <label for="tp">Prioridade</label><select id="tp">${Object.entries(PR).map(([k, l]) => `<option value="${k}" ${t.priority === k ? 'selected' : ''}>${l}</option>`).join('')}</select>
+  <label for="tdue">Prazo</label><input id="tdue" type="date" value="${esc(t.due_date || '')}">
+  <label>Responsáveis</label><div class="checks">${members.filter(m => m.active).map(m => `<label><input type="checkbox" name="as" value="${m.id}" ${t.assignees.includes(m.id) ? 'checked' : ''}>${esc(m.name)}</label>`).join('')}</div>
+  <button class="btn full" style="margin-top:18px" data-act="save-task" data-id="${id || ''}">Salvar tarefa</button>`);
+}
+async function saveTask(id) {
+  const title = $('#tt').value.trim(); if (!title) return toast('Escreva um título');
+  const p = { title, description: $('#td').value.trim(), category: $('#tc').value.trim() || 'Geral', priority: $('#tp').value, due_date: $('#tdue').value || null, assignees: [...document.querySelectorAll('input[name=as]:checked')].map(i => i.value) };
+  const { error } = id ? await sb.from('agency_tasks').update(p).eq('id', id) : await sb.from('agency_tasks').insert({ ...p, created_by: me.id });
+  if (error) return toast('Não foi possível salvar'); closeSheet(); toast('Tarefa salva'); loadAll();
+}
+
+/* ---------- Equipe ---------- */
+function vEquipe() {
+  if (arg) return profile(arg === 'me' ? me.id : arg);
+  const list = members.filter(m => m.active || isLeader());
+  return `${isLeader() ? `<button class="btn full" data-act="new-member" style="margin-bottom:14px">${icon('plus')}Novo membro</button>` : ''}<div class="stack">${list.map(m => `<button class="member ${m.active ? '' : 'off'}" data-act="nav" data-v="equipe" data-id="${m.id}" style="color:inherit">${av(m, 52)}<div class="tx"><b>${esc(m.name)}${m.id === me.id ? ' <span class="badge ok">Você</span>' : ''}</b><div style="margin:4px 0;display:flex;gap:6px;flex-wrap:wrap"><span class="badge pink">${esc(m.role_title)}</span>${lvBadge(m)}${m.active ? '' : '<span class="badge red">Desativado</span>'}</div><small>ID ${esc(m.code)}${m.birthday ? ' · ' + dm(m.birthday) : ''}</small></div>${icon('right')}</button>`).join('')}</div>`;
+}
+function profile(id) {
+  const m = mem(id); if (!m) return '<p class="empty">Membro não encontrado.</p>';
+  const mine = m.id === me.id, canManage = isLeader() && !mine && (me.access_level === 'super' || m.access_level === 'membro');
+  return `<button class="back" data-act="nav" data-v="equipe">${icon('left')}Equipe</button>
+  <div class="prof"><div class="cover"></div>${av(m, 96)}<h2>${esc(m.name)}</h2><div style="display:flex;gap:6px;justify-content:center;margin-top:8px;flex-wrap:wrap"><span class="badge pink">${esc(m.role_title)}</span>${lvBadge(m)}</div>
+  <p class="bio">${m.bio ? esc(m.bio) : (mine ? 'Conte um pouco sobre você.' : 'Sem bio ainda.')}</p>
+  ${mine ? `<div style="padding:0 14px"><button class="btn o full" data-act="edit-profile">Editar meu perfil</button></div>` : ''}
+  <div class="info"><div><span>ID</span><b>${esc(m.code)}</b></div><div><span>Aniversário</span><b>${m.birthday ? dm(m.birthday) : '—'}</b></div><div><span>Na agência desde</span><b>${dmy(m.joined_at)}</b></div></div></div>
+  ${canManage ? `<div class="sec"><h3>Gerenciar membro</h3></div><div class="card"><label for="mr" style="margin-top:0">Cargo</label><input id="mr" value="${esc(m.role_title)}" maxlength="40">${me.access_level === 'super' ? `<label for="ml">Nível de acesso</label><select id="ml">${Object.entries(LV).map(([k, l]) => `<option value="${k}" ${m.access_level === k ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}
+  <button class="btn full" style="margin-top:14px" data-act="save-member" data-id="${m.id}">Salvar</button><div style="display:flex;gap:8px;margin-top:10px"><button class="btn o" style="flex:1" data-act="reset" data-id="${m.id}">Redefinir senha</button><button class="btn r" style="flex:1" data-act="toggle" data-id="${m.id}" data-v="${m.active ? 0 : 1}">${m.active ? 'Desativar' : 'Reativar'}</button></div></div>` : ''}`;
+}
+function profileForm() {
+  sheet('Editar meu perfil', `<div style="display:flex;align-items:center;gap:14px;margin:8px 0">${av(me, 64)}<input type="file" id="pf" accept="image/*" hidden><button class="btn o s" data-act="pick-photo">Trocar foto</button></div>
+  <label for="pn">Nome</label><input id="pn" value="${esc(me.name)}" maxlength="80"><label for="pb">Bio</label><textarea id="pb" rows="3" maxlength="300">${esc(me.bio)}</textarea><label for="pd">Aniversário</label><input id="pd" type="date" value="${esc(me.birthday || '')}">
+  <button class="btn full" style="margin-top:18px" data-act="save-profile">Salvar perfil</button><button class="btn o full" style="margin-top:10px" data-act="pw-form">Trocar senha</button>`);
+  $('#pf').onchange = async e => { const f = e.target.files[0]; if (!f) return; toast('Enviando foto…'); try { const blob = await square(f, 512), path = `agency/${me.id}-${Date.now()}.jpg`; const { error } = await sb.storage.from('images').upload(path, blob, { contentType: 'image/jpeg' }); if (error) throw error; const url = sb.storage.from('images').getPublicUrl(path).data.publicUrl; const r = await sb.from('agency_members').update({ avatar_url: url }).eq('id', me.id); if (r.error) throw r.error; toast('Foto atualizada'); closeSheet(); loadAll(); } catch (er) { toast('Não foi possível enviar a foto'); } };
+}
+function square(f, size) { return new Promise((res, rej) => { const im = new Image(), u = URL.createObjectURL(f); im.onload = () => { const s = Math.min(im.width, im.height), c = document.createElement('canvas'); c.width = c.height = size; c.getContext('2d').drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, size, size); URL.revokeObjectURL(u); c.toBlob(b => b ? res(b) : rej(), 'image/jpeg', .88); }; im.onerror = rej; im.src = u; }); }
+async function saveProfile() {
+  const name = $('#pn').value.trim(); if (!name) return toast('Escreva seu nome');
+  const { error } = await sb.from('agency_members').update({ name, bio: $('#pb').value.trim(), birthday: $('#pd').value || null }).eq('id', me.id);
+  if (error) return toast('Não foi possível salvar'); closeSheet(); toast('Perfil salvo'); loadAll();
+}
+function pwForm() {
+  sheet('Trocar senha', `<label for="np">Nova senha (mínimo 8 caracteres)</label><input id="np" type="password" autocomplete="new-password"><label for="np2">Repita a nova senha</label><input id="np2" type="password" autocomplete="new-password"><button class="btn full" style="margin-top:18px" data-act="save-pw">Salvar nova senha</button>`);
+}
+async function savePw() {
+  const a = $('#np').value; if (a.length < 8) return toast('Use pelo menos 8 caracteres'); if (a !== $('#np2').value) return toast('As senhas não conferem');
+  const { error } = await sb.auth.updateUser({ password: a }); if (error) return toast('Não foi possível trocar a senha'); closeSheet(); toast('Senha alterada'); log('trocou a senha');
+}
+function memberForm() {
+  sheet('Novo membro', `<label for="mn">Nome</label><input id="mn" maxlength="80"><label for="mrole">Cargo</label><input id="mrole" list="roles" value="Assistente" maxlength="40"><datalist id="roles"><option>Assistente</option><option>Designer</option><option>Redator</option><option>Editor de vídeo</option><option>Social media</option></datalist>
+  ${me.access_level === 'super' ? `<label for="mlv">Nível de acesso</label><select id="mlv"><option value="membro">Membro</option><option value="lider">Líder</option><option value="super">Super Administrador</option></select>` : ''}
+  <label for="mb">Aniversário (opcional)</label><input id="mb" type="date"><p class="small muted" style="margin-top:12px">O ID e a senha provisória são gerados automaticamente e aparecem uma única vez.</p><button class="btn full" style="margin-top:14px" data-act="create-member">Criar membro</button>`);
+}
+async function callMembers(body) {
+  const { data, error } = await sb.functions.invoke('agencia-membros', { body });
+  if (error || !data || data.error) { toast('Não foi possível concluir: ' + ((data && data.error) || 'tente de novo')); return null; } return data;
+}
+const credSheet = (title, r) => sheet(title, `<p class="muted">Passe estes dados para <b>${esc(r.name)}</b>. A senha não será mostrada de novo.</p><div class="cred"><small>ID</small><b>${esc(r.code)}</b><small style="display:block;margin-top:10px">Senha provisória</small><b>${esc(r.password)}</b></div><button class="btn full" data-act="copy" data-t="${esc(`ID: ${r.code}\nSenha: ${r.password}`)}">Copiar ID e senha</button>`);
+
+/* ---------- bottom sheet ---------- */
+function sheet(title, html) {
+  $('#layer').innerHTML = `<div class="sheet-bg" data-act="bg"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="hd"><h3>${title}</h3><button class="x" data-act="close" aria-label="Fechar">${icon('x')}</button></div>${html}</div></div>`;
+}
+const closeSheet = () => { $('#layer').innerHTML = ''; };
+
+/* ---------- eventos ---------- */
+document.addEventListener('click', async e => {
+  if (e.target.classList.contains('sheet-bg')) return closeSheet();
+  const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act, id = b.dataset.id, v = b.dataset.v;
+  switch (a) {
+    case 'menu': return openMenu();
+    case 'close-menu': return closeMenu();
+    case 'close': return closeSheet();
+    case 'nav': return go(v, id);
+    case 'bell': localStorage.setItem(lastLoginKey(), new Date().toISOString()); return go('avisos');
+    case 'lock': return lock(false);
+    case 'logout': return logout();
+    case 'edit-notice': return noticeForm(id);
+    case 'save-notice': return saveNotice(id);
+    case 'del-notice': if (confirm('Excluir este aviso?')) { const { error } = await sb.from('agency_notices').delete().eq('id', id); error ? toast('Não foi possível excluir') : (toast('Aviso excluído'), loadAll()); } return;
+    case 'task': return taskSheet(id);
+    case 'edit-task': return taskForm(id);
+    case 'save-task': return saveTask(id);
+    case 'del-task': if (confirm('Excluir esta tarefa?')) { const { error } = await sb.from('agency_tasks').delete().eq('id', id); error ? toast('Não foi possível excluir') : (closeSheet(), toast('Tarefa excluída'), loadAll()); } return;
+    case 'set-status': { const { error } = await sb.from('agency_tasks').update({ status: v }).eq('id', id); if (error) return toast('Não foi possível alterar'); tStatus = v; closeSheet(); toast('Andamento atualizado'); return loadAll(); }
+    case 'tfilter': tFilter = v; return render();
+    case 'tstatus': tStatus = v; return render();
+    case 'edit-profile': return profileForm();
+    case 'pick-photo': return $('#pf').click();
+    case 'save-profile': return saveProfile();
+    case 'pw-form': return pwForm();
+    case 'save-pw': return savePw();
+    case 'new-member': return memberForm();
+    case 'create-member': { const name = $('#mn').value.trim(); if (!name) return toast('Escreva o nome'); b.disabled = true; const r = await callMembers({ action: 'create', name, role_title: $('#mrole').value.trim(), access_level: $('#mlv') ? $('#mlv').value : 'membro', birthday: $('#mb').value || null }); b.disabled = false; if (r) { credSheet('Membro criado', r); loadAll(); } return; }
+    case 'save-member': { const p = { role_title: $('#mr').value.trim() || 'Assistente' }; if ($('#ml')) p.access_level = $('#ml').value; const { error } = await sb.from('agency_members').update(p).eq('id', id); error ? toast('Não foi possível salvar') : (toast('Membro atualizado'), loadAll()); return; }
+    case 'reset': if (confirm('Gerar uma nova senha para este membro? A atual deixa de funcionar.')) { const r = await callMembers({ action: 'reset', member_id: id }); if (r) credSheet('Nova senha', r); } return;
+    case 'toggle': { const on = v === '1'; if (!confirm(on ? 'Reativar este membro?' : 'Desativar este membro? Ele perde o acesso.')) return; const r = await callMembers({ action: 'toggle', member_id: id, active: on }); if (r) { toast(on ? 'Membro reativado' : 'Membro desativado'); loadAll(); } return; }
+    case 'copy': try { await navigator.clipboard.writeText(b.dataset.t); toast('Copiado'); } catch { toast('Copie manualmente'); } return;
+  }
+});
+document.addEventListener('input', e => { if (e.target.id === 'tq') { tQ = e.target.value; const pos = e.target.selectionStart; render(); const i = $('#tq'); i.focus(); i.setSelectionRange(pos, pos); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeSheet(); closeMenu(); } });
+</script>
+</body>
+</html>
