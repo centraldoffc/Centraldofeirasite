@@ -81,6 +81,16 @@ async function mountGoogle(){
 }
 let google_cb=()=>{};
 const lock=(id,on)=>{const b=$(id);if(b)b.disabled=!!on};
+/* confere o e-mail antes de criar a conta (formato, descartável, erro de digitação, domínio inexistente) */
+async function checkEmail(em){
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em))return {ok:false,msg:'Esse e-mail não parece válido. Confira e tente de novo.'};
+  try{const c=new AbortController(),t=setTimeout(()=>c.abort(),6000);
+    const r=await fetch('/api/validar-email?email='+encodeURIComponent(em),{signal:c.signal});clearTimeout(t);
+    if(!r.ok)return {ok:true};const d=await r.json();if(d.ok)return {ok:true};
+    const M={formato:'Esse e-mail não parece válido. Confira e tente de novo.',descartavel:'Use um e-mail permanente. Não aceitamos e-mails temporários.',dominio:'Não encontramos esse domínio de e-mail. Confira se digitou certo.',digitacao:d.suggestion?`Você quis dizer ${d.suggestion}?`:'Confira se o e-mail foi digitado certo.'};
+    return {ok:false,msg:M[d.reason]||M.formato};
+  }catch(e){return {ok:true}}
+}
 function eyes(){document.querySelectorAll('[data-eye]').forEach(b=>b.onclick=()=>{const i=$(b.dataset.eye);i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'mostrar':'ocultar'})}
 function showAuth(mode){
   setTimeout(()=>{document.querySelectorAll('[data-google]').forEach(b=>b.onclick=google);mountGoogle()});
@@ -97,7 +107,8 @@ function showAuth(mode){
   eyes();$('sw').onclick=()=>showAuth('in');
   $('fup').onsubmit=async e=>{e.preventDefault();const n=$('un').value.trim(),em=$('ue').value.trim(),pw=$('up').value;
     if(!n||!em)return $('uen').textContent='Preencha nome e e-mail.';if(pw.length<8)return $('uen').textContent='A senha precisa ter 8 ou mais caracteres.';
-    lock('ugo',1);const {data,error}=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:n},emailRedirectTo:RED}});lock('ugo',0);
+    lock('ugo',1);const chk=await checkEmail(em);if(!chk.ok){lock('ugo',0);return $('uen').textContent=chk.msg}
+    const {data,error}=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:n},emailRedirectTo:RED}});lock('ugo',0);
     if(error)return $('uen').textContent=tr(error);
     if(data.user&&data.user.identities&&!data.user.identities.length)return $('uen').textContent='Este e-mail já tem conta. Use “Entrar”.';
     data.session?start():showOtp(em,'signup')};
