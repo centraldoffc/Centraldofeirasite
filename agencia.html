@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<meta name="theme-color" content="#103f2a">
+<meta name="theme-color" content="#04140d">
 <title>Agência | Central do FFC</title>
 <link rel="icon" href="/mark.png">
 <link rel="stylesheet" href="assets/fonts.css">
@@ -36,7 +36,7 @@
     <p>O painel foi bloqueado para proteger sua conta. Digite sua senha para continuar de onde parou.</p>
     <label>Senha<span class="ag-field"><input type="password" id="lkpw" autocomplete="current-password" placeholder="Sua senha" required><button class="ag-eye" type="button" data-eye aria-label="Mostrar senha"><svg class="icon" aria-hidden="true"><use href="#ag-eye"/></svg></button></span></label>
     <div class="err" id="lkerr" role="alert"></div>
-    <button class="btn g" type="submit">Desbloquear</button>
+    <button class="btn g" type="submit"><svg class="icon" aria-hidden="true"><use href="#ag-lock"/></svg>Desbloquear</button>
     <button class="ag-link" type="button" id="lkOut">Não é você? Sair</button>
   </form>
 </div>
@@ -47,22 +47,20 @@
   <aside id="sidebar" aria-label="Navegação da agência">
     <button class="mobile-close" aria-label="Fechar menu" id="mc">×</button>
     <div class="brand"><img src="/mark.png" alt=""><div>Central do FFC<small>Agência</small></div></div>
-    <div class="nav-label">Menu</div>
     <button class="nav on" data-v="inicio"><svg class="icon" aria-hidden="true"><use href="#ag-home"/></svg>Visão geral</button>
     <button class="nav" data-v="avisos"><svg class="icon" aria-hidden="true"><use href="#ag-mega"/></svg>Avisos<span class="nav-count" data-b="notices" hidden></span></button>
     <button class="nav" data-v="tarefas"><svg class="icon" aria-hidden="true"><use href="#ag-task"/></svg>Tarefas<span class="nav-count" data-b="tasks" hidden></span></button>
     <button class="nav" data-v="calendario"><svg class="icon" aria-hidden="true"><use href="#ag-cal"/></svg>Calendário</button>
     <button class="nav" data-v="arquivos"><svg class="icon" aria-hidden="true"><use href="#ag-folder"/></svg>Arquivos</button>
     <button class="nav" data-v="chat"><svg class="icon" aria-hidden="true"><use href="#ag-chat"/></svg>Conversas<span class="nav-count" data-b="chat" hidden></span></button>
-    <div class="nav-label">Equipe</div>
     <button class="nav" data-v="equipe"><svg class="icon" aria-hidden="true"><use href="#ag-team"/></svg>Equipe</button>
     <button class="nav" data-v="pedidos"><svg class="icon" aria-hidden="true"><use href="#ag-inbox"/></svg>Pedidos<span class="nav-count" data-b="req" hidden></span></button>
     <button class="nav" data-v="atividade" id="navAct" hidden><svg class="icon" aria-hidden="true"><use href="#ag-pulse"/></svg>Atividade</button>
     <a class="nav" href="/gerenciar" id="navAdm" hidden><svg class="icon" aria-hidden="true"><use href="#ag-right"/></svg>Painel editorial</a>
     <div class="sp"></div>
+    <button class="ag-sbuser" id="sbMe" aria-label="Meu perfil"><span id="sbAv"></span><div><strong id="sbName"></strong><small id="sbRole"></small></div></button>
     <button class="nav" id="btnLock"><svg class="icon" aria-hidden="true"><use href="#ag-lock"/></svg>Bloquear painel</button>
     <button class="nav" id="btnOut"><svg class="icon" aria-hidden="true"><use href="#ag-out"/></svg>Sair</button>
-    <div class="ag-sidenote"><svg class="icon" aria-hidden="true"><use href="#ag-team"/></svg><strong>Time Central do FFC.</strong><p>Tudo da agência em um só lugar.</p></div>
   </aside>
   <div class="workspace">
     <header class="topbar">
@@ -96,6 +94,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(fals
 document.querySelectorAll('aside .nav[data-v]').forEach(b => b.onclick = () => { AG.go(b.dataset.v); setMenu(false); });
 $('#bell').onclick = () => AG.openNotifs();
 $('#meBtn').onclick = () => AG.openMe();
+$('#sbMe').onclick = () => { setMenu(false); AG.openMe(); };
 $('#btnOut').onclick = logout; $('#lkOut').onclick = logout; $('#btnLock').onclick = () => lock(false);
 
 /* login */
@@ -139,7 +138,7 @@ async function boot(fresh) {
   sb.rpc('is_admin').then(r => { $('#navAdm').hidden = r.data !== true; });
   AG.go('inicio'); if (fresh) AG.log('entrou no painel');
 }
-function drawMe() { const m = AG.me; if (!m) return; $('#meAv').innerHTML = AG.av(m, 38); $('#meName').textContent = AG.first(m.name); $('#meRole').textContent = m.role_title; }
+function drawMe() { const m = AG.me; if (!m) return; $('#meAv').innerHTML = AG.av(m, 40); $('#meName').textContent = AG.first(m.name); $('#meRole').textContent = m.role_title; $('#sbAv').innerHTML = AG.av(m, 42); $('#sbName').textContent = AG.first(m.name); $('#sbRole').textContent = m.role_title; }
 
 /* bloqueio por inatividade */
 ['click', 'keydown', 'touchstart', 'scroll'].forEach(ev => addEventListener(ev, () => { if (!locked) lastAct = Date.now(); }, { passive: true }));
