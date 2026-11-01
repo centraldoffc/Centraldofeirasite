@@ -12,7 +12,21 @@
     const part = text.slice(0, 179);
     return part.slice(0, part.lastIndexOf(' ') > 100 ? part.lastIndexOf(' ') : part.length).trimEnd() + '…';
   }
-  const api = {summary};
+  // Recebe o HTML já sanitizado: compara a URL completa, sem confundir fotos diferentes.
+  function hasInlineImage(content, cover) {
+    if (!cover) return false;
+    const normalize = value => {
+      try { return new URL(String(value).replace(/&amp;/g, '&')).href; }
+      catch { return null; }
+    };
+    const target = normalize(cover);
+    if (!target) return false;
+    return (String(content || '').match(/<img\b[^>]*>/gi) || []).some(tag => {
+      const src = tag.match(/\ssrc\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
+      return src && normalize(src[1] ?? src[2] ?? src[3]) === target;
+    });
+  }
+  const api = {summary, hasInlineImage};
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.FFCArticle = api;
 })(globalThis);

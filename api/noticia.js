@@ -1,5 +1,5 @@
 // Página real de cada notícia: /noticia/<slug> (HTML pronto, com dados para o Google)
-const { summary } = require('../assets/article-format');
+const { summary, hasInlineImage } = require('../assets/article-format');
 const { q, esc, origin, clean } = require('./_lib');
 
 const page = (title, body, head = '') => `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -28,7 +28,7 @@ ${a.image_url ? `<meta property="og:image" content="${esc(a.image_url)}"><meta n
 <div class="reading-tools" role="group" aria-label="Preferências de leitura"><button type="button" data-reading-action="size" aria-label="Aumentar texto. Tamanho padrão">Texto padrão</button><button type="button" data-reading-action="theme" aria-pressed="false">Leitura escura</button><span class="reading-status" role="status" aria-live="polite"></span></div>
 <p class="news-category">FEIRA FUTEBOL CLUBE</p><h1>${esc(a.title)}</h1>${desc ? `<p class="lead">${esc(desc)}</p>` : ''}
 <div class="news-meta"><time datetime="${esc(a.created_at)}">${new Date(a.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'America/Bahia' })}</time><span>${esc(a.author || 'Redação Central do FFC')}</span><span>${minutes} min de leitura</span></div>
-${a.image_url ? `<img class="cover" src="${esc(a.image_url)}" alt="${esc(a.title)}">` : ''}<div class="t news-content">${text}</div></article><a class="news-back news-bottom" href="/site">← Voltar às notícias</a>`;
+${a.image_url && !hasInlineImage(text, a.image_url) ? `<img class="cover" src="${esc(a.image_url)}" alt="${esc(a.title)}">` : ''}<div class="t news-content">${text}</div></article><a class="news-back news-bottom" href="/site">← Voltar às notícias</a>`;
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
     res.status(200).send(page(`${a.title} — Central do FFC`, body, head));
   } catch (e) {

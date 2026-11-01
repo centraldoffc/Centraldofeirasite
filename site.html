@@ -102,6 +102,7 @@
 </style>
 <link rel="stylesheet" href="/assets/fonts.css">
 <link rel="stylesheet" href="/assets/leitura.css">
+<script src="/assets/article-format.js"></script>
 <script defer src="/assets/leitura.js"></script>
 </head>
 <body>
@@ -192,6 +193,7 @@
       ${a.image_url ? ph(a) : ''}
       <div class="txt news-content">${/<[a-z][\s\S]*>/i.test(a.content || '') ? a.content : paras.map(p => `<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('')}</div><a class="news-back news-bottom" href="#/">← Voltar às notícias</a></article>`;
     clean(document.querySelector('.art .txt'));
+    if (FFCArticle.hasInlineImage(document.querySelector('.art .txt').innerHTML, a.image_url)) document.querySelector('.art > .ph')?.remove();
     document.title = `${a.title} — Central do FFC`;
   }
 
