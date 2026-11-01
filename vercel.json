@@ -12,6 +12,10 @@
       "destination": "/login.html"
     },
     {
+      "source": "/agencia",
+      "destination": "/agencia.html"
+    },
+    {
       "source": "/formulario",
       "destination": "/formulario.html"
     },
