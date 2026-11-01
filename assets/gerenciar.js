@@ -131,6 +131,7 @@
   function newArt(){ cur = null; fill({ title:'', summary:'', content:'', images:[], image_url:'', published:false, featured:false, author:'Redação Central do FFC' }); $('etitle').textContent = 'Nova notícia'; }
   function edit(id){ cur = arts.find(a => a.id === id); fill(cur); $('etitle').textContent = 'Editar notícia'; }
   function fill(a){
+    coverEditorVersion++;
     FFCImageEditor.reset(); range = null;
     $('t').value = a.title; $('au').value = a.author || '';
     $('body').innerHTML = /<[a-z][\s\S]*>/i.test(a.content || '') ? a.content : (a.content || '').split(/\n{2,}/).filter(Boolean).map(p => `<p>${esc(p)}</p>`).join('');
@@ -140,6 +141,7 @@
   const slug = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 70) + '-' + Math.random().toString(36).slice(2, 6);
 
   async function save(publish){
+    if (coverBusy) return toast('Aguarde o ajuste da capa terminar.');
     const title = $('t').value.trim(); if (!title) return toast('Escreva um título');
     const content = FFCImageEditor.content();
     const p = { title, summary: FFCArticle.summary(content, title), content, author: $('au').value.trim() || 'Redação Central do FFC',
@@ -164,9 +166,37 @@
   });
   document.addEventListener('selectionchange', () => { const s = getSelection(); if (s.rangeCount && $('body').contains(s.anchorNode)) range = s.getRangeAt(0); });
 
+  let coverBusy = false, coverEditorVersion = 0;
   /* imagens */
   function gal(){
+    const currentCover = cover || imgs[0] || '';
+    $('cover-editor').hidden = !currentCover;
+    if (currentCover) $('cover-preview').src = currentCover;
+    else $('cover-preview').removeAttribute('src');
+    $('edit-cover').disabled = coverBusy;
     $('gal').innerHTML = imgs.map((u, i) => `<div class="gi ${u === cover ? 'cv' : ''}"><img src="${esc(u)}" alt=""><div><button onclick="setCover(${i})">${u === cover ? '✓ Capa' : 'Capa'}</button><button onclick="inText(${i})">No texto</button><button onclick="rmImg(${i})">✕</button></div></div>`).join('');
+  }
+  async function editCover(){
+    const source = cover || imgs[0];
+    if (!source || coverBusy) return;
+    const version = coverEditorVersion;
+    coverBusy = true; gal();
+    try {
+      const response = await fetch(source, { signal: AbortSignal.timeout(20000) });
+      if (!response.ok) throw new Error('Não foi possível carregar a capa.');
+      const file = await response.blob();
+      if (version !== coverEditorVersion) return;
+      const blob = await cropImage(file, {aspect:16/9, max:1600, title:'Ajustar capa', choices:[['16:9',16/9],['4:3',4/3],['Quadrada',1],['Original',0]]});
+      if (!blob || version !== coverEditorVersion) return;
+      const path = `news/cover-${crypto.randomUUID()}.jpg`;
+      const { error } = await sb.storage.from('images').upload(path, blob, {contentType:'image/jpeg'});
+      if (error) throw error;
+      if (version !== coverEditorVersion) return;
+      cover = sb.storage.from('images').getPublicUrl(path).data.publicUrl;
+      imgs.push(cover);
+      toast('Capa ajustada. Salve a notícia para aplicar.');
+    } catch (error) { toast(upErr(error)); }
+    finally { coverBusy = false; gal(); }
   }
   const setCover = i => { cover = imgs[i]; gal(); };
   const rmImg = i => { if (cover === imgs[i]) cover = ''; imgs.splice(i, 1); gal(); };

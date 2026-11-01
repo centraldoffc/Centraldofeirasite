@@ -243,6 +243,12 @@
           <div class="sw"><span>Publicada no site</span><input type="checkbox" id="pub"></div>
           <div class="sw"><span>Destaque na capa</span><input type="checkbox" id="ft"></div>
           <label>Autor</label><input type="text" id="au" value="Redação Central do FFC">
+          <div class="cover-editor" id="cover-editor" hidden>
+            <label>Capa da notícia</label>
+            <img id="cover-preview" alt="Prévia da capa da notícia">
+            <button type="button" class="btn o" id="edit-cover" onclick="editCover()">Ajustar capa</button>
+            <p class="editor-hint">Reposicione, amplie ou recorte a foto. Depois salve a notícia.</p>
+          </div>
           <label>Imagens</label>
           <input type="file" id="file" accept="image/*" multiple hidden>
           <button class="btn o" style="width:100%" onclick="file.click()">Enviar imagens</button>
