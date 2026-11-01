@@ -22,6 +22,44 @@
 .fm-tbl tr.r{cursor:pointer}.fm-tbl tr.r:hover{background:#f1f5f2}
 .fm-qa{padding:12px 0;border-bottom:1px solid var(--line)}.fm-qa small{display:block;color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
 @media(max-width:700px){.fm-field{grid-template-columns:1fr 1fr}}
+
+/* ===== dashboard: equipe, ranking, Google Notícias, pulso ===== */
+.dx-sub{font-size:11px;color:var(--dim);margin:-8px 0 14px}
+.dx-av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;flex:none;color:#fff;letter-spacing:-.02em}
+.dx-team{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.dx-m{display:flex;gap:11px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:16px;min-width:0}
+.dx-m b{display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dx-m small{display:block;font-size:10px;color:var(--dim);margin-top:2px}
+.dx-m>div:last-child{min-width:0}
+.dx-rank{display:grid;gap:8px}
+.dx-r{display:grid;grid-template-columns:26px 40px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:14px}
+.dx-r:first-child{background:#eef6f1}
+.dx-pos{font-size:13px;font-weight:700;color:var(--dim);text-align:center}.dx-r:first-child .dx-pos{color:var(--acc)}
+.dx-r b{display:block;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dx-r small{display:block;font-size:10px;color:var(--dim)}
+.dx-track{height:6px;border-radius:9px;background:#edf1ee;margin-top:6px;overflow:hidden}.dx-track i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#1d754c,#59b98b)}
+.dx-n{font-size:20px;font-weight:600;letter-spacing:-.04em;text-align:right;line-height:1}.dx-n small{font-size:9px;font-weight:500}
+.dx-seg{display:flex;gap:6px;flex-wrap:wrap}
+.dx-news{display:grid;gap:0}
+.dx-g{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}
+.dx-g:last-child{border-bottom:0}.dx-g:hover b{color:var(--acc)}
+.dx-g .ic{width:34px;height:34px;border-radius:10px;background:#e9f6ee;color:#1d754c;display:grid;place-items:center;flex:none}
+.dx-g b{display:block;font-size:13px;font-weight:600;line-height:1.35;white-space:normal}
+.dx-g small{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px;font-size:10px;color:var(--dim)}
+.dx-g .badge{margin:0}
+.dx-pulse{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.dx-p{padding:14px;border-radius:16px;background:var(--side);min-width:0}
+.dx-p small{display:block;font-size:11px;color:var(--dim)}
+.dx-p b{display:block;font-size:26px;font-weight:600;letter-spacing:-.04em;line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dx-p em{font-style:normal;font-size:10px;color:var(--dim);display:block;margin-top:2px}
+.dx-up{color:#1d754c!important}.dx-down{color:var(--red)!important}
+.dx-resp{display:flex;gap:11px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}.dx-resp:last-child{border-bottom:0}
+.dx-resp b{display:block;font-size:12px;font-weight:600}.dx-resp small{display:block;font-size:10px;color:var(--dim)}
+.dx-resp .tx{flex:1;min-width:0}.dx-resp .tx b,.dx-resp .tx small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dx-empty{color:var(--dim);font-size:12px;margin:6px 0}
+.dx-sk{height:14px;border-radius:8px;background:linear-gradient(90deg,#edf1ee,#f7f9f7,#edf1ee);background-size:200% 100%;animation:dxsk 1.2s infinite;margin:14px 0}
+@keyframes dxsk{to{background-position:-200% 0}}
+@media(max-width:620px){.dx-team{grid-template-columns:1fr}.dx-r{grid-template-columns:22px 36px minmax(0,1fr) auto;gap:8px;padding:8px 4px}.dx-av{width:36px;height:36px}.dx-p b{font-size:22px}}
 </style>
 </head>
 <body>
@@ -98,6 +136,15 @@
         <div class="panel quick-card"><p class="eyebrow">Próxima publicação</p><h3>A próxima história<br>começa aqui.</h3><p id="draft-note">Leve as novidades do Feira à torcida.</p><div class="quick"><button class="btn g" onclick="newArt()"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Escrever notícia</button><button class="btn o" onclick="filt='dr';draw();show('list')">Ver rascunhos</button></div></div>
         <div class="panel progress-card"><h3>Visão das publicações</h3><div class="publication-ring" id="publication-ring"><div><strong id="publication-percent">0%</strong><small>publicadas</small></div></div><div class="legend"><span><i></i>Publicadas</span><span><i></i>Rascunhos</span></div></div>
       </div>
+      <div class="row" id="dx-people">
+        <div class="panel"><div class="panel-header"><h3>Equipe da redação</h3><span id="dx-team-count"></span></div><p class="dx-sub">Quem assina as notícias da Central do FFC.</p><div class="dx-team" id="dx-team"></div></div>
+        <div class="panel"><div class="panel-header"><h3>Quem mais publicou</h3><div class="dx-seg" id="dx-seg"><button class="btn o s" data-p="7" aria-pressed="false">7 dias</button><button class="btn o s" data-p="30" aria-pressed="true">30 dias</button><button class="btn o s" data-p="0" aria-pressed="false">Sempre</button></div></div><div class="dx-rank" id="dx-rank"></div></div>
+      </div>
+      <div class="row" id="dx-more">
+        <div class="panel"><div class="panel-header"><h3>Pulso da redação</h3><span>Resumo rápido</span></div><div class="dx-pulse" id="dx-pulse"></div></div>
+        <div class="panel"><div class="panel-header"><h3>Últimas respostas</h3><button class="btn o s" id="dx-go-forms">Ver formulários <svg class="icon" aria-hidden="true"><use href="#i-right"/></svg></button></div><div id="dx-resp"></div></div>
+      </div>
+      <div class="panel" style="margin-bottom:16px"><div class="panel-header"><h3>No Google Notícias</h3><div class="dx-seg"><button class="btn o s" id="dx-gn-reload">Atualizar</button><a class="btn o s" id="dx-gn-open" href="https://news.google.com/search?q=%22Central%20do%20FFC%22&hl=pt-BR&gl=BR&ceid=BR:pt-419" target="_blank" rel="noopener">Abrir no Google <svg class="icon" aria-hidden="true"><use href="#i-out"/></svg></a></div></div><p class="dx-sub">As últimas matérias nossas que o Google Notícias está mostrando.</p><div class="dx-news" id="dx-gn" aria-live="polite"></div></div>
       <div class="panel recent-panel"><div class="panel-header"><h3>Últimas notícias</h3><button class="btn o s" onclick="show('list')">Ver todas <svg class="icon" aria-hidden="true"><use href="#i-right"/></svg></button></div><div class="list" id="recent"></div></div>
     </section>
 
@@ -200,6 +247,92 @@
 <script src="assets/gerenciar.js"></script>
 <script src="assets/editor-toolbar.js"></script>
 <script src="assets/formularios.js"></script>
+<script>
+/* ===== dashboard: equipe, ranking, Google Notícias e pulso ===== */
+(() => {
+  const DEF = 'Redação Central do FFC', DAY = 864e5;
+  const COLORS = ['#175a3b', '#1d754c', '#0d3623', '#3f8f66', '#2c6e57', '#4f7f5f', '#1b5e4a'];
+  const norm = n => String(n || DEF).trim().replace(/\s+/g, ' ');
+  const key = n => norm(n).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const ini = n => { if (key(n) === key(DEF)) return 'CF'; const w = norm(n).split(' ').filter(x => x.length > 2 || /^[A-Z]/.test(x)); return ((w[0] || '?')[0] + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase(); };
+  const hue = n => COLORS[[...key(n)].reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
+  const av = n => `<span class="dx-av" style="background:${hue(n)}" aria-hidden="true">${esc(ini(n))}</span>`;
+  const rel = d => { if (!d) return ''; const m = Math.max(0, (Date.now() - new Date(d)) / 6e4);
+    if (m < 1) return 'agora'; if (m < 60) return `há ${Math.floor(m)} min`; if (m < 1440) return `há ${Math.floor(m / 60)} h`;
+    const dd = Math.floor(m / 1440); return dd < 30 ? `há ${dd} dia${dd > 1 ? 's' : ''}` : new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }); };
+  const plural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+
+  let period = 30, forms = [], resps = [], linksAct = null, extraLoaded = false, gnTried = false;
+
+  /* equipe + ranking (a partir das notícias já carregadas) */
+  function people(){
+    const map = new Map();
+    arts.forEach(a => { const k = key(a.author), m = map.get(k) || { name: norm(a.author), total: 0, pub: 0, dr: 0, ft: 0, last: null, items: [] };
+      m.total++; a.published ? m.pub++ : m.dr++; if (a.featured) m.ft++;
+      if (!m.last || new Date(a.created_at) > new Date(m.last)) m.last = a.created_at; m.items.push(a.created_at); map.set(k, m); });
+    return [...map.values()];
+  }
+  function drawPeople(){
+    const all = people().sort((a, b) => b.total - a.total || new Date(b.last) - new Date(a.last));
+    $('dx-team-count').textContent = plural(all.length, 'membro', 'membros');
+    $('dx-team').innerHTML = all.map(m => `<div class="dx-m">${av(m.name)}<div><b title="${esc(m.name)}">${esc(m.name)}</b><small>${plural(m.total, 'notícia', 'notícias')} · última ${rel(m.last)}</small>${key(m.name) === key(DEF) ? '<span class="badge">Assinatura da redação</span>' : ''}</div></div>`).join('') || '<p class="dx-empty">Ainda não há notícias assinadas.</p>';
+    const since = period ? Date.now() - period * DAY : 0;
+    const rk = all.map(m => { const n = m.items.filter(d => new Date(d) >= since).length; return { ...m, n }; }).filter(m => m.n > 0).sort((a, b) => b.n - a.n).slice(0, 5);
+    const mx = Math.max(1, ...rk.map(r => r.n));
+    $('dx-rank').innerHTML = rk.map((r, i) => `<div class="dx-r"><span class="dx-pos">${i + 1}º</span>${av(r.name)}<div style="min-width:0"><b title="${esc(r.name)}">${esc(r.name)}</b><small>${plural(r.pub, 'publicada', 'publicadas')} · ${plural(r.dr, 'rascunho', 'rascunhos')}</small><div class="dx-track"><i style="width:${Math.max(6, r.n / mx * 100)}%"></i></div></div><div class="dx-n">${r.n}<small> notícia${r.n === 1 ? '' : 's'}</small></div></div>`).join('') || `<p class="dx-empty">Ninguém publicou ${period ? `nos últimos ${period} dias` : 'ainda'}.</p>`;
+    document.querySelectorAll('#dx-seg [data-p]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.p === period)));
+  }
+
+  /* pulso */
+  function drawPulse(){
+    const now = Date.now(), n7 = arts.filter(a => now - new Date(a.created_at) < 7 * DAY).length, p7 = arts.filter(a => { const t = now - new Date(a.created_at); return t >= 7 * DAY && t < 14 * DAY; }).length;
+    const diff = n7 - p7, last = arts.filter(a => a.published).sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+    const act30 = people().filter(m => m.items.some(d => now - new Date(d) < 30 * DAY)).length;
+    const t = [
+      ['Notícias em 7 dias', n7, p7 || n7 ? `<em class="${diff > 0 ? 'dx-up' : diff < 0 ? 'dx-down' : ''}">${diff > 0 ? '▲ +' + diff + ' vs. semana anterior' : diff < 0 ? '▼ ' + diff + ' vs. semana anterior' : 'Igual à semana anterior'}</em>` : '<em>Sem movimento ainda</em>'],
+      ['Última publicação', last ? rel(last.created_at) : '—', last ? `<em title="${esc(last.title)}">${esc(last.title.slice(0, 34))}${last.title.length > 34 ? '…' : ''}</em>` : '<em>Nada publicado</em>'],
+      ['Autores ativos', act30, '<em>nos últimos 30 dias</em>'],
+      ['Formulários ativos', extraLoaded ? forms.filter(f => f.active).length : '…', extraLoaded ? `<em>${plural(forms.length, 'formulário', 'formulários')} no total</em>` : '<em>carregando</em>'],
+      ['Respostas recebidas', extraLoaded ? resps.length : '…', extraLoaded && resps[0] ? `<em>última ${rel(resps[0].created_at)}</em>` : '<em>&nbsp;</em>'],
+      ['Links na bio', linksAct === null ? '…' : linksAct, '<em>ativos na página</em>']
+    ];
+    $('dx-pulse').innerHTML = t.map(([l, v, e]) => `<div class="dx-p"><small>${l}</small><b>${esc(v)}</b>${e}</div>`).join('');
+  }
+  function drawResp(){
+    if (!extraLoaded) { $('dx-resp').innerHTML = '<div class="dx-sk"></div><div class="dx-sk"></div><div class="dx-sk"></div>'; return; }
+    const title = id => (forms.find(f => f.id === id) || {}).title || 'Formulário';
+    $('dx-resp').innerHTML = resps.slice(0, 5).map(r => `<div class="dx-resp">${av(r.respondent_name)}<div class="tx"><b>${esc(r.respondent_name || 'Sem nome')}</b><small>${esc(title(r.form_id))}</small></div><small>${rel(r.created_at)}</small></div>`).join('') || '<p class="dx-empty">Nenhuma resposta ainda.</p>';
+  }
+  async function loadExtra(){
+    try {
+      const [f, r, l] = await Promise.all([sb.from('forms').select('id,title,active'), sb.from('form_responses').select('id,form_id,respondent_name,created_at').order('created_at', { ascending: false }).limit(500), sb.from('links').select('id').eq('active', true)]);
+      forms = f.data || []; resps = r.data || []; linksAct = l.error ? null : (l.data || []).length;
+    } catch (e) { forms = []; resps = []; }
+    extraLoaded = true; drawPulse(); drawResp();
+  }
+
+  /* Google Notícias */
+  async function loadGN(){
+    const box = $('dx-gn'); box.innerHTML = '<div class="dx-sk"></div><div class="dx-sk"></div><div class="dx-sk"></div>';
+    try {
+      const r = await fetch('/api/google-noticias?limit=8'); if (!r.ok) throw 0; const j = await r.json();
+      if (j.searchUrl) $('dx-gn-open').href = j.searchUrl;
+      box.innerHTML = (j.items || []).map(i => `<a class="dx-g" href="${esc(i.link)}" target="_blank" rel="noopener noreferrer"><span class="ic"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg></span><div><b>${esc(i.title)}</b><small>${i.ours ? '<span class="badge">Nossa</span>' : ''}<span>${esc(i.source || 'Google Notícias')}</span><span>·</span><span>${rel(i.date)}</span></small></div></a>`).join('')
+        || '<p class="dx-empty">O Google Notícias ainda não mostra matérias nossas. Isso pode levar alguns dias depois da aprovação do site.</p>';
+    } catch (e) { box.innerHTML = '<p class="dx-empty">Não consegui buscar o Google Notícias agora. Tente atualizar em instantes.</p>'; }
+  }
+
+  /* ligações com o painel */
+  const _draw = draw;
+  draw = function(){ _draw(); drawPeople(); drawPulse(); if (!extraLoaded) drawResp(); if (!gnTried && arts.length >= 0) { gnTried = true; loadGN(); loadExtra(); } };
+  const _show = show;
+  show = function(v){ _show(v); if (v === 'dash' && gnTried) loadExtra(); };
+  document.querySelectorAll('#dx-seg [data-p]').forEach(b => b.onclick = () => { period = +b.dataset.p; drawPeople(); });
+  $('dx-gn-reload').onclick = loadGN;
+  $('dx-go-forms').onclick = () => document.querySelector('aside .nav[data-v="forms"]').click();
+  if (arts.length) draw();
+})();
+</script>
 </body>
         </html>
         
