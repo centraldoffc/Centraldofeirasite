@@ -149,7 +149,8 @@
   }
 
   document.querySelector('.tb').addEventListener('click', e => {
-    const b = e.target.closest('button'); if (!b) return; const c = b.dataset.c; $('body').focus();
+    const b = e.target.closest('button'); if (!b) return; const c = b.dataset.c; $('body').focus({ preventScroll: true });
+    if (range && $('body').contains(range.commonAncestorContainer)){ const selection = getSelection(); selection.removeAllRanges(); selection.addRange(range); }
     if (c === 'link'){ let u = prompt('Endereço do link (ex.: https://...)'); if (!u) return; if (!/^(https?:|mailto:)/i.test(u)) u = 'https://' + u; document.execCommand('createLink', false, u); }
     else if (c === 'h2') document.execCommand('formatBlock', false, 'h2');
     else if (c === 'quote') document.execCommand('formatBlock', false, 'blockquote');

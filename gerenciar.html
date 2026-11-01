@@ -160,12 +160,14 @@
           <input type="text" id="t" aria-label="Título da notícia" placeholder="Título da notícia" style="font:400 22px 'Archivo Black';padding:14px">
           <p class="editor-hint">O resumo é gerado automaticamente a partir do texto da notícia.</p>
           <label>Texto</label>
+          <div class="editor-tools" id="editor-tools" aria-label="Ferramentas de edição">
           <div class="tb" onmousedown="event.preventDefault()">
             <button data-c="bold" title="Negrito">B</button><button data-c="italic" title="Itálico"><i>I</i></button><button data-c="underline" title="Sublinhado"><u>U</u></button>
             <button data-c="h2" title="Subtítulo">H</button><button data-c="quote" title="Citação">“ ”</button><button data-c="ul" title="Lista">• —</button>
             <button data-c="link" title="Adicionar link">Link</button><button data-c="unlink" title="Remover link">Sem link</button><button data-c="clear" title="Limpar formatação">Limpar</button>
           </div>
           <div class="image-editor-actions"><button type="button" class="btn o s" id="select-image">Selecionar imagem no texto</button><span class="editor-hint">Toque em uma imagem para ajustar.</span></div>
+          </div>
           <div id="image-tools" class="image-tools" role="group" aria-label="Ajustes da imagem" hidden>
             <label for="image-width">Tamanho<select id="image-width"><option value="50">Pequena (50%)</option><option value="75">Média (75%)</option><option value="100">Largura total</option></select></label>
             <label for="image-align">Alinhamento<select id="image-align"><option value="left">Esquerda</option><option value="center">Centro</option><option value="right">Direita</option></select></label>
@@ -175,7 +177,7 @@
           <p id="image-status" class="editor-hint" role="status"></p>
           <div id="body" contenteditable="true" spellcheck="true" role="textbox" aria-label="Texto da notícia" aria-multiline="true"></div>
         </div>
-        <div class="panel">
+        <div class="editor-side" id="editor-side"><div class="panel">
           <h3>Publicação</h3>
           <div class="sw"><span>Publicada no site</span><input type="checkbox" id="pub"></div>
           <div class="sw"><span>Destaque na capa</span><input type="checkbox" id="ft"></div>
@@ -185,7 +187,7 @@
           <button class="btn o" style="width:100%" onclick="file.click()">Enviar imagens</button>
           <div class="gal" id="gal"></div>
           <p style="font-size:12px;color:var(--faint)">“Capa” define a imagem principal. “No texto” coloca a imagem onde o cursor estiver.</p>
-        </div>
+        </div></div>
       </div>
     </section>
   </main></div>
@@ -196,6 +198,7 @@
 <script src="assets/article-format.js"></script>
 <script src="assets/image-editor.js"></script>
 <script src="assets/gerenciar.js"></script>
+<script src="assets/editor-toolbar.js"></script>
 <script src="assets/formularios.js"></script>
 </body>
         </html>
