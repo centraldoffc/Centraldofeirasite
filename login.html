@@ -56,7 +56,7 @@ const tr=e=>{const m=(e&&e.message||'').toLowerCase();
   return m.includes('invalid login')?'E-mail ou senha incorretos.':m.includes('rate limit')||m.includes('seconds')?'Muitas tentativas. Aguarde um pouco e tente de novo.':m.includes('expired')||m.includes('invalid')?'Código inválido ou expirado.':m.includes('password')?'Senha fraca. Use 8 ou mais caracteres.':'Algo deu errado. Tente novamente.'};
 
 /* ---------- login ---------- */
-const BRAND='<div class="brand"><img src="/mark.png" alt=""><div>Central do FFC<small>Painel editorial</small></div></div>';
+const BRAND='<div class="brand"><img src="/mark.png" alt=""><div>Central do FFC</div></div>';
 const RED=location.origin+'/login'+(nx&&dest!=='/'?'?next='+encodeURIComponent(dest):'');
 async function google(){const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:RED}});
   if(error){const el=$('ien')||$('uen');if(el)el.textContent='Não foi possível entrar com Google. Tente novamente.'}}
