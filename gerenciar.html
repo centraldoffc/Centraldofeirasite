@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Gerenciar | Central do FFC</title>
+<link rel="icon" href="/mark.png">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/gerenciar.css">
+<link rel="stylesheet" href="assets/agencia.css">
+<style>
+.fm-card{background:#fff;border-radius:18px;padding:16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.fm-card .tx{flex:1;min-width:200px}.fm-card .tx b{display:block;font-size:15px}.fm-card .tx small{color:var(--dim);display:block}
+.fm-n{font-size:26px;font-weight:600;letter-spacing:-.04em;min-width:64px;text-align:center;line-height:1}.fm-n small{display:block;font-size:10px;font-weight:500;letter-spacing:0;color:var(--dim);margin-top:4px}
+.fm-step{background:#fff;border-radius:18px;padding:18px;margin-bottom:12px;border:1px solid var(--line)}
+.fm-step>.hd{display:flex;gap:10px;align-items:center;margin-bottom:12px}.fm-step>.hd input{font-weight:600}
+.fm-field{display:grid;grid-template-columns:1.6fr 1fr auto auto;gap:8px;align-items:start;padding:10px;background:var(--side);border-radius:12px;margin-bottom:8px}
+.fm-field textarea{grid-column:1/-1;min-height:60px}.fm-field label.chk{display:flex;gap:6px;align-items:center;font-size:12px;white-space:nowrap;margin:0;padding-top:11px}
+#v-forms input[type=text],#v-forms select,#v-forms textarea{width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+#v-forms label{display:block;font-size:12px;color:var(--dim);margin:12px 0 5px}
+.fm-tbl{width:100%;border-collapse:collapse}.fm-tbl td,.fm-tbl th{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line);font-size:13px}.fm-tbl th{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;font-weight:500}
+.fm-tbl tr.r{cursor:pointer}.fm-tbl tr.r:hover{background:#f1f5f2}
+.fm-qa{padding:12px 0;border-bottom:1px solid var(--line)}.fm-qa small{display:block;color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+@media(max-width:700px){.fm-field{grid-template-columns:1fr 1fr}}
+
+/* ===== dashboard: equipe, ranking, Google Notícias, pulso ===== */
+.dx-sub{font-size:11px;color:var(--dim);margin:-8px 0 14px}
+.dx-av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;flex:none;color:#fff;letter-spacing:-.02em}
+.dx-team{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.dx-m{display:flex;gap:11px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:16px;min-width:0}
+.dx-m b{display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dx-m small{display:block;font-size:10px;color:var(--dim);margin-top:2px}
+.dx-m>div:last-child{min-width:0}
+.dx-rank{display:grid;gap:8px}
+.dx-r{display:grid;grid-template-columns:26px 40px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:14px}
+.dx-r:first-child{background:#eef6f1}
+.dx-pos{font-size:13px;font-weight:700;color:var(--dim);text-align:center}.dx-r:first-child .dx-pos{color:var(--acc)}
+.dx-r b{display:block;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dx-r small{display:block;font-size:10px;color:var(--dim)}
+.dx-track{height:6px;border-radius:9px;background:#edf1ee;margin-top:6px;overflow:hidden}.dx-track i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#1d754c,#59b98b)}
+.dx-n{font-size:20px;font-weight:600;letter-spacing:-.04em;text-align:right;line-height:1}.dx-n small{font-size:9px;font-weight:500}
+.dx-seg{display:flex;gap:6px;flex-wrap:wrap}
+.dx-news{display:grid;gap:0}
+.dx-g{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}
+.dx-g:last-child{border-bottom:0}.dx-g:hover b{color:var(--acc)}
+.dx-g .ic{width:34px;height:34px;border-radius:10px;background:#e9f6ee;color:#1d754c;display:grid;place-items:center;flex:none}
+.dx-g b{display:block;font-size:13px;font-weight:600;line-height:1.35;white-space:normal}
+.dx-g small{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px;font-size:10px;color:var(--dim)}
+.dx-g .badge{margin:0}
+.dx-pulse{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.dx-p{padding:14px;border-radius:16px;background:var(--side);min-width:0}
+.dx-p small{display:block;font-size:11px;color:var(--dim)}
+.dx-p b{display:block;font-size:26px;font-weight:600;letter-spacing:-.04em;line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dx-p em{font-style:normal;font-size:10px;color:var(--dim);display:block;margin-top:2px}
+.dx-up{color:#1d754c!important}.dx-down{color:var(--red)!important}
+.dx-resp{display:flex;gap:11px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}.dx-resp:last-child{border-bottom:0}
+.dx-resp b{display:block;font-size:12px;font-weight:600}.dx-resp small{display:block;font-size:10px;color:var(--dim)}
+.dx-resp .tx{flex:1;min-width:0}.dx-resp .tx b,.dx-resp .tx small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dx-empty{color:var(--dim);font-size:12px;margin:6px 0}
+.dx-sk{height:14px;border-radius:8px;background:linear-gradient(90deg,#edf1ee,#f7f9f7,#edf1ee);background-size:200% 100%;animation:dxsk 1.2s infinite;margin:14px 0}
+@keyframes dxsk{to{background-position:-200% 0}}
+@media(max-width:620px){.dx-team{grid-template-columns:1fr}.dx-r{grid-template-columns:22px 36px minmax(0,1fr) auto;gap:8px;padding:8px 4px}.dx-av{width:36px;height:36px}.dx-p b{font-size:22px}}
+</style>
+</head>
+<body>
+<svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-logo" viewBox="0 0 32 32"><rect x="3.5" y="3.5" width="25" height="25" rx="8.5"/><path d="M16 23.5v-9"/><path d="M16 16c0-4.2 2.9-6.9 7-6.9 0 4.2-2.9 6.9-7 6.9Z"/><path d="M16 19c0-3.3-2.3-5.4-5.6-5.4 0 3.3 2.3 5.4 5.6 5.4Z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4.5 7 7.5 6 7.5-6"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-dash" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="9" rx="2"/><rect x="13.5" y="3.5" width="7" height="5" rx="2"/><rect x="13.5" y="11.5" width="7" height="9" rx="2"/><rect x="3.5" y="15.5" width="7" height="5" rx="2"/></symbol>
+    <symbol id="i-tasks" viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><rect x="4" y="12" width="4" height="8" rx="1.2"/><rect x="10" y="4" width="4" height="16" rx="1.2"/><rect x="16" y="8" width="4" height="12" rx="1.2"/></symbol>
+    <symbol id="i-team" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.3A6 6 0 0 1 21 20"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.8l2 2.1 2.9-.4.7 2.8 2.6 1.4-1 2.8 1 2.8-2.6 1.4-.7 2.8-2.9-.4-2 2.1-2-2.1-2.9.4-.7-2.8-2.6-1.4 1-2.8-1-2.8 2.6-1.4.7-2.8 2.9.4Z"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5M18 6l-3.5 3.5M6 18l3.5-3.5M18 18l-3.5-3.5"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h3.5A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5H14"/><path d="M10 8l-4 4 4 4M6 12h9"/></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24"><path d="M7.5 16.5l9-9M9.5 7.5h7v7"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6.5" width="12.5" height="11" rx="2.5" fill="currentColor" stroke="none"/><path d="m17 10.5 4-2.5v8l-4-2.5Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.3" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.3" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="m7 14 5-5 5 5"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="m14 7-5 5 5 5"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="m10 7 5 5-5 5"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="3" width="11" height="18" rx="2.5"/><path d="M10.5 18h3"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 18.5V7a2.5 2.5 0 0 1 2.5-2.5h9A2.5 2.5 0 0 1 19 7v6.5a2.5 2.5 0 0 1-2.5 2.5H8.5Z"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><path d="M15.5 7.5 9 14a2 2 0 0 0 2.8 2.8l7-7a4 4 0 0 0-5.6-5.6l-7 7a6 6 0 0 0 8.5 8.5l5.3-5.3"/></symbol>
+    <symbol id="i-dots" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="18" cy="12" r="1.4" fill="currentColor"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4.5M6 5h11l-2.5 4L17 13H6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v15H7.5A2.5 2.5 0 0 0 5 20.5Zm0 15A2.5 2.5 0 0 1 7.5 18H19v3H7.5"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 15h3"/></symbol>
+  </svg>
+
+<div id="login" hidden>
+  <form class="lbox" onsubmit="return login(event)">
+    <div class="brand"><img src="/mark.png" alt=""><div>Central do FFC<small>Painel editorial</small></div></div><h2>Bem-vindo de volta.</h2><p>Acesse sua conta para cuidar das notícias do Feira FC.</p>
+    <label>E-mail<input type="email" id="em" placeholder="E-mail" autocomplete="username" required></label>
+    <label>Senha<input type="password" id="pw" placeholder="Senha" autocomplete="current-password" required></label>
+    <div class="err" id="lerr" role="alert"></div>
+    <button class="btn" type="submit">Entrar</button>
+  </form>
+</div>
+
+<div class="app" id="app" hidden>
+  <button class="backdrop" aria-label="Fechar menu" tabindex="-1" onclick="setMenu(false)"></button><aside id="sidebar" aria-label="Navegação principal"><button class="mobile-close" aria-label="Fechar menu" onclick="setMenu(false)">×</button>
+    <div class="brand"><img src="/mark.png" alt=""><div>Central do FFC<small>Painel editorial</small></div></div><div class="nav-label">Menu</div>
+    <button class="nav on" data-v="dash"><svg class="icon" aria-hidden="true"><use href="#i-dash"/></svg>Dashboard</button>
+    <button class="nav" data-v="list"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg>Notícias<span class="nav-count" id="nav-count">0</span></button>
+    <button class="nav" data-v="edit" id="navNew"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Nova notícia</button>
+    <div class="nav-label">Gerenciar</div>
+    <button class="nav" data-v="links"><svg class="icon" aria-hidden="true"><use href="#i-out"/></svg>Links da bio</button>
+    <button class="nav" data-v="forms"><svg class="icon" aria-hidden="true"><use href="#i-tasks"/></svg>Formulários</button>
+    <button class="nav" data-v="profile"><svg class="icon" aria-hidden="true"><use href="#i-team"/></svg>Perfil e redes</button>
+        <div class="nav-label">Agência</div>
+    <button class="nav" data-v="ag-inicio"><svg class="icon" aria-hidden="true"><use href="#ag-home"/></svg>Visão geral</button>
+    <button class="nav" data-v="ag-avisos"><svg class="icon" aria-hidden="true"><use href="#ag-mega"/></svg>Avisos</button>
+    <button class="nav" data-v="ag-tarefas"><svg class="icon" aria-hidden="true"><use href="#ag-task"/></svg>Tarefas</button>
+    <button class="nav" data-v="ag-calendario"><svg class="icon" aria-hidden="true"><use href="#ag-cal"/></svg>Calendário</button>
+    <button class="nav" data-v="ag-arquivos"><svg class="icon" aria-hidden="true"><use href="#ag-folder"/></svg>Arquivos</button>
+    <button class="nav" data-v="ag-chat"><svg class="icon" aria-hidden="true"><use href="#ag-chat"/></svg>Conversas<span class="nav-count" data-b="chat" hidden></span></button>
+    <button class="nav" data-v="ag-equipe"><svg class="icon" aria-hidden="true"><use href="#ag-team"/></svg>Equipe</button>
+    <button class="nav" data-v="ag-pedidos"><svg class="icon" aria-hidden="true"><use href="#ag-inbox"/></svg>Pedidos<span class="nav-count" data-b="req" hidden></span></button>
+    <button class="nav" data-v="ag-atividade"><svg class="icon" aria-hidden="true"><use href="#ag-pulse"/></svg>Atividade</button>
+    <div class="nav-label">Links</div>
+    <a class="nav" href="/site" target="_blank"><svg class="icon" aria-hidden="true"><use href="#i-out"/></svg>Ver o site</a>
+    <a class="nav" href="/" target="_blank"><svg class="icon" aria-hidden="true"><use href="#i-out"/></svg>Ver links da bio</a>
+    <div class="sp"></div><button class="nav" onclick="sb.auth.signOut()"><svg class="icon" aria-hidden="true"><use href="#i-logout"/></svg>Sair</button><div class="side-note"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg><strong>A voz da nossa torcida.</strong><p>Informação e paixão pelo Feira FC, em um só lugar.</p><a class="btn" href="/site" target="_blank" rel="noopener">Visitar o site <svg class="icon" aria-hidden="true"><use href="#i-out"/></svg></a></div>
+  </aside>
+
+<div class="workspace"><header class="topbar"><button class="menu-toggle" aria-label="Abrir menu" aria-controls="sidebar" aria-expanded="false" onclick="setMenu(true)"><svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg></button><div class="global-search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><input id="global-search" type="search" placeholder="Buscar notícias…" aria-label="Buscar notícias"><kbd>Ctrl K</kbd></div><div class="topbar-right"><button class="ag-ib" id="ag-bellbtn" aria-label="Notificações da agência" hidden><svg class="icon" aria-hidden="true"><use href="#ag-bell"/></svg><span class="nav-count" id="ag-bell-dot" hidden></span></button><a class="site-action" href="/site" target="_blank" rel="noopener" aria-label="Abrir site"><svg class="icon" aria-hidden="true"><use href="#i-out"/></svg></a><div class="user"><span class="avatar" id="user-initials">CF</span><div><strong>Central do FFC</strong><small id="user-email">Painel editorial</small></div></div></div></header><main class="main-panel">
+    <section id="v-dash">
+      <div class="top"><div><h1>Dashboard</h1><p>Tudo sobre o Feira FC, em um só lugar.</p></div><button class="btn g" onclick="newArt()"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Nova notícia</button></div>
+      <div class="stats" id="stats"></div>
+      <div class="row dashboard-row">
+        <div class="panel"><div class="panel-header"><h3>Atividade editorial</h3><span>Últimos 7 dias</span></div><p style="font-size:11px;color:var(--dim)">Notícias criadas por dia</p><div class="bars" id="bars" role="img" aria-label="Notícias criadas nos últimos sete dias"></div></div>
+        <div class="panel quick-card"><p class="eyebrow">Próxima publicação</p><h3>A próxima história<br>começa aqui.</h3><p id="draft-note">Leve as novidades do Feira à torcida.</p><div class="quick"><button class="btn g" onclick="newArt()"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Escrever notícia</button><button class="btn o" onclick="filt='dr';draw();show('list')">Ver rascunhos</button></div></div>
+        <div class="panel progress-card"><h3>Visão das publicações</h3><div class="publication-ring" id="publication-ring"><div><strong id="publication-percent">0%</strong><small>publicadas</small></div></div><div class="legend"><span><i></i>Publicadas</span><span><i></i>Rascunhos</span></div></div>
+      </div>
+      <div class="row" id="dx-people">
+        <div class="panel"><div class="panel-header"><h3>Equipe da redação</h3><span id="dx-team-count"></span></div><p class="dx-sub">Quem assina as notícias da Central do FFC.</p><div class="dx-team" id="dx-team"></div></div>
+        <div class="panel"><div class="panel-header"><h3>Quem mais publicou</h3><div class="dx-seg" id="dx-seg"><button class="btn o s" data-p="7" aria-pressed="false">7 dias</button><button class="btn o s" data-p="30" aria-pressed="true">30 dias</button><button class="btn o s" data-p="0" aria-pressed="false">Sempre</button></div></div><div class="dx-rank" id="dx-rank"></div></div>
+      </div>
+      <div class="row" id="dx-more">
+        <div class="panel"><div class="panel-header"><h3>Pulso da redação</h3><span>Resumo rápido</span></div><div class="dx-pulse" id="dx-pulse"></div></div>
+        <div class="panel"><div class="panel-header"><h3>Últimas respostas</h3><button class="btn o s" id="dx-go-forms">Ver formulários <svg class="icon" aria-hidden="true"><use href="#i-right"/></svg></button></div><div id="dx-resp"></div></div>
+      </div>
+      <div class="panel" style="margin-bottom:16px"><div class="panel-header"><h3>No Google Notícias</h3><div class="dx-seg"><button class="btn o s" id="dx-gn-reload">Atualizar</button><a class="btn o s" id="dx-gn-open" href="https://news.google.com/search?q=%22Central%20do%20FFC%22&hl=pt-BR&gl=BR&ceid=BR:pt-419" target="_blank" rel="noopener">Abrir no Google <svg class="icon" aria-hidden="true"><use href="#i-out"/></svg></a></div></div><p class="dx-sub">As últimas matérias nossas que o Google Notícias está mostrando.</p><div class="dx-news" id="dx-gn" aria-live="polite"></div></div>
+      <div class="panel recent-panel"><div class="panel-header"><h3>Últimas notícias</h3><button class="btn o s" onclick="show('list')">Ver todas <svg class="icon" aria-hidden="true"><use href="#i-right"/></svg></button></div><div class="list" id="recent"></div></div>
+    </section>
+
+    <section id="v-list" hidden>
+      <div class="top"><div><h1>Notícias</h1><p id="cnt"></p></div><button class="btn g" onclick="newArt()"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Nova notícia</button></div>
+      <div class="tools"><input type="text" id="q" aria-label="Buscar pelo título" placeholder="Buscar pelo título"><button class="btn o s" data-f="all">Todas</button><button class="btn o s" data-f="pub">Publicadas</button><button class="btn o s" data-f="dr">Rascunhos</button></div>
+      <div class="list" id="all"></div>
+    </section>
+
+    <section id="v-links" hidden>
+      <div class="top"><div><h1>Links da bio</h1><p>O que aparece na página de links. Grupos: use “Jogos” para os oferecimentos.</p></div><button class="btn g" onclick="editLink()">+ Novo link</button></div>
+      <div class="panel" id="lform" hidden style="margin-bottom:14px">
+        <h3 id="lfT">Novo link</h3>
+        <label>Título</label><input type="text" id="lt">
+        <label>Descrição</label><input type="text" id="ld">
+        <label>Endereço (URL)</label><input type="text" id="lu" placeholder="https://">
+        <label>Grupo</label><input type="text" id="lg" list="groups" value="Links"><datalist id="groups"><option value="Links"><option value="Jogos"></datalist>
+        <label>Ícone</label>
+        <div style="display:flex;gap:10px;align-items:center"><div class="th" id="lprev" style="width:54px;height:54px"></div>
+          <input type="file" id="lfile" accept="image/*" hidden><button class="btn o s" onclick="lfile.click()">Enviar imagem</button></div>
+        <div class="sw" style="margin-top:12px"><span>Ativo (aparece na página)</span><input type="checkbox" id="la" checked></div>
+        <div class="acts" style="margin-top:12px;justify-content:flex-start"><button class="btn g" onclick="saveLink()">Salvar link</button><button class="btn o" onclick="lform.hidden=true">Cancelar</button></div>
+      </div>
+      <div class="list" id="llist"></div>
+    </section>
+
+    <section id="v-profile" hidden>
+      <div class="top"><div><h1>Perfil e redes</h1><p>Nome, bio, foto e redes sociais da página de links.</p></div></div>
+      <div class="row">
+        <div class="panel"><h3>Perfil</h3>
+          <label>Nome de usuário</label><input type="text" id="ph">
+          <label>Bio</label><textarea id="pb" rows="4"></textarea>
+          <label>Foto</label>
+          <div style="display:flex;gap:10px;align-items:center"><div class="th" id="pprev" style="width:64px;height:64px;border-radius:50%"></div>
+            <input type="file" id="pfile" accept="image/*" hidden><button class="btn o s" onclick="pfile.click()">Trocar foto</button></div>
+          <div class="acts" style="margin-top:14px;justify-content:flex-start"><button class="btn g" onclick="saveProfile()">Salvar perfil</button></div>
+        </div>
+        <div class="panel"><h3>Redes sociais</h3><div class="list" id="slist"></div>
+          <label>Adicionar rede</label>
+          <div class="social-add"><select id="stype" style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:0 10px;color:var(--ink)"><option value="instagram">Instagram</option><option value="x">X</option></select>
+            <input type="text" id="surl" placeholder="https://"><button class="btn g s" onclick="addSocial()">Adicionar</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="v-forms" hidden>
+      <div id="fm-list">
+        <div class="top"><div><h1>Formulários</h1><p>Crie formulários e acompanhe quem respondeu.</p></div><button class="btn g" onclick="fmEdit()"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Novo formulário</button></div>
+        <div class="list" id="fm-items"></div>
+      </div>
+      <div id="fm-edit" hidden></div>
+      <div id="fm-resp" hidden></div>
+    </section>
+
+    <section id="v-ag" hidden><div id="ag-root" class="ag-root"></div></section>
+
+    <section id="v-edit" hidden>
+      <div class="top"><div><h1 id="etitle">Nova notícia</h1><p>Escreva, adicione imagens e publique.</p></div>
+        <div class="acts"><button class="btn o" onclick="show('list')">Cancelar</button><button class="btn o" onclick="save(false)">Salvar</button><button class="btn g" onclick="save(true)">Publicar</button></div></div>
+      <div class="ed">
+        <div class="editor-main">
+          <input type="text" id="t" aria-label="Título da notícia" placeholder="Título da notícia" style="font:400 22px 'Archivo Black';padding:14px">
+          <p class="editor-hint">O resumo é gerado automaticamente a partir do texto da notícia.</p>
+          <label>Texto</label>
+          <div class="editor-tools" id="editor-tools" aria-label="Ferramentas de edição">
+          <div class="tb" onmousedown="event.preventDefault()">
+            <button data-c="bold" title="Negrito">B</button><button data-c="italic" title="Itálico"><i>I</i></button><button data-c="underline" title="Sublinhado"><u>U</u></button>
+            <button data-c="h2" title="Subtítulo">H</button><button data-c="quote" title="Citação">“ ”</button><button data-c="ul" title="Lista">• —</button>
+            <button data-c="link" title="Adicionar link">Link</button><button data-c="unlink" title="Remover link">Sem link</button><button data-c="clear" title="Limpar formatação">Limpar</button>
+          </div>
+          <div class="image-editor-actions"><button type="button" class="btn o s" id="select-image">Selecionar imagem no texto</button><span class="editor-hint">Toque em uma imagem para ajustar.</span></div>
+          </div>
+          <div id="image-tools" class="image-tools" role="group" aria-label="Ajustes da imagem" hidden>
+            <label for="image-width">Tamanho<select id="image-width"><option value="50">Pequena (50%)</option><option value="75">Média (75%)</option><option value="100">Largura total</option></select></label>
+            <label for="image-align">Alinhamento<select id="image-align"><option value="left">Esquerda</option><option value="center">Centro</option><option value="right">Direita</option></select></label>
+            <label for="image-alt" class="image-alt-label">Descrição da imagem<input id="image-alt" type="text" placeholder="Descreva o que aparece na imagem"></label>
+            <div class="image-move"><button type="button" class="btn o s" data-image-action="up">↑ Mover acima</button><button type="button" class="btn o s" data-image-action="down">↓ Mover abaixo</button><button type="button" class="btn r s" data-image-action="remove">Remover do texto</button><button type="button" class="btn o s" data-image-action="close">Concluir</button></div>
+          </div>
+          <p id="image-status" class="editor-hint" role="status"></p>
+          <div id="body" contenteditable="true" spellcheck="true" role="textbox" aria-label="Texto da notícia" aria-multiline="true"></div>
+        </div>
+        <div class="editor-side" id="editor-side"><div class="panel">
+          <h3>Publicação</h3>
+          <div class="sw"><span>Publicada no site</span><input type="checkbox" id="pub"></div>
+          <div class="sw"><span>Destaque na capa</span><input type="checkbox" id="ft"></div>
+          <label>Autor</label><input type="text" id="au" value="Redação Central do FFC">
+          <label>Imagens</label>
+          <input type="file" id="file" accept="image/*" multiple hidden>
+          <button class="btn o" style="width:100%" onclick="file.click()">Enviar imagens</button>
+          <div class="gal" id="gal"></div>
+          <p style="font-size:12px;color:var(--faint)">“Capa” define a imagem principal. “No texto” coloca a imagem onde o cursor estiver.</p>
+        </div></div>
+      </div>
+    </section>
+  </main></div>
+</div>
+
+<script src="assets/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="assets/article-format.js"></script>
+<script src="assets/image-editor.js"></script>
+<script src="assets/gerenciar.js"></script>
+<script src="assets/editor-toolbar.js"></script>
+<script src="assets/formularios.js"></script>
+<script>
+/* ===== dashboard: equipe, ranking, Google Notícias e pulso ===== */
+(() => {
+  const DEF = 'Redação Central do FFC', DAY = 864e5;
+  const COLORS = ['#175a3b', '#1d754c', '#0d3623', '#3f8f66', '#2c6e57', '#4f7f5f', '#1b5e4a'];
+  const norm = n => String(n || DEF).trim().replace(/\s+/g, ' ');
+  const key = n => norm(n).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const ini = n => { if (key(n) === key(DEF)) return 'CF'; const w = norm(n).split(' ').filter(x => x.length > 2 || /^[A-Z]/.test(x)); return ((w[0] || '?')[0] + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase(); };
+  const hue = n => COLORS[[...key(n)].reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
+  const av = n => `<span class="dx-av" style="background:${hue(n)}" aria-hidden="true">${esc(ini(n))}</span>`;
+  const rel = d => { if (!d) return ''; const m = Math.max(0, (Date.now() - new Date(d)) / 6e4);
+    if (m < 1) return 'agora'; if (m < 60) return `há ${Math.floor(m)} min`; if (m < 1440) return `há ${Math.floor(m / 60)} h`;
+    const dd = Math.floor(m / 1440); return dd < 30 ? `há ${dd} dia${dd > 1 ? 's' : ''}` : new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }); };
+  const plural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+
+  let period = 30, forms = [], resps = [], linksAct = null, extraLoaded = false, gnTried = false;
+
+  /* equipe + ranking (a partir das notícias já carregadas) */
+  function people(){
+    const map = new Map();
+    arts.forEach(a => { const k = key(a.author), m = map.get(k) || { name: norm(a.author), total: 0, pub: 0, dr: 0, ft: 0, last: null, items: [] };
+      m.total++; a.published ? m.pub++ : m.dr++; if (a.featured) m.ft++;
+      if (!m.last || new Date(a.created_at) > new Date(m.last)) m.last = a.created_at; m.items.push(a.created_at); map.set(k, m); });
+    return [...map.values()];
+  }
+  function drawPeople(){
+    const all = people().sort((a, b) => b.total - a.total || new Date(b.last) - new Date(a.last));
+    $('dx-team-count').textContent = plural(all.length, 'membro', 'membros');
+    $('dx-team').innerHTML = all.map(m => `<div class="dx-m">${av(m.name)}<div><b title="${esc(m.name)}">${esc(m.name)}</b><small>${plural(m.total, 'notícia', 'notícias')} · última ${rel(m.last)}</small>${key(m.name) === key(DEF) ? '<span class="badge">Assinatura da redação</span>' : ''}</div></div>`).join('') || '<p class="dx-empty">Ainda não há notícias assinadas.</p>';
+    const since = period ? Date.now() - period * DAY : 0;
+    const rk = all.map(m => { const n = m.items.filter(d => new Date(d) >= since).length; return { ...m, n }; }).filter(m => m.n > 0).sort((a, b) => b.n - a.n).slice(0, 5);
+    const mx = Math.max(1, ...rk.map(r => r.n));
+    $('dx-rank').innerHTML = rk.map((r, i) => `<div class="dx-r"><span class="dx-pos">${i + 1}º</span>${av(r.name)}<div style="min-width:0"><b title="${esc(r.name)}">${esc(r.name)}</b><small>${plural(r.pub, 'publicada', 'publicadas')} · ${plural(r.dr, 'rascunho', 'rascunhos')}</small><div class="dx-track"><i style="width:${Math.max(6, r.n / mx * 100)}%"></i></div></div><div class="dx-n">${r.n}<small> notícia${r.n === 1 ? '' : 's'}</small></div></div>`).join('') || `<p class="dx-empty">Ninguém publicou ${period ? `nos últimos ${period} dias` : 'ainda'}.</p>`;
+    document.querySelectorAll('#dx-seg [data-p]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.p === period)));
+  }
+
+  /* pulso */
+  function drawPulse(){
+    const now = Date.now(), n7 = arts.filter(a => now - new Date(a.created_at) < 7 * DAY).length, p7 = arts.filter(a => { const t = now - new Date(a.created_at); return t >= 7 * DAY && t < 14 * DAY; }).length;
+    const diff = n7 - p7, last = arts.filter(a => a.published).sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+    const act30 = people().filter(m => m.items.some(d => now - new Date(d) < 30 * DAY)).length;
+    const t = [
+      ['Notícias em 7 dias', n7, p7 || n7 ? `<em class="${diff > 0 ? 'dx-up' : diff < 0 ? 'dx-down' : ''}">${diff > 0 ? '▲ +' + diff + ' vs. semana anterior' : diff < 0 ? '▼ ' + diff + ' vs. semana anterior' : 'Igual à semana anterior'}</em>` : '<em>Sem movimento ainda</em>'],
+      ['Última publicação', last ? rel(last.created_at) : '—', last ? `<em title="${esc(last.title)}">${esc(last.title.slice(0, 34))}${last.title.length > 34 ? '…' : ''}</em>` : '<em>Nada publicado</em>'],
+      ['Autores ativos', act30, '<em>nos últimos 30 dias</em>'],
+      ['Formulários ativos', extraLoaded ? forms.filter(f => f.active).length : '…', extraLoaded ? `<em>${plural(forms.length, 'formulário', 'formulários')} no total</em>` : '<em>carregando</em>'],
+      ['Respostas recebidas', extraLoaded ? resps.length : '…', extraLoaded && resps[0] ? `<em>última ${rel(resps[0].created_at)}</em>` : '<em>&nbsp;</em>'],
+      ['Links na bio', linksAct === null ? '…' : linksAct, '<em>ativos na página</em>']
+    ];
+    $('dx-pulse').innerHTML = t.map(([l, v, e]) => `<div class="dx-p"><small>${l}</small><b>${esc(v)}</b>${e}</div>`).join('');
+  }
+  function drawResp(){
+    if (!extraLoaded) { $('dx-resp').innerHTML = '<div class="dx-sk"></div><div class="dx-sk"></div><div class="dx-sk"></div>'; return; }
+    const title = id => (forms.find(f => f.id === id) || {}).title || 'Formulário';
+    $('dx-resp').innerHTML = resps.slice(0, 5).map(r => `<div class="dx-resp">${av(r.respondent_name)}<div class="tx"><b>${esc(r.respondent_name || 'Sem nome')}</b><small>${esc(title(r.form_id))}</small></div><small>${rel(r.created_at)}</small></div>`).join('') || '<p class="dx-empty">Nenhuma resposta ainda.</p>';
+  }
+  async function loadExtra(){
+    try {
+      const [f, r, l] = await Promise.all([sb.from('forms').select('id,title,active'), sb.from('form_responses').select('id,form_id,respondent_name,created_at').order('created_at', { ascending: false }).limit(500), sb.from('links').select('id').eq('active', true)]);
+      forms = f.data || []; resps = r.data || []; linksAct = l.error ? null : (l.data || []).length;
+    } catch (e) { forms = []; resps = []; }
+    extraLoaded = true; drawPulse(); drawResp();
+  }
+
+  /* Google Notícias */
+  async function loadGN(){
+    const box = $('dx-gn'); box.innerHTML = '<div class="dx-sk"></div><div class="dx-sk"></div><div class="dx-sk"></div>';
+    try {
+      const r = await fetch('/api/google-noticias?limit=8'); if (!r.ok) throw 0; const j = await r.json();
+      if (j.searchUrl) $('dx-gn-open').href = j.searchUrl;
+      box.innerHTML = (j.items || []).map(i => `<a class="dx-g" href="${esc(i.link)}" target="_blank" rel="noopener noreferrer"><span class="ic"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg></span><div><b>${esc(i.title)}</b><small>${i.ours ? '<span class="badge">Nossa</span>' : ''}<span>${esc(i.source || 'Google Notícias')}</span><span>·</span><span>${rel(i.date)}</span></small></div></a>`).join('')
+        || '<p class="dx-empty">O Google Notícias ainda não mostra matérias nossas. Isso pode levar alguns dias depois da aprovação do site.</p>';
+    } catch (e) { box.innerHTML = '<p class="dx-empty">Não consegui buscar o Google Notícias agora. Tente atualizar em instantes.</p>'; }
+  }
+
+  /* ligações com o painel */
+  const _draw = draw;
+  draw = function(){ _draw(); drawPeople(); drawPulse(); if (!extraLoaded) drawResp(); if (!gnTried && arts.length >= 0) { gnTried = true; loadGN(); loadExtra(); } };
+  const _show = show;
+  show = function(v){ _show(v); if (v === 'dash' && gnTried) loadExtra(); };
+  document.querySelectorAll('#dx-seg [data-p]').forEach(b => b.onclick = () => { period = +b.dataset.p; drawPeople(); });
+  $('dx-gn-reload').onclick = loadGN;
+  $('dx-go-forms').onclick = () => document.querySelector('aside .nav[data-v="forms"]').click();
+  if (arts.length) draw();
+})();
+</script>
+<script src="assets/agencia.js"></script>
+<script>
+/* Agência dentro do Gerenciar: o administrador vê e mexe em tudo pelo menu da esquerda. */
+(function () {
+  let ready = false, busy = false;
+  const root = () => document.getElementById('v-ag');
+  function section(v) {
+    show('__'); root().hidden = false;
+    document.querySelectorAll('aside .nav[data-v]').forEach(b => { const on = b.dataset.v === 'ag-' + v; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  }
+  const _show = show;
+  show = function (v) {
+    if (typeof v === 'string' && v.indexOf('ag-') === 0) { section(v.slice(3)); open(v.slice(3)); }
+    else { root().hidden = true; _show(v); }
+  };
+  async function open(v) {
+    if (!ready) { toast('Carregando a agência…'); await boot(); }
+    if (ready) AG.go(v); else { root().hidden = true; show('dash'); }
+  }
+  async function boot() {
+    if (ready) return true; if (busy) return false; busy = true;
+    try {
+      const a = await sb.rpc('is_admin'); if (a.data !== true) return false;
+      ready = await AG.init({
+        sb, mount: document.getElementById('ag-root'),
+        onView: v => { if (root().hidden) section(v); else document.querySelectorAll('aside .nav[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === 'ag-' + v)); },
+        onBadges: b => {
+          document.querySelectorAll('aside [data-b]').forEach(el => { const n = b[el.dataset.b] || 0; el.hidden = !n; el.textContent = n > 99 ? '99+' : n; });
+          const d = document.getElementById('ag-bell-dot'); d.hidden = !b.notifs; d.textContent = b.notifs > 9 ? '9+' : b.notifs;
+        },
+        onDenied: () => { ready = false; }
+      });
+      if (ready) document.getElementById('ag-bellbtn').hidden = false;
+    } catch (e) { ready = false; }
+    busy = false; return ready;
+  }
+  document.getElementById('ag-bellbtn').onclick = () => { if (ready) AG.openNotifs(); };
+  sb.auth.onAuthStateChange((ev, s) => { if (s) setTimeout(boot, 900); else { ready = false; busy = false; AG.destroy(); document.getElementById('ag-bellbtn').hidden = true; root().hidden = true; } });
+})();
+</script>
+</body>
+        </html>
+        
