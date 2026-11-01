@@ -3,9 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Central do FFC</title>
-<meta name="description" content="Central do FFC — cobertura independente do Feira FC.">
-<link rel="icon" href="assets/mark.png">
+<title>Central do FFC | Central do Feira — Notícias do Feira FC</title>
+<meta name="description" content="Central do FFC, também conhecida como Central do Feira: notícias, jogos e bastidores do Feira Futebol Clube.">
+<link rel="canonical" href="https://centraldofeira.vercel.app/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Central do FFC">
+<meta property="og:title" content="Central do FFC | Central do Feira">
+<meta property="og:description" content="Central do FFC, também conhecida como Central do Feira: notícias, jogos e bastidores do Feira Futebol Clube.">
+<meta property="og:url" content="https://centraldofeira.vercel.app/">
+<meta property="og:image" content="https://centraldofeira.vercel.app/mark.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "@id": "https://centraldofeira.vercel.app/#website", "url": "https://centraldofeira.vercel.app/", "name": "Central do FFC", "alternateName": "Central do Feira", "inLanguage": "pt-BR", "publisher": {"@id": "https://centraldofeira.vercel.app/#organization"}}, {"@type": "Organization", "@id": "https://centraldofeira.vercel.app/#organization", "url": "https://centraldofeira.vercel.app/", "name": "Central do FFC", "alternateName": "Central do Feira", "description": "Cobertura independente do Feira Futebol Clube.", "logo": "https://centraldofeira.vercel.app/mark.png", "sameAs": ["https://www.instagram.com/centraldoffc/", "https://x.com/centralfeirafc"]}]}</script>
+<link rel="icon" href="/mark.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -198,9 +206,11 @@
   <div class="grid-layer" aria-hidden="true"></div>
 
   <main class="page">
-    <div class="avatar"><img src="assets/mark.png" alt="Central do FFC" onerror="this.style.display='none'; this.parentElement.classList.add('avatar-fallback');"></div>
-    <h1 class="handle" id="handle"></h1>
-    <p class="bio" id="bio"></p>
+    <div class="avatar"><img src="/mark.png" alt="Central do FFC" onerror="this.style.display='none'; this.parentElement.classList.add('avatar-fallback');"></div>
+    <h1 class="handle" id="handle">Central do FFC</h1>
+    <p class="bio" id="bio">Cobertura independente do Feira Futebol Clube.</p>
+
+    <p class="bio">Central do FFC · Central do Feira<br><a href="/site" style="color:var(--accent)">Leia as últimas notícias do Feira FC</a></p>
 
     <div class="socials" id="socials"></div>
 
@@ -309,13 +319,13 @@
         if(!res.ok) throw new Error('api');
         const { profile, socials, links } = await res.json();
 
-        document.getElementById('handle').textContent = profile?.handle || 'centraldoffc';
-        document.getElementById('bio').textContent = profile?.bio || '';
+        document.getElementById('handle').textContent = profile?.handle || 'Central do FFC';
+        document.getElementById('bio').textContent = profile?.bio || 'Cobertura independente do Feira Futebol Clube.';
 
         const avatarImg = document.querySelector('.avatar img');
         const avatarBox = document.querySelector('.avatar');
         if(profile?.avatar_url && avatarImg){
-          avatarImg.onerror = () => { avatarImg.src = 'assets/mark.png'; };
+          avatarImg.onerror = () => { avatarImg.src = '/mark.png'; };
           avatarImg.onload = () => {
             avatarImg.style.display = '';
             if(avatarBox) avatarBox.classList.remove('avatar-fallback');

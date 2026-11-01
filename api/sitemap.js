@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
       xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">\n' +
         rows.filter(a => new Date(a.created_at) >= min).map(a => `<url><loc>${esc(`${o}/noticia/${a.slug}`)}</loc><news:news><news:publication><news:name>Central do FFC</news:name><news:language>pt</news:language></news:publication><news:publication_date>${new Date(a.created_at).toISOString()}</news:publication_date><news:title>${esc(a.title)}</news:title></news:news></url>`).join('\n');
     } else {
-      xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + `<url><loc>${o}/site</loc></url>\n` +
+      xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + `<url><loc>${o}/</loc></url>\n<url><loc>${o}/site</loc></url>\n` +
         rows.map(a => `<url><loc>${esc(`${o}/noticia/${a.slug}`)}</loc><lastmod>${new Date(a.updated_at || a.created_at).toISOString()}</lastmod></url>`).join('\n');
     }
     res.setHeader('Content-Type', 'application/xml; charset=utf-8');

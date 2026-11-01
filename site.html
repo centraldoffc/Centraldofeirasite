@@ -3,8 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Central do FFC — Notícias do Feira FC</title>
-<meta name="description" content="Notícias, jogos e bastidores do Feira Futebol Clube.">
+<title>Central do FFC | Central do Feira — Notícias do Feira FC</title>
+<meta name="description" content="Central do FFC, também conhecida como Central do Feira: notícias, jogos e bastidores do Feira Futebol Clube.">
+<link rel="canonical" href="https://centraldofeira.vercel.app/site">
+<meta property="og:site_name" content="Central do FFC">
+<meta property="og:title" content="Central do FFC | Central do Feira — Notícias">
+<meta property="og:url" content="https://centraldofeira.vercel.app/site">
 <link rel="icon" href="/mark.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -200,7 +204,7 @@
     if (!loaded) return;
     const m = location.hash.match(/^#\/n\/(.+)$/);
     $('home').hidden = !!m; $('article').hidden = !m;
-    if (m) renderArticle(m[1]); else document.title = 'Central do FFC — Notícias do Feira FC';
+    if (m) renderArticle(m[1]); else document.title = 'Central do FFC | Central do Feira — Notícias do Feira FC';
     window.scrollTo(0, 0);
   }
 
