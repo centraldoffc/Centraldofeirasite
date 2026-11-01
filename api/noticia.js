@@ -1,4 +1,5 @@
 // Página real de cada notícia: /noticia/<slug> (HTML pronto, com dados para o Google)
+const { summary } = require('../assets/article-format');
 const { q, esc, origin, clean } = require('./_lib');
 
 const page = (title, body, head = '') => `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -12,7 +13,7 @@ module.exports = async (req, res) => {
   try {
     const [a] = await q(`articles?published=eq.true&slug=eq.${encodeURIComponent(slug)}&select=*&limit=1`);
     if (!a) return res.status(404).send(page('Notícia não encontrada', '<h1>Notícia não encontrada</h1><p><a href="/site">Voltar para as notícias</a></p>', '<meta name="robots" content="noindex">'));
-    const url = `${o}/noticia/${a.slug}`, desc = a.summary || '';
+    const url = `${o}/noticia/${a.slug}`, desc = summary(a.content, a.title);
     const ld = { '@context': 'https://schema.org', '@type': 'NewsArticle', headline: a.title, description: desc, mainEntityOfPage: url,
       image: a.image_url ? [a.image_url] : undefined, datePublished: a.created_at, dateModified: a.updated_at || a.created_at,
       author: [{ '@type': 'Person', name: a.author || 'Redação Central do FFC' }],

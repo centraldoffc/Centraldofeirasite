@@ -171,7 +171,7 @@
     root.querySelectorAll('*').forEach(el => {
       const t = el.tagName;
       if (!OK.has(t)){ /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|FORM|LINK|META)$/.test(t) ? el.remove() : el.replaceWith(...el.childNodes); return; }
-      [...el.attributes].forEach(at => { if (!((t === 'A' && at.name === 'href') || (t === 'IMG' && (at.name === 'src' || at.name === 'alt')))) el.removeAttribute(at.name); });
+      [...el.attributes].forEach(at => { if (!((t === 'A' && at.name === 'href') || (t === 'IMG' && (at.name === 'src' || at.name === 'alt' || (at.name === 'data-width' && ['50','75','100'].includes(at.value)) || (at.name === 'data-align' && ['left','center','right'].includes(at.value)))))) el.removeAttribute(at.name); });
       if (t === 'A'){ if (!/^(https?:|mailto:)/i.test(el.getAttribute('href') || '')) el.removeAttribute('href'); el.target = '_blank'; el.rel = 'noopener noreferrer'; }
       if (t === 'IMG' && !/^https:/i.test(el.getAttribute('src') || '')) el.remove();
     });

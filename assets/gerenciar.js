@@ -128,7 +128,8 @@
   function newArt(){ cur = null; fill({ title:'', summary:'', content:'', images:[], image_url:'', published:false, featured:false, author:'Redação Central do FFC' }); $('etitle').textContent = 'Nova notícia'; }
   function edit(id){ cur = arts.find(a => a.id === id); fill(cur); $('etitle').textContent = 'Editar notícia'; }
   function fill(a){
-    $('t').value = a.title; $('sm').value = a.summary || ''; $('au').value = a.author || '';
+    FFCImageEditor.reset(); range = null;
+    $('t').value = a.title; $('au').value = a.author || '';
     $('body').innerHTML = /<[a-z][\s\S]*>/i.test(a.content || '') ? a.content : (a.content || '').split(/\n{2,}/).filter(Boolean).map(p => `<p>${esc(p)}</p>`).join('');
     imgs = [...(a.images || [])]; cover = a.image_url || ''; $('pub').checked = a.published; $('ft').checked = a.featured;
     gal(); show('edit');
@@ -137,7 +138,8 @@
 
   async function save(publish){
     const title = $('t').value.trim(); if (!title) return toast('Escreva um título');
-    const p = { title, summary: $('sm').value.trim(), content: $('body').innerHTML, author: $('au').value.trim() || 'Redação Central do FFC',
+    const content = FFCImageEditor.content();
+    const p = { title, summary: FFCArticle.summary(content, title), content, author: $('au').value.trim() || 'Redação Central do FFC',
       images: imgs, image_url: cover || imgs[0] || null, featured: $('ft').checked, published: publish ? true : $('pub').checked,
       updated_at: new Date().toISOString() };
     const q = cur ? sb.from('articles').update(p).eq('id', cur.id) : sb.from('articles').insert({ ...p, slug: slug(title) });
@@ -165,7 +167,7 @@
   const rmImg = i => { if (cover === imgs[i]) cover = ''; imgs.splice(i, 1); gal(); };
   function inText(i){
     const b = $('body'); b.focus();
-    if (range){ const s = getSelection(); s.removeAllRanges(); s.addRange(range); }
+    if (range && b.contains(range.commonAncestorContainer)){ const s = getSelection(); s.removeAllRanges(); s.addRange(range); } else { const r = document.createRange(); r.selectNodeContents(b); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
     document.execCommand('insertHTML', false, `<img src="${esc(imgs[i])}" alt=""><p><br></p>`);
   }
   /* ===== recorte de imagem ===== */

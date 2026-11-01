@@ -19,7 +19,7 @@ function clean(html) {
     if (!OK.has(tag)) return '';
     if (close) return `</${tag}>`;
     if (tag === 'a') { const h = attr(attrs, 'href'); return /^(https?:|mailto:)/i.test(h) ? `<a href="${esc(h)}" target="_blank" rel="noopener noreferrer">` : '<a>'; }
-    if (tag === 'img') { const s = attr(attrs, 'src'); return /^https:/i.test(s) ? `<img src="${esc(s)}" alt="" loading="lazy">` : ''; }
+    if (tag === 'img') { const s = attr(attrs, 'src'); return /^https:/i.test(s) ? `<img src="${esc(s)}" alt="${esc(attr(attrs, 'alt'))}"${['50','75','100'].includes(attr(attrs, 'data-width')) ? ` data-width="${attr(attrs, 'data-width')}"` : ''}${['left','center','right'].includes(attr(attrs, 'data-align')) ? ` data-align="${attr(attrs, 'data-align')}"` : ''} loading="lazy">` : ''; }
     return `<${tag}>`;
   });
 }

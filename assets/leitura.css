@@ -45,3 +45,4 @@ body.reading-page .news-content blockquote{margin:24px 0;padding-left:20px;borde
 body.reading-page .news-bottom{margin-top:32px;color:var(--hi)}
 @media(min-width:720px){body.reading-page .w,body.reading-page #article{padding-top:52px}.reading-tools{margin-bottom:42px}.news-content{padding:48px!important}.news-category{font-size:12px}.news-meta{font-size:12px}}
 @media(prefers-reduced-motion:reduce){body.reading-page *{scroll-behavior:auto!important}}
+body.reading-page .news-content img[data-width="50"]{width:50%}body.reading-page .news-content img[data-width="75"]{width:75%}body.reading-page .news-content img[data-width="100"]{width:100%}body.reading-page .news-content img[data-align="left"]{margin-left:0;margin-right:auto}body.reading-page .news-content img[data-align="center"]{margin-left:auto;margin-right:auto}body.reading-page .news-content img[data-align="right"]{margin-left:auto;margin-right:0}
