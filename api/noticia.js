@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
       author: [{ '@type': 'Person', name: a.author || 'Redação Central do FFC' }],
       publisher: { '@type': 'Organization', name: 'Central do FFC', logo: { '@type': 'ImageObject', url: `${o}/mark.png` } } };
     const head = `<meta name="description" content="${esc(desc)}"><link rel="canonical" href="${esc(url)}">
-<meta property="og:type" content="article"><meta property="og:title" content="${esc(a.title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(url)}">
+<meta property="og:type" content="article"><meta property="og:site_name" content="Central do FFC"><meta property="article:published_time" content="${esc(a.created_at)}"><meta property="article:modified_time" content="${esc(a.updated_at || a.created_at)}"><meta property="og:title" content="${esc(a.title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(url)}">
 ${a.image_url ? `<meta property="og:image" content="${esc(a.image_url)}"><meta name="twitter:card" content="summary_large_image">` : ''}
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
     const text = /<[a-z][\s\S]*>/i.test(a.content || '') ? clean(a.content) : String(a.content || '').split(/\n{2,}/).filter(Boolean).map(p => `<p>${esc(p)}</p>`).join('');

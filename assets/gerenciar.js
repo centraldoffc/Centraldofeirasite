@@ -118,7 +118,10 @@
   document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { filt = b.dataset.f; draw(); });
 
   async function toggle(id, k){ const a = arts.find(x => x.id === id);
-    const { error } = await sb.from('articles').update({ [k]: !a[k], updated_at: new Date().toISOString() }).eq('id', id);
+    const now = new Date().toISOString();
+    const changes = { [k]: !a[k], updated_at: now };
+    if (k === 'published' && !a.published) changes.created_at = now;
+    const { error } = await sb.from('articles').update(changes).eq('id', id);
     error ? toast('Não foi possível alterar') : (a[k] = !a[k], draw()); }
   async function del(id){ if (!confirm('Excluir esta notícia para sempre?')) return;
     const { error } = await sb.from('articles').delete().eq('id', id);
@@ -142,6 +145,7 @@
     const p = { title, summary: FFCArticle.summary(content, title), content, author: $('au').value.trim() || 'Redação Central do FFC',
       images: imgs, image_url: cover || imgs[0] || null, featured: $('ft').checked, published: publish ? true : $('pub').checked,
       updated_at: new Date().toISOString() };
+    if (cur && !cur.published && p.published) p.created_at = p.updated_at;
     const q = cur ? sb.from('articles').update(p).eq('id', cur.id) : sb.from('articles').insert({ ...p, slug: slug(title) });
     const { error } = await q;
     if (error) return toast('Erro ao salvar: ' + error.message);
