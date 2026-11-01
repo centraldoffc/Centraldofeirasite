@@ -1,3 +1,20 @@
+/* layout responsivo das respostas (substitui estilos fixos que quebravam no celular) */
+(function () {
+  const st = document.createElement('style');
+  st.textContent = `
+  #fm-resp,#fm-resp .panel,#fm-resp .st{min-width:0}
+  #fm-resp .top h1{overflow-wrap:anywhere}#fm-resp .top p{overflow-wrap:anywhere}
+  #fm-resp .fm-stats3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #fm-resp .fm-row{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
+  #fm-resp .fm-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #fm-resp .fm-tbl td{overflow-wrap:anywhere}
+  #fm-resp .fm-tbl td:last-child,#fm-resp .fm-tbl th:last-child{white-space:nowrap}
+  #fm-resp .fm-qa{overflow-wrap:anywhere}
+  @media(max-width:900px){#fm-resp .fm-row{grid-template-columns:minmax(0,1fr)}}
+  @media(max-width:700px){#fm-resp .fm-stats3{grid-template-columns:minmax(0,1fr)}#fm-resp .st{min-height:0}#fm-resp .top .acts{display:flex;flex-wrap:wrap;gap:8px}}
+  `;
+  document.head.appendChild(st);
+})();
 /* Aba "Formulários" do gerenciar. Usa sb, $, esc e toast de gerenciar.js. */
 let fms = [], fmCounts = {}, fcur = null, fsteps = [];
 const FM_TYPES = { text:'Texto curto', textarea:'Texto longo', email:'E-mail', tel:'Telefone', number:'Número', date:'Data', select:'Lista (escolher uma)', radio:'Opções (escolher uma)', checkbox:'Caixas (várias)' };
@@ -38,14 +55,12 @@ function fmEdit(id) {
   fmDraw(); fmView('edit');
 }
 function fmDraw() {
-  const a = fcur || { title: '', description: '', slug: '', active: true, success_title: '', success_message: '' };
+  const a = fcur || { title: '', description: '', slug: '', active: true };
   const hasOpt = t => ['select', 'radio', 'checkbox'].includes(t);
   $('fm-edit').innerHTML = `<div class="top"><div><h1>${fcur ? 'Editar formulário' : 'Novo formulário'}</h1><p>O nome e o e-mail de quem responde são pedidos automaticamente na 1ª etapa.</p></div>
     <div class="acts"><button class="btn o" onclick="fmView('list')">Cancelar</button><button class="btn g" onclick="fmSave()">Salvar</button></div></div>
     <div class="panel" style="margin-bottom:14px"><label>Título</label><input type="text" id="fm-t" value="${esc(a.title)}" maxlength="120">
       <label>Descrição (aparece no painel verde)</label><textarea id="fm-d" rows="2" maxlength="400">${esc(a.description)}</textarea>
-      <label>Título da mensagem final (depois de enviar)</label><input type="text" id="fm-st" value="${esc(a.success_title || '')}" maxlength="120" placeholder="Resposta enviada!">
-      <label>Texto da mensagem final</label><textarea id="fm-sm" rows="3" maxlength="600">${esc(a.success_message || '')}</textarea>
       <label>Endereço do link</label><input type="text" id="fm-s" value="${esc(a.slug)}" placeholder="gerado a partir do título"></div>
     ${fsteps.map((s, i) => `<div class="fm-step"><div class="hd"><input type="text" value="${esc(s.title)}" placeholder="Nome da etapa" oninput="fsteps[${i}].title=this.value">
       <button class="btn o s" ${i ? '' : 'disabled'} onclick="fmMoveStep(${i},-1)">↑</button><button class="btn o s" ${i < fsteps.length - 1 ? '' : 'disabled'} onclick="fmMoveStep(${i},1)">↓</button>
@@ -65,7 +80,7 @@ async function fmSave() {
   if (!steps.length) return toast('Adicione ao menos uma pergunta');
   if (steps.some(s => s.fields.some(f => ['select', 'radio', 'checkbox'].includes(f.type) && !(f.options || []).length))) return toast('Preencha as opções das perguntas de escolha');
   const slug = fmSlug($('fm-s').value) || fmSlug(title) + '-' + Math.random().toString(36).slice(2, 5);
-  const p = { title, description: $('fm-d').value.trim(), success_title: $('fm-st').value.trim(), success_message: $('fm-sm').value.trim(), slug, steps };
+  const p = { title, description: $('fm-d').value.trim(), slug, steps };
   const { error } = fcur ? await sb.from('forms').update(p).eq('id', fcur.id) : await sb.from('forms').insert(p);
   if (error) return toast(error.code === '23505' ? 'Esse endereço já existe' : 'Erro: ' + error.message);
   toast('Formulário salvo'); fmView('list'); fmLoad();
@@ -78,8 +93,8 @@ async function fmResp(id) {
   if (error) return toast('Erro ao carregar respostas'); fresp = data || [];
   const last = fresp[0] ? new Date(fresp[0].created_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
   $('fm-resp').innerHTML = `<div class="top"><div><h1>${esc(a.title)}</h1><p>/formulario/${esc(a.slug)}</p></div><div class="acts"><button class="btn o" onclick="fmView('list')">Voltar</button><button class="btn o" onclick="fmCopy('${a.slug}')">Copiar link</button><button class="btn g" onclick="fmCsv('${id}')">Baixar CSV</button></div></div>
-    <div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="st hl"><small>Pessoas que responderam</small><b>${fresp.length}</b></div><div class="st"><small>Última resposta</small><b style="font-size:20px;margin-top:22px">${last}</b></div><div class="st"><small>Situação</small><b style="font-size:24px;margin-top:20px">${a.active ? 'Aberto' : 'Encerrado'}</b></div></div>
-    <div class="row" style="grid-template-columns:1.2fr 1fr"><div class="panel"><h3>Quem respondeu</h3>${fresp.length ? `<table class="fm-tbl"><tr><th>Nome</th><th>E-mail</th><th>Data</th></tr>${fresp.map((r, i) => `<tr class="r" onclick="fmOne(${i})"><td><b>${esc(r.respondent_name)}</b></td><td>${esc(r.respondent_email) || '—'}</td><td>${new Date(r.created_at).toLocaleDateString('pt-BR')}</td></tr>`).join('')}</table>` : '<p style="color:var(--dim)">Ninguém respondeu ainda. Copie o link e compartilhe.</p>'}</div>
+    <div class="stats fm-stats3"><div class="st hl"><small>Pessoas que responderam</small><b>${fresp.length}</b></div><div class="st"><small>Última resposta</small><b style="font-size:20px;margin-top:22px">${last}</b></div><div class="st"><small>Situação</small><b style="font-size:24px;margin-top:20px">${a.active ? 'Aberto' : 'Encerrado'}</b></div></div>
+    <div class="row fm-row"><div class="panel"><h3>Quem respondeu</h3>${fresp.length ? `<div class="fm-scroll"><table class="fm-tbl"><tr><th>Nome</th><th>E-mail</th><th>Data</th></tr>${fresp.map((r, i) => `<tr class="r" onclick="fmOne(${i})"><td><b>${esc(r.respondent_name)}</b></td><td>${esc(r.respondent_email) || '—'}</td><td>${new Date(r.created_at).toLocaleDateString('pt-BR')}</td></tr>`).join('')}</table></div>` : '<p style="color:var(--dim)">Ninguém respondeu ainda. Copie o link e compartilhe.</p>'}</div>
     <div class="panel" id="fm-one"><h3>Resposta</h3><p style="color:var(--dim)">Clique em uma pessoa para ver o que ela respondeu.</p></div></div>`;
   fmView('resp');
 }
