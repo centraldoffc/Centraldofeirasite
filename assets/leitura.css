@@ -1,48 +1,39 @@
 /* Leitura editorial, compartilhada pelas rotas de notícia. */
-body.reading-page{--bg:#f6f6f6;--ink:#20221f;--dim:#727570;--hi:#28644f;--line:#ddd;--paper:#fff;--reading-size:20px;margin:0;background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',Arial,sans-serif;color-scheme:light;min-height:100dvh}
-body.reading-page.reading-dark{--bg:#171717;--ink:#f3f3ef;--dim:#b2b2ae;--hi:#9ccdb7;--line:#393939;--paper:#202020;color-scheme:dark}
+body.reading-page{--bg:#050f0d;--ink:#EDF3F1;--dim:#b0c1bb;--hi:#8CC4B9;--line:rgba(120,160,155,.22);--paper:#f8faf9;--read-ink:#182c25;--read-dim:#52645e;--read-link:#246b54;--reading-size:20px;margin:0;background:radial-gradient(100% 45% at 0 100%,#10302a 0,transparent 60%),var(--bg);color:var(--ink);font-family:Inter,'Plus Jakarta Sans',Arial,sans-serif;color-scheme:dark;min-height:100dvh}
+body.reading-page.reading-dark{--paper:#0c1a17;--read-ink:#edf3ef;--read-dim:#bacbc2;--read-link:#94d4b5}
 body.reading-page *{box-sizing:border-box}
-body.reading-page .w,body.reading-page #article{width:100%;max-width:920px;margin:0 auto;padding:36px 20px 60px}
+body.reading-page .w,body.reading-page #article{width:100%;max-width:720px;margin:0 auto;padding:22px 16px 50px}
 body.reading-page .art{max-width:none;padding:0;margin:0}
 body.reading-page a{color:var(--hi)}
-body.reading-page .news-header,body.reading-page header.top{position:sticky;top:0;z-index:30;background:#0c0c0c;border-bottom:1px solid #333;box-shadow:0 12px 30px #00000014;color:#fff}
-.news-header-inner,body.reading-page .bar{max-width:1160px;height:90px;padding:12px 20px;margin:auto;display:flex;align-items:center;justify-content:space-between}
-body.reading-page header.top .wrap{max-width:1160px;padding:0}
-.news-brand img,body.reading-page .brand img{width:54px;height:62px;object-fit:contain;border:0;border-radius:0}
-body.reading-page .brand{font-size:0;gap:0}
-body.reading-page .date{display:none}
-.news-menu{position:relative}
-body:not(.reading-page) .news-menu{display:none}
-.news-menu summary{list-style:none;display:flex;flex-direction:column;justify-content:center;gap:7px;width:56px;height:56px;padding:13px 10px;border:1px solid #484848;border-radius:18px;background:#171717;cursor:pointer}
-.news-menu summary::-webkit-details-marker{display:none}
-.news-menu summary span{height:2px;background:#eee;width:100%}
-.news-menu nav{position:absolute;top:66px;right:0;width:220px;padding:8px;background:#171717;border:1px solid #484848;border-radius:14px;box-shadow:0 12px 30px #0004}
-body.reading-page .news-menu nav a{display:block;padding:14px;color:#eee;text-decoration:none;font-size:15px}
-.news-menu nav a:hover{background:#303030;border-radius:8px}
+body.reading-page .article-brand{display:flex;align-items:center;gap:9px;margin-bottom:22px;font:400 16px 'Archivo Black','Plus Jakarta Sans',sans-serif;color:var(--ink);text-decoration:none}
+.article-brand img{width:32px;height:32px;object-fit:contain;border-radius:50%}
+body.reading-page header.top{background:rgba(5,15,13,.88)}
+body.reading-page .brand{color:var(--ink)}
 body.reading-page .news-back{display:inline-block;font:400 14px/1.5 'Plus Jakarta Sans',Arial,sans-serif;color:var(--dim);text-decoration:none}
 .reading-tools{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 32px}
 .reading-tools button{min-height:46px;padding:12px 18px;border:1px solid var(--line);border-radius:99px;background:transparent;color:var(--ink);font:400 13px/1.4 'Plus Jakarta Sans',Arial,sans-serif;cursor:pointer}
-.reading-tools button[data-reading-action=size]{background:#242623;color:#fff;border-color:#484a46}
+.reading-tools button[data-reading-action=size]{background:#6FA89E;color:#04120f;border-color:#6FA89E}
 .reading-tools button:hover{box-shadow:inset 0 0 0 1px currentColor}
 body.reading-page :is(button,a,summary):focus-visible{outline:3px solid var(--hi);outline-offset:5px}
 .reading-status{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.news-category{font:400 10px/1.6 monospace;letter-spacing:.2em;color:var(--hi);margin:0 0 26px}
-body.reading-page h1{font:700 clamp(38px,8.5vw,70px)/1.04 Georgia,'Times New Roman',serif;letter-spacing:-.045em;margin:0 0 26px;overflow-wrap:break-word;text-wrap:initial}
-body.reading-page .lead{font:400 clamp(18px,3.5vw,23px)/1.7 'Plus Jakarta Sans',Arial,sans-serif;color:var(--dim);margin:0 0 26px}
-.news-meta{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px 20px;padding:20px 0;border-top:1px solid var(--line);font:400 10px/1.7 monospace;letter-spacing:.06em;color:var(--dim)}
-.news-meta time{text-transform:uppercase}
+body.reading-page h1{font:400 clamp(26px,7vw,42px)/1.1 'Archivo Black','Plus Jakarta Sans',sans-serif;letter-spacing:-.02em;margin:0 0 18px;overflow-wrap:break-word;text-wrap:initial}
+body.reading-page .lead{font:400 17px/1.6 Inter,'Plus Jakarta Sans',Arial,sans-serif;color:var(--dim);margin:0 0 26px}
+.news-meta{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px 20px;padding:20px 0;border-top:1px solid var(--line);font:400 12px/1.7 Inter,'Plus Jakarta Sans',Arial,sans-serif;color:var(--dim)}
 body.reading-page .cover,body.reading-page .art .ph{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:22px;margin:20px 0}
-body.reading-page .news-content{background:var(--paper);border-radius:28px;padding:30px 28px;margin:18px 0 0;font-size:var(--reading-size,20px);line-height:1.85;color:var(--ink);overflow-wrap:anywhere}
+body.reading-page .news-content{background:var(--paper);border-radius:16px;padding:26px 22px;margin:18px 0 0;font-size:var(--reading-size,20px);line-height:1.85;color:var(--read-ink);overflow-wrap:anywhere;color-scheme:light}
 body.reading-page .news-content p,body.reading-page .art .txt p{font-size:inherit;line-height:inherit;margin:0 0 1.6em}
 body.reading-page .news-content>:last-child{margin-bottom:0}
-body.reading-page .news-content h2,body.reading-page .art .txt h2{font:700 1.45em/1.2 Georgia,serif;margin:1.6em 0 .6em}
-body.reading-page .news-content h3,body.reading-page .art .txt h3{font:700 1.2em/1.3 Georgia,serif}
+body.reading-page .news-content h2,body.reading-page .art .txt h2{font:700 1.45em/1.2 'Plus Jakarta Sans',sans-serif;margin:1.6em 0 .6em}
+body.reading-page .news-content h3,body.reading-page .art .txt h3{font:700 1.2em/1.3 'Plus Jakarta Sans',sans-serif}
 body.reading-page .news-content :is(ul,ol){font-size:inherit;line-height:inherit;padding-left:1.4em}
 body.reading-page .news-content img{display:block;max-width:100%;height:auto;border-radius:12px}
 body.reading-page .news-content figure{margin:24px 0}
-body.reading-page .news-content figcaption{font-size:.8em;color:var(--dim)}
-body.reading-page .news-content blockquote{margin:24px 0;padding-left:20px;border-left:3px solid var(--hi);color:var(--dim)}
+body.reading-page .news-content figcaption{font-size:.8em;color:var(--read-dim)}
+body.reading-page .news-content blockquote{margin:24px 0;padding-left:20px;border-left:3px solid var(--read-link);color:var(--read-dim)}
 body.reading-page .news-bottom{margin-top:32px;color:var(--hi)}
-@media(min-width:720px){body.reading-page .w,body.reading-page #article{padding-top:52px}.reading-tools{margin-bottom:42px}.news-content{padding:48px!important}.news-category{font-size:12px}.news-meta{font-size:12px}}
+@media(min-width:720px){body.reading-page .news-content{padding:34px}}
 @media(prefers-reduced-motion:reduce){body.reading-page *{scroll-behavior:auto!important}}
 body.reading-page .news-content img[data-width="50"]{width:50%}body.reading-page .news-content img[data-width="75"]{width:75%}body.reading-page .news-content img[data-width="100"]{width:100%}body.reading-page .news-content img[data-align="left"]{margin-left:0;margin-right:auto}body.reading-page .news-content img[data-align="center"]{margin-left:auto;margin-right:auto}body.reading-page .news-content img[data-align="right"]{margin-left:auto;margin-right:0}
+
+body.reading-page .news-content a,body.reading-page .art .txt a{color:var(--read-link);text-decoration:underline}
+body.reading-page.reading-dark .news-content{color-scheme:dark}

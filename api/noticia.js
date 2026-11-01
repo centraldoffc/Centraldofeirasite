@@ -4,8 +4,9 @@ const { q, esc, origin, clean } = require('./_lib');
 
 const page = (title, body, head = '') => `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title>${head}<link rel="icon" href="/mark.png">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/fonts.css"><link rel="stylesheet" href="/assets/leitura.css"><script defer src="/assets/leitura.js"></script>
-</head><body data-reading="true" class="reading-page"><header class="news-header"><div class="news-header-inner"><a class="news-brand" href="/site" aria-label="Central do FFC — notícias"><img src="/mark.png" alt="Central do FFC"></a><details class="news-menu"><summary aria-label="Menu de navegação"><span></span><span></span><span></span></summary><nav aria-label="Navegação"><a href="/">Início</a><a href="/site">Todas as notícias</a><a href="/login">Entrar</a></nav></details></div></header><main class="w">${body}</main></body></html>`;
+</head><body data-reading="true" class="reading-page"><main class="w"><a class="article-brand" href="/site"><img src="/mark.png" alt="" width="32" height="32"><span>Central do FFC</span></a>${body}</main></body></html>`;
 
 module.exports = async (req, res) => {
   const o = origin(req), slug = String(req.query.slug || '');
@@ -26,7 +27,7 @@ ${a.image_url ? `<meta property="og:image" content="${esc(a.image_url)}"><meta n
     const minutes = Math.max(1, Math.ceil(text.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).length / 200));
     const body = `<article class="news-article"><a class="news-back" href="/site">← Todas as notícias</a>
 <div class="reading-tools" role="group" aria-label="Preferências de leitura"><button type="button" data-reading-action="size" aria-label="Aumentar texto. Tamanho padrão">Texto padrão</button><button type="button" data-reading-action="theme" aria-pressed="false">Leitura escura</button><span class="reading-status" role="status" aria-live="polite"></span></div>
-<p class="news-category">FEIRA FUTEBOL CLUBE</p><h1>${esc(a.title)}</h1>${desc ? `<p class="lead">${esc(desc)}</p>` : ''}
+<h1>${esc(a.title)}</h1>${desc ? `<p class="lead">${esc(desc)}</p>` : ''}
 <div class="news-meta"><time datetime="${esc(a.created_at)}">${new Date(a.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'America/Bahia' })}</time><span>${esc(a.author || 'Redação Central do FFC')}</span><span>${minutes} min de leitura</span></div>
 ${a.image_url && !hasInlineImage(text, a.image_url) ? `<img class="cover" src="${esc(a.image_url)}" alt="${esc(a.title)}">` : ''}<div class="t news-content">${text}</div></article><a class="news-back news-bottom" href="/site">← Voltar às notícias</a>`;
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');

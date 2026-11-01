@@ -25,7 +25,6 @@
     });
     if (announce) document.querySelectorAll('.reading-status').forEach(el => { el.textContent = `Texto em ${size} pixels. Leitura ${dark ? 'escura' : 'clara'}.`; });
   }
-  document.addEventListener('keydown', event => { if (event.key === 'Escape') document.querySelectorAll('.news-menu[open]').forEach(menu => { menu.open = false; menu.querySelector('summary').focus(); }); });
   document.addEventListener('click', event => {
     const button = event.target.closest('[data-reading-action]');
     if (!button) return;
