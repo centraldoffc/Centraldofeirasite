@@ -14,7 +14,7 @@ button,input{font:inherit;color:inherit}button{cursor:pointer;-webkit-tap-highli
 h2,p{margin-top:0}h2{font-weight:600;letter-spacing:-.04em}[hidden]{display:none!important}
 :focus-visible{outline:3px solid #55ad7b;outline-offset:3px}
 #login{min-height:100dvh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at bottom left,#d4e4d8,transparent 65%),var(--bg)}
-.lbox{width:min(100%,410px);padding:36px;background:#fff;border-radius:28px;display:grid;gap:14px;box-shadow:0 16px 60px #173a2010}
+.lbox{width:min(100%,410px);padding:36px;background:#fff;border-radius:28px;display:grid;grid-template-columns:minmax(0,1fr);gap:14px;overflow:hidden;box-shadow:0 16px 60px #173a2010}
 .brand{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:17px;font-weight:700;letter-spacing:-.04em}
 .brand img{height:38px;width:38px;object-fit:contain;border-radius:10px}
 .brand small{display:block;font-size:10px;color:var(--dim);font-weight:500;letter-spacing:.12em;text-transform:uppercase}
@@ -30,7 +30,7 @@ input[type=text],input[type=email],input[type=password]{width:100%;background:#f
 .lk{background:0;border:0;color:var(--g);font-weight:600;text-decoration:underline;padding:0;font-size:inherit}
 .lk:disabled{color:var(--dim);text-decoration:none;cursor:default}
 .sm{font-size:12px;color:var(--dim);text-align:center}
-.gbox{display:flex;justify-content:center;min-height:44px}.gbtn{border:1px solid #dce4de;background:#fff;border-radius:99px;min-height:44px;padding:10px 20px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;width:100%}.gbtn:hover{background:var(--side)}
+.gbox{display:flex;justify-content:center;min-height:44px;max-width:100%;overflow:hidden}.gbtn{border:1px solid #dce4de;background:#fff;border-radius:99px;min-height:44px;padding:10px 20px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;width:100%}.gbtn:hover{background:var(--side)}
 .or{display:flex;align-items:center;gap:12px;color:var(--dim);font-size:11px}.or:before,.or:after{content:'';flex:1;height:1px;background:var(--line)}
 .boxes{display:flex;gap:8px;justify-content:center;margin:6px 0}
 .boxes input{width:44px;height:52px;text-align:center;font-size:22px;font-weight:600;padding:0;border-radius:12px;caret-color:var(--acc)}
@@ -74,7 +74,7 @@ async function mountGoogle(){
       if(error){const el=$('ien')||$('uen');if(el)el.textContent='Não foi possível entrar com Google. Tente novamente.';mountGoogle()}else start()};
     window.google.accounts.id.initialize({client_id:GCLIENT,callback:r=>google_cb(r),nonce:hash,use_fedcm_for_prompt:true,ux_mode:'popup'});
     document.querySelectorAll('[data-gbox]').forEach(box=>{
-      box.innerHTML='';const w=Math.max(200,Math.min(400,Math.floor(box.parentElement.clientWidth)||300));
+      box.innerHTML='';const lb=box.closest('.lbox'),cs=getComputedStyle(lb),w=Math.max(200,Math.min(400,Math.floor(lb.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight))||280));
       window.google.accounts.id.renderButton(box,{type:'standard',theme:'outline',size:'large',shape:'pill',text:'continue_with',locale:'pt-BR',width:w});
       box.hidden=false;const fb=box.nextElementSibling;if(fb&&fb.matches('[data-google]'))fb.hidden=true});
   }catch(e){/* mantém o botão alternativo (redirecionamento) */}
