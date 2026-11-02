@@ -11,7 +11,7 @@
   const MES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
   const DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
   const COLORS = ['#1d754c', '#2f8f6b', '#103f2a', '#b8863b', '#5c65a0', '#bc4545', '#2d7f8f'];
-  const TITLES = { inicio: 'Visão geral', avisos: 'Avisos', tarefas: 'Tarefas', calendario: 'Calendário', arquivos: 'Arquivos', chat: 'Conversas', equipe: 'Equipe', pedidos: 'Pedidos', atividade: 'Atividade' };
+  const TITLES = { inicio: 'Visão geral', avisos: 'Avisos', tarefas: 'Tarefas', calendario: 'Calendário', arquivos: 'Arquivos', chat: 'Conversas', equipe: 'Equipe', pedidos: 'Pedidos', atividade: 'Atividade', noticias: 'Notícias', modelos: 'Modelos de design' };
   const ICONS = {
     home: '<rect x="3.5" y="3.5" width="7" height="9" rx="2"/><rect x="13.5" y="3.5" width="7" height="5" rx="2"/><rect x="13.5" y="11.5" width="7" height="9" rx="2"/><rect x="3.5" y="15.5" width="7" height="5" rx="2"/>',
     mega: '<path d="M4 10v4h3l7 4V6L7 10H4Z"/><path d="M17.5 9.5a4 4 0 0 1 0 5"/>',
@@ -43,7 +43,12 @@
     search: '<circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/>',
     reply: '<path d="M10 7 4.5 12 10 17"/><path d="M5 12h9a5 5 0 0 1 5 5v1"/>',
     key: '<circle cx="8" cy="15" r="3.5"/><path d="m10.5 12.5 8-8M15.5 7.5l2.5 2.5"/>',
-    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'
+    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    news: '<path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v15H7.5A2.5 2.5 0 0 0 5 20.5Zm0 15A2.5 2.5 0 0 1 7.5 18H19v3H7.5"/><path d="M9 7.5h6M9 11h6"/>',
+    layout: '<rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M3.5 9.5h17M10 9.5V20"/>',
+    link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+    copy: '<rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5V6A2.5 2.5 0 0 0 13 3.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/>',
+    ext: '<path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/>'
   };
   const I = (n, s) => `<svg class="icon"${s ? ` style="width:${s}px;height:${s}px"` : ''} aria-hidden="true"><use href="#ag-${n}"/></svg>`;
 
@@ -52,6 +57,7 @@
   const S = {
     view: 'inicio', arg: null, members: [], notices: [], tasks: [], events: [], notifs: [], chats: [], cmine: [], reqs: [], recent: [],
     tFilter: 'all', tStatus: 'todo', tQ: '', tCat: '', tMem: '', month: null, folder: null, fq: '', folders: [], files: [],
+    drafts: [], tpls: [], mCat: '', mQ: '', isAdm: false,
     chatId: null, msgs: [], reply: null, rFilter: 'aberto', aFilter: '', aMem: '', urls: {}, loadedAt: 0
   };
 
@@ -69,6 +75,10 @@
   const first = n => String(n || '').split(' ')[0];
   const mem = id => S.members.find(m => m.id === id);
   const isLeader = () => !!me && (me.access_level === 'super' || me.access_level === 'lider');
+  const norm = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const hasRole = k => !!me && (isLeader() || norm(me.role_title).includes(k));
+  const isRedator = () => hasRole('redat'), isDesigner = () => hasRole('design');
+  const canView = v => v === 'noticias' ? isRedator() : v === 'modelos' ? isDesigner() : v === 'atividade' ? isLeader() : true;
   const isSuper = () => !!me && me.access_level === 'super';
   const ini = n => { const w = String(n || '?').trim().split(/\s+/); return ((w[0] || '?')[0] + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase(); };
   const hue = n => COLORS[[...String(n)].reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
@@ -163,15 +173,15 @@
   /* ---------- navegação ---------- */
   function go(v, a) {
     if (!me) return;
-    if ((v === 'atividade') && !isLeader()) v = 'inicio';
+    if (!canView(v)) v = 'inicio';
     S.view = TITLES[v] ? v : 'inicio'; S.arg = a || null; closeModal();
     if (host.onView) host.onView(S.view);
     window.scrollTo(0, 0);
     if (S.view === 'avisos') { localStorage.setItem(seenKey(), new Date().toISOString()); badges(); }
     if (Date.now() - S.loadedAt > 45000) refresh(); else render();
   }
-  const V = { inicio: vInicio, avisos: vAvisos, tarefas: vTarefas, calendario: vCal, arquivos: vArquivos, chat: vChat, equipe: vEquipe, pedidos: vPedidos, atividade: vAtividade };
-  const AFTER = { arquivos: drawFiles, chat: afterChat, tarefas: drawBoard, atividade: drawAct };
+  const V = { inicio: vInicio, avisos: vAvisos, tarefas: vTarefas, calendario: vCal, arquivos: vArquivos, chat: vChat, equipe: vEquipe, pedidos: vPedidos, atividade: vAtividade, noticias: vNoticias, modelos: vModelos };
+  const AFTER = { arquivos: drawFiles, chat: afterChat, tarefas: drawBoard, atividade: drawAct, modelos: drawTpls };
   async function render() {
     if (!me) return; const my = ++token;
     const html = await V[S.view]();
@@ -591,6 +601,114 @@
     box.innerHTML = (r.data || []).map(a => { const m = mem(a.member_id); return `<div class="ag-line">${av(m, 34)}<div class="tx"><b>${esc(m ? first(m.name) : 'Membro')} ${esc(a.action)}</b><small>${a.detail ? esc(a.detail) + ' · ' : ''}${when(a.created_at)}</small></div><span class="badge" style="margin:0">${esc(a.area)}</span></div>`; }).join('') || empty('Nada registrado ainda.');
   }
 
+
+  /* =====================================================  NOTÍCIAS (redator)  */
+  const DST = { rascunho: ['Rascunho', ''], enviado: ['Em revisão', 'd'], aprovado: ['Aprovada', ''], devolvido: ['Devolvida', 'u'] };
+  const plain = t => String(t || '').replace(/\s+/g, ' ').trim();
+  function safeUrl(u) { try { const x = new URL(String(u || '').trim()); return /^https?:$/.test(x.protocol) ? x.href : ''; } catch { return ''; } }
+  const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
+  async function vNoticias() {
+    const r = await sb.from('agency_drafts').select('*').order('updated_at', { ascending: false }); S.drafts = r.data || [];
+    const lead = isLeader(), mine = S.drafts.filter(d => d.author_id === me.id), rev = lead ? S.drafts.filter(d => d.status === 'enviado') : [];
+    const others = lead ? S.drafts.filter(d => d.status !== 'enviado') : mine;
+    const sub = lead ? 'Textos enviados pelos redatores para revisão.' : 'Escreva sua matéria, salve como rascunho e envie para a liderança revisar.';
+    return `${head('Notícias', sub, isRedator() ? b('new-draft', I('plus') + 'Nova matéria', 'g') : '')}
+    ${S.isAdm ? `<div class="ag-banner">${I('news')}<span>Para publicar no site, aprove a matéria e use <b>Passar para o editor</b>. Ela vira um rascunho no painel editorial.</span></div>` : ''}
+    ${rev.length ? `<div class="panel-header"><h3>Para revisar</h3><span>${rev.length}</span></div><div class="ag-stack" style="margin-bottom:18px">${rev.map(draftCard).join('')}</div>` : ''}
+    ${others.length ? `${lead ? '<div class="panel-header"><h3>Outras matérias</h3></div>' : ''}<div class="ag-stack">${others.map(draftCard).join('')}</div>` : (rev.length ? '' : `<div class="panel">${empty(isRedator() ? 'Nenhuma matéria ainda. Toque em “Nova matéria” para começar.' : 'Nenhuma matéria enviada ainda.')}</div>`)}`;
+  }
+  function draftCard(d) {
+    const a = mem(d.author_id), st = DST[d.status] || DST.rascunho, own = d.author_id === me.id, lead = isLeader(), src = safeUrl(d.source_url);
+    const ex = plain(d.body).slice(0, 170);
+    return `<article class="panel ag-draft"><div class="ag-nh"><span class="badge ${st[1]}">${st[0]}</span><span class="ag-meta">${a ? esc(a.name) + ' · ' : ''}${when(d.updated_at)}</span></div>
+      <h4>${esc(d.title)}</h4>${ex ? `<p class="ag-p">${esc(ex)}${plain(d.body).length > 170 ? '…' : ''}</p>` : ''}
+      ${src ? `<a class="ag-src" href="${esc(src)}" target="_blank" rel="noopener noreferrer">${I('link', 14)}${esc(hostOf(src))}</a>` : ''}
+      ${d.status === 'devolvido' && d.feedback ? `<div class="ag-banner">${I('reply')}<span><b>Ajustes pedidos:</b> ${esc(d.feedback)}</span></div>` : ''}
+      <div class="ag-btns l">
+        <button class="btn o s" data-ag="view-draft" data-id="${d.id}">Abrir</button>
+        ${own && d.status !== 'aprovado' ? `<button class="btn o s" data-ag="edit-draft" data-id="${d.id}">Editar</button>` : ''}
+        ${own && (d.status === 'rascunho' || d.status === 'devolvido') ? `<button class="btn g s" data-ag="send-draft" data-id="${d.id}">Enviar para revisão</button>` : ''}
+        ${lead && d.status === 'enviado' ? `<button class="btn g s" data-ag="approve-draft" data-id="${d.id}">Aprovar</button><button class="btn o s" data-ag="return-draft" data-id="${d.id}">Devolver</button>` : ''}
+        ${S.isAdm && d.status === 'aprovado' ? `<button class="btn g s" data-ag="to-editor" data-id="${d.id}">Passar para o editor</button>` : ''}
+        ${(own && d.status !== 'aprovado') || lead ? `<button class="btn r s" data-ag="ask-del-draft" data-id="${d.id}">Excluir</button>` : ''}
+      </div></article>`;
+  }
+  function draftForm(id) {
+    const d = id ? S.drafts.find(x => x.id === id) : { title: '', body: '', source_url: '' };
+    modal(id ? 'Editar matéria' : 'Nova matéria', `<label for="dt">Título</label><input type="text" id="dt" maxlength="200" value="${esc(d.title)}" placeholder="Título da matéria">
+      <label for="db">Texto</label><textarea id="db" rows="12" maxlength="60000" placeholder="Escreva a matéria aqui. Use uma linha em branco para separar os parágrafos.">${esc(d.body)}</textarea>
+      <label for="ds">Link da fonte (opcional)</label><input type="url" id="ds" maxlength="1000" value="${esc(d.source_url)}" placeholder="https://…">
+      <div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn o" data-ag="save-draft" data-id="${id || ''}">Salvar rascunho</button><button class="btn g" data-ag="save-draft" data-id="${id || ''}" data-send="1">Salvar e enviar</button></div>`, 'wide');
+  }
+  async function saveDraft(id, send) {
+    const title = $('#dt').value.trim(), body = $('#db').value.trim(), raw = $('#ds').value.trim(), src = raw ? safeUrl(raw) : '';
+    if (!title) return toast('Escreva um título'); if (raw && !src) return toast('O link da fonte precisa começar com https://');
+    if (send && body.length < 20) return toast('Escreva o texto antes de enviar');
+    const p = { title, body, source_url: src, status: send ? 'enviado' : 'rascunho', feedback: '', updated_at: new Date().toISOString() };
+    const r = id ? await sb.from('agency_drafts').update(p).eq('id', id) : await sb.from('agency_drafts').insert({ ...p, author_id: me.id });
+    if (r.error) return toast('Não foi possível salvar'); log(send ? 'enviou uma matéria para revisão' : 'salvou um rascunho', title, 'noticias');
+    if (send) await notify(leaderIds().filter(x => x !== me.id), `${first(me.name)} enviou a matéria “${title}” para revisão`, 'noticias');
+    closeModal(); toast(send ? 'Enviada para revisão' : 'Rascunho salvo'); return go('noticias');
+  }
+  async function setDraft(id, patch, msg, note) {
+    const d = S.drafts.find(x => x.id === id); const r = await sb.from('agency_drafts').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id);
+    if (r.error) return toast('Não foi possível atualizar'); if (note && d) await notify([d.author_id], note.replace('{t}', d.title), 'noticias');
+    closeModal(); toast(msg); return go('noticias');
+  }
+  function viewDraft(id) {
+    const d = S.drafts.find(x => x.id === id); if (!d) return; const a = mem(d.author_id), st = DST[d.status] || DST.rascunho, src = safeUrl(d.source_url);
+    modal(d.title, `<div class="ag-tm"><span class="badge ${st[1]}">${st[0]}</span><span class="ag-meta">${a ? esc(a.name) + ' · ' : ''}${when(d.updated_at)}</span></div>
+      <p class="ag-p pre" style="margin-top:14px">${esc(d.body) || '—'}</p>${src ? `<a class="ag-src" href="${esc(src)}" target="_blank" rel="noopener noreferrer">${I('link', 14)}${esc(src)}</a>` : ''}
+      <div class="ag-btns l"><button class="btn o s" data-ag="copy" data-t="${esc(d.title + '\n\n' + d.body)}">${I('copy', 14)}Copiar texto</button></div>`, 'wide');
+  }
+  async function toEditor(id) {
+    const d = S.drafts.find(x => x.id === id); if (!d) return; const a = mem(d.author_id), src = safeUrl(d.source_url);
+    const paras = String(d.body).split(/\n{2,}/).map(t => t.trim()).filter(Boolean).map(t => `<p>${esc(t).replace(/\n/g, '<br>')}</p>`);
+    if (src) paras.push(`<p>Fonte: <a href="${esc(src)}" target="_blank" rel="noopener noreferrer">${esc(hostOf(src))}</a></p>`);
+    const content = paras.join(''), summary = plain(d.body).slice(0, 180);
+    const slug = norm(d.title).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 70) + '-' + Math.random().toString(36).slice(2, 6);
+    const r = await sb.from('articles').insert({ title: d.title, summary, content, author: a ? a.name : 'Redação Central do FFC', slug, published: false });
+    if (r.error) return toast('Não foi possível criar no editor'); log('passou uma matéria para o editor', d.title, 'noticias');
+    toast('Criada como rascunho no painel editorial');
+  }
+
+  /* =====================================================  MODELOS (designer)  */
+  const TPL_CATS = ['Placar', 'Escalação', 'Notícia', 'Story', 'Thumb', 'Capa', 'Geral'];
+  const tplKind = u => { const h = hostOf(u); return /canva/.test(h) ? 'Canva' : /figma/.test(h) ? 'Figma' : /drive\.google|docs\.google/.test(h) ? 'Drive' : /photoshop|adobe/.test(h) ? 'Adobe' : h || 'Link'; };
+  async function vModelos() {
+    const r = await sb.from('agency_templates').select('*').order('created_at', { ascending: false }); S.tpls = r.data || [];
+    const cats = [...new Set(S.tpls.map(t => t.category))].sort();
+    return `${head('Modelos de design', 'Artes prontas da agência. Abra o modelo, copie o link ou anexe um novo.', b('new-tpl', I('link') + 'Anexar link', 'g'))}
+    <div class="panel ag-filters"><div class="ag-search">${I('search')}<input type="search" id="ag-mq" placeholder="Buscar modelo…" value="${esc(S.mQ)}" aria-label="Buscar modelo"></div>
+      <div class="ag-chips"><button class="btn o s" data-ag="mcat" data-v="" aria-pressed="${S.mCat === ''}">Todos</button>${cats.map(c => `<button class="btn o s" data-ag="mcat" data-v="${esc(c)}" aria-pressed="${S.mCat === c}">${esc(c)}</button>`).join('')}</div></div>
+    <div id="ag-tpl"></div>`;
+  }
+  function drawTpls() {
+    const box = $('#ag-tpl'); if (!box) return; const q = norm(S.mQ);
+    const l = S.tpls.filter(t => (!S.mCat || t.category === S.mCat) && (!q || norm(t.title + ' ' + t.note + ' ' + t.category).includes(q)));
+    box.innerHTML = l.length ? `<div class="ag-tpls">${l.map(t => { const u = mem(t.created_by), can = isLeader() || t.created_by === me.id;
+      return `<article class="ag-tpl"><div class="ag-tpl-top"><span class="ag-tpl-ic">${I('layout', 24)}</span><span class="badge">${esc(t.category)}</span></div>
+        <b>${esc(t.title)}</b>${t.note ? `<p>${esc(t.note)}</p>` : ''}<small>${esc(tplKind(t.url))}${u ? ' · ' + esc(first(u.name)) : ''}</small>
+        <div class="ag-btns l"><a class="btn g s" href="${esc(t.url)}" target="_blank" rel="noopener noreferrer">${I('ext', 14)}Abrir</a><button class="btn o s" data-ag="copy" data-t="${esc(t.url)}">${I('copy', 14)}Copiar link</button>
+        ${can ? `<button class="ag-mini" data-ag="edit-tpl" data-id="${t.id}" aria-label="Editar">${I('edit', 15)}</button><button class="ag-mini" data-ag="ask-del-tpl" data-id="${t.id}" aria-label="Excluir">${I('trash', 15)}</button>` : ''}</div></article>`; }).join('')}</div>`
+      : `<div class="panel">${empty(S.tpls.length ? 'Nenhum modelo com esse filtro.' : 'Nenhum modelo ainda. Toque em “Anexar link” para adicionar o primeiro.')}</div>`;
+  }
+  function tplForm(id) {
+    const t = id ? S.tpls.find(x => x.id === id) : { title: '', url: '', category: 'Geral', note: '' };
+    const cats = [...new Set([...TPL_CATS, ...S.tpls.map(x => x.category)])];
+    modal(id ? 'Editar modelo' : 'Anexar link de modelo', `<label for="mt">Nome do modelo</label><input type="text" id="mt" maxlength="120" value="${esc(t.title)}" placeholder="Ex.: Placar de jogo (story)">
+      <label for="mu">Link</label><input type="url" id="mu" maxlength="1000" value="${esc(t.url)}" placeholder="https://www.canva.com/…">
+      <label for="mc">Categoria</label><input type="text" id="mc" maxlength="40" list="mc-l" value="${esc(t.category)}"><datalist id="mc-l">${cats.map(c => `<option value="${esc(c)}">`).join('')}</datalist>
+      <label for="mn">Observação (opcional)</label><textarea id="mn" rows="3" maxlength="500" placeholder="Para que serve, tamanho, fontes usadas…">${esc(t.note)}</textarea>
+      <div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn g" data-ag="save-tpl" data-id="${id || ''}">Salvar</button></div>`, 'sm');
+  }
+  async function saveTpl(id) {
+    const title = $('#mt').value.trim(), url = safeUrl($('#mu').value), category = $('#mc').value.trim() || 'Geral', note = $('#mn').value.trim();
+    if (!title) return toast('Dê um nome ao modelo'); if (!url) return toast('Cole um link que comece com https://');
+    const r = id ? await sb.from('agency_templates').update({ title, url, category, note }).eq('id', id) : await sb.from('agency_templates').insert({ title, url, category, note, created_by: me.id });
+    if (r.error) return toast('Não foi possível salvar'); log(id ? 'editou um modelo' : 'anexou um modelo de design', title, 'modelos'); closeModal(); toast('Modelo salvo'); return go('modelos');
+  }
+
   /* =====================================================  NOTIFICAÇÕES  */
   function notifModal() {
     modal('Notificações', `${S.notifs.length ? `<div class="ag-btns l" style="margin:0 0 8px"><button class="btn o s" data-ag="notif-all">Marcar todas como lidas</button></div>` : ''}${S.notifs.map(n => `<button class="ag-line ag-btnrow ${n.read ? '' : 'unread'}" data-ag="notif" data-id="${n.id}"><div class="tx"><b>${esc(n.text)}</b><small>${when(n.created_at)}</small></div>${n.read ? '' : '<span class="ag-dot"></span>'}</button>`).join('') || empty('Nenhuma notificação por enquanto.')}`, 'sm');
@@ -687,6 +805,23 @@
       case 'del-req': { await sb.from('agency_requests').delete().eq('id', id); closeModal(); return refresh(); }
       case 'afilter': S.aFilter = v; return render();
       /* notificações */
+      case 'new-draft': return draftForm();
+      case 'edit-draft': return draftForm(id);
+      case 'view-draft': return viewDraft(id);
+      case 'save-draft': return saveDraft(id || null, !!el.dataset.send);
+      case 'send-draft': { const d = S.drafts.find(x => x.id === id); if (!d || d.body.trim().length < 20) return toast('Escreva o texto antes de enviar'); await setDraft(id, { status: 'enviado', feedback: '' }, 'Enviada para revisão'); await notify(leaderIds().filter(x => x !== me.id), `${first(me.name)} enviou a matéria “${d.title}” para revisão`, 'noticias'); return; }
+      case 'approve-draft': log('aprovou uma matéria', (S.drafts.find(x => x.id === id) || {}).title, 'noticias'); return setDraft(id, { status: 'aprovado', feedback: '' }, 'Matéria aprovada', 'Sua matéria “{t}” foi aprovada');
+      case 'return-draft': return modal('Devolver matéria', `<label for="df">O que precisa ajustar?</label><textarea id="df" rows="4" maxlength="1000" placeholder="Explique o que o redator deve mudar"></textarea><div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn g" data-ag="save-return" data-id="${id}">Devolver</button></div>`, 'sm');
+      case 'save-return': { const f = $('#df').value.trim(); if (!f) return toast('Explique o que ajustar'); return setDraft(id, { status: 'devolvido', feedback: f }, 'Matéria devolvida', 'Sua matéria “{t}” voltou com ajustes'); }
+      case 'to-editor': return toEditor(id);
+      case 'ask-del-draft': return confirmBox('Excluir matéria', 'A matéria será apagada. Quer mesmo excluir?', 'del-draft', id);
+      case 'del-draft': { const r = await sb.from('agency_drafts').delete().eq('id', id); if (r.error) return toast('Não foi possível excluir'); closeModal(); toast('Matéria excluída'); return go('noticias'); }
+      case 'new-tpl': return tplForm();
+      case 'edit-tpl': return tplForm(id);
+      case 'save-tpl': return saveTpl(id || null);
+      case 'mcat': S.mCat = v || ''; return go('modelos');
+      case 'ask-del-tpl': return confirmBox('Excluir modelo', 'O link sai da lista da equipe. Quer mesmo excluir?', 'del-tpl', id);
+      case 'del-tpl': { const r = await sb.from('agency_templates').delete().eq('id', id); if (r.error) return toast('Não foi possível excluir'); closeModal(); toast('Modelo excluído'); return go('modelos'); }
       case 'bell': return notifModal();
       case 'notif': { const n = S.notifs.find(x => x.id === id); if (n && !n.read) { n.read = true; sb.from('agency_notifications').update({ read: true }).eq('id', id).then(() => {}); badges(); } closeModal(); return openLink(n && n.link); }
       case 'notif-all': { S.notifs.forEach(n => n.read = true); await sb.from('agency_notifications').update({ read: true }).eq('member_id', me.id).eq('read', false); badges(); return notifModal(); }
@@ -704,6 +839,7 @@
   }
   function onInput(e) {
     if (e.target.id === 'ag-tq') { S.tQ = e.target.value; drawBoard(); }
+    if (e.target.id === 'ag-mq') { S.mQ = e.target.value; drawTpls(); }
     if (e.target.id === 'ag-fq') { clearTimeout(dbTimer); const v = e.target.value; dbTimer = setTimeout(() => { S.fq = v.trim(); drawFiles(); }, 300); }
   }
   function onSubmit(e) { if (e.target.id === 'ag-compose') { e.preventDefault(); const i = $('#ag-chat-input'), v = i.value.trim(); if (v) { i.value = ''; sendMsg(v); } } }
@@ -733,9 +869,9 @@
     const u = (await sb.auth.getUser()).data.user; if (!u) { o.onDenied && o.onDenied(); return false; }
     const r = await sb.from('agency_members').select('*').eq('id', u.id).maybeSingle();
     if (!r.data || !r.data.active) { o.onDenied && o.onDenied(); return false; }
-    me = r.data; await loadBase(); subscribe(); return true;
+    me = r.data; S.isAdm = false; try { S.isAdm = (await sb.rpc('is_admin')).data === true; } catch {} await loadBase(); subscribe(); return true;
   }
   function destroy() { if (rt && sb) sb.removeChannel(rt); rt = null; me = null; closeModal(); }
   injectIcons();
-  window.AG = { init, go, destroy, closeModal, log, openNotifs: notifModal, openMe: () => go('equipe', 'me'), refresh, get me() { return me; }, get badge() { return S.badge || {}; }, isLeader, av, first, TITLES, ICONS, I };
+  window.AG = { init, go, destroy, closeModal, log, openNotifs: notifModal, openMe: () => go('equipe', 'me'), refresh, get me() { return me; }, get badge() { return S.badge || {}; }, isLeader, can: canView, av, first, TITLES, ICONS, I };
 })();
