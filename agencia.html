@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="assets/gerenciar.css">
 <link rel="stylesheet" href="assets/agencia.css">
 </head>
-<body>
+<body class="ag-page">
 
 <!-- LOGIN -->
 <div class="ag-gate" id="gLogin" hidden>
@@ -53,6 +53,8 @@
     <button class="nav" data-v="calendario"><svg class="icon" aria-hidden="true"><use href="#ag-cal"/></svg>Calendário</button>
     <button class="nav" data-v="arquivos"><svg class="icon" aria-hidden="true"><use href="#ag-folder"/></svg>Arquivos</button>
     <button class="nav" data-v="chat"><svg class="icon" aria-hidden="true"><use href="#ag-chat"/></svg>Conversas<span class="nav-count" data-b="chat" hidden></span></button>
+    <button class="nav" data-v="noticias" hidden><svg class="icon" aria-hidden="true"><use href="#ag-news"/></svg>Notícias</button>
+    <button class="nav" data-v="modelos" hidden><svg class="icon" aria-hidden="true"><use href="#ag-layout"/></svg>Modelos de design</button>
     <button class="nav" data-v="equipe"><svg class="icon" aria-hidden="true"><use href="#ag-team"/></svg>Equipe</button>
     <button class="nav" data-v="pedidos"><svg class="icon" aria-hidden="true"><use href="#ag-inbox"/></svg>Pedidos<span class="nav-count" data-b="req" hidden></span></button>
     <button class="nav" data-v="atividade" id="navAct" hidden><svg class="icon" aria-hidden="true"><use href="#ag-pulse"/></svg>Atividade</button>
@@ -135,6 +137,7 @@ async function boot(fresh) {
   booting = false; if (!ok) return;
   ready = true; lastAct = Date.now(); gate('app'); drawMe();
   $('#navAct').hidden = !AG.isLeader();
+  ['noticias', 'modelos'].forEach(v => { const n = document.querySelector(`aside .nav[data-v="${v}"]`); if (n) n.hidden = !AG.can(v); });
   sb.rpc('is_admin').then(r => { $('#navAdm').hidden = r.data !== true; });
   AG.go('inicio'); if (fresh) AG.log('entrou no painel');
 }
