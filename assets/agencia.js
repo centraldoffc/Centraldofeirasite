@@ -849,7 +849,7 @@
   function tgForm(id) {
     S.playerLookup = null; S.playerRequest = null;
     const t = id ? tgOf(id) : { name: '', position: '', club: '', contract_until: '', free_agent: false, instagram: '', agent_id: '', status: 'monitorado', notes: '' };
-    modal(id ? 'Editar atleta' : 'Novo atleta', `${id ? '' : `<label for="ag-player-q">Pesquisar jogador</label><input type="search" id="ag-player-q" maxlength="100" placeholder="Ex.: Neymar, João Pedro…" autocomplete="off"><div class="ag-btns l"><button class="btn g" data-ag="player-search">${I('search', 14)}Pesquisar</button><button class="btn o" data-ag="player-manual">Cadastrar sem busca</button></div><p class="ag-meta">Fonte: TheSportsDB. Pesquise e escolha o atleta para preencher a ficha. A base pode não incluir todos os jogadores.</p><div id="ag-player-results" role="status" aria-live="polite"></div><div class="panel" style="margin-top:16px"><b>Importar ficha do oGol</b><p class="ag-meta">Abra a ficha do jogador no oGol, copie o texto da página e cole abaixo. Depois confira os dados antes de salvar.</p><label for="ag-ogol-text">Texto copiado do oGol</label><textarea id="ag-ogol-text" rows="5" placeholder="Cole aqui a ficha copiada"></textarea><div class="ag-btns l"><button class="btn g" data-ag="ogol-import">Preencher ficha</button></div><p class="ag-meta" id="ag-ogol-status" aria-live="polite"></p></div>`}<div id="ag-player-fields" ${id ? '' : 'hidden'}><label for="tn">Nome</label><input type="text" id="tn" maxlength="120" value="${esc(t.name)}">
+    modal(id ? 'Editar atleta' : 'Novo atleta', `${id ? '' : `<label for="ag-player-q">Pesquisar jogador</label><input type="search" id="ag-player-q" maxlength="100" placeholder="Ex.: Bisneto, Marquinho Carioca…" autocomplete="off"><div class="ag-btns l"><button class="btn g" data-ag="player-search">${I('search', 14)}Pesquisar</button><button class="btn o" data-ag="player-manual">Cadastrar sem busca</button></div><p class="ag-meta">Pesquise pelo nome e escolha o jogador. A ficha será preenchida com os dados disponíveis no Transfermarkt.</p><div id="ag-player-results" role="status" aria-live="polite"></div>`}<div id="ag-player-fields" ${id ? '' : 'hidden'}><label for="tn">Nome</label><input type="text" id="tn" maxlength="120" value="${esc(t.name)}">
       <div class="ag-two"><div><label for="tp">Posição</label><input type="text" id="tp" maxlength="40" value="${esc(t.position)}" placeholder="Ex.: Atacante"></div><div><label for="tc">Clube atual</label><input type="text" id="tc" maxlength="80" value="${esc(t.club)}"></div></div>
       <div class="ag-two"><div><label for="td">Contrato até</label><input type="date" id="td" value="${esc(t.contract_until || '')}"></div><div><label for="ti">Instagram (público)</label><input type="text" id="ti" maxlength="40" value="${esc(t.instagram)}" placeholder="@perfil"></div></div>
       <label class="ag-chk"><input type="checkbox" id="tf" ${t.free_agent ? 'checked' : ''}>Atleta livre no mercado</label>
@@ -858,18 +858,19 @@
       <label for="tt">Observações</label><textarea id="tt" rows="3" maxlength="2000">${esc(t.notes)}</textarea>
       <div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn g" data-ag="save-tg" data-id="${id || ''}">Salvar</button></div></div>`, 'wide');
   }
-  async function searchPlayers() {
+  async function searchPlayers(page = 1) {
     const input = $('#ag-player-q'), box = $('#ag-player-results'); if (!input || !box) return;
     const q = input.value.trim(); if (q.length < 2) return toast('Digite pelo menos 2 letras');
     S.playerLookup = null;
     const request = {}; S.playerRequest = request;
     box.textContent = 'Pesquisando jogadores…'; box.setAttribute('aria-busy', 'true');
     try {
-      const r = await fetch('/api/jogadores?q=' + encodeURIComponent(q), { signal: AbortSignal.timeout(15000) });
+      const r = await fetch('/api/jogadores?q=' + encodeURIComponent(q) + '&page=' + page, { signal: AbortSignal.timeout(15000) });
       const data = await r.json(); if (!r.ok) throw new Error(data.error || 'Não foi possível pesquisar');
       if (S.playerRequest !== request || !box.isConnected) return;
       S.playerLookup = Array.isArray(data.items) ? data.items : [];
       box.innerHTML = S.playerLookup.length ? `<p class="ag-meta">Escolha o jogador correto para importar:</p><div class="ag-stack">${S.playerLookup.map((p, i) => `<div class="panel"><b>${esc(p.name)}</b><p class="ag-meta">${esc([p.club, p.position, p.nationality, p.birth_date ? 'Nascimento: ' + fdate(p.birth_date) : ''].filter(Boolean).join(' · '))}</p><button class="btn g s" data-ag="player-import" data-v="${i}">Importar ficha</button></div>`).join('')}</div>` : '<p class="ag-meta">Nenhum jogador encontrado nesta base. Tente o nome completo ou use “Cadastrar sem busca”.</p>';
+      if (page > 1 || data.has_more) box.insertAdjacentHTML('beforeend', `<div class="ag-btns l">${page > 1 ? `<button class="btn o s" data-ag="player-page" data-v="${page - 1}">Anterior</button>` : ''}${data.has_more ? `<button class="btn o s" data-ag="player-page" data-v="${page + 1}">Mais jogadores</button>` : ''}</div>`);
     } catch (e) { if (S.playerRequest === request && box.isConnected) box.textContent = e.name === 'TimeoutError' ? 'A busca demorou demais. Tente novamente.' : e.message; }
     finally { if (S.playerRequest === request) box.removeAttribute('aria-busy'); }
   }
@@ -883,46 +884,13 @@
       if (!fields.isConnected || (S.playerLookup || [])[index] !== p) return;
       const player = (data.items || []).find(x => x.id === p.id); if (!player) throw new Error('Ficha não encontrada. Tente pesquisar novamente.');
       $('#tn').value = player.name || ''; $('#tp').value = player.position || ''; $('#tc').value = player.club || '';
-      $('#ti').value = player.instagram || ''; $('#td').value = ''; $('#tf').checked = false;
+      $('#ti').value = player.instagram || ''; $('#td').value = player.contract_until || ''; $('#tf').checked = false;
       $('#tt').value = ['Ficha importada de ' + player.source + ' em ' + new Date().toLocaleDateString('pt-BR') + '.', player.source_url, player.full_name ? 'Nome completo: ' + player.full_name : '', player.nationality ? 'Nacionalidade: ' + player.nationality : '', player.birth_date ? 'Nascimento: ' + fdate(player.birth_date) : '', player.height ? 'Altura: ' + player.height : '', player.weight ? 'Peso: ' + player.weight : ''].filter(Boolean).join('\n').slice(0, 2000);
       fields.hidden = false;
-      box.innerHTML = `<p class="ag-meta">Ficha preenchida de ${esc(player.source)}. Confira os dados antes de salvar; a fonte pode estar desatualizada. Contrato não informado pela fonte.</p>`;
+      box.innerHTML = `<p class="ag-meta">Ficha preenchida de ${esc(player.source)}. Confira os dados antes de salvar; a fonte pode estar desatualizada. Campos sem informação ficam em branco.</p>`;
       fields.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (e) { if (fields.isConnected) toast(e.name === 'TimeoutError' ? 'A importação demorou demais. Tente novamente.' : e.message); }
     finally { S.playerImportBusy = false; button.disabled = false; button.textContent = 'Importar ficha'; }
-  }
-  function importOgol() {
-    const input = $('#ag-ogol-text'), status = $('#ag-ogol-status'), fields = $('#ag-player-fields');
-    if (!input || !status || !fields) return;
-    const raw = input.value.replace(/\r/g, ''), text = raw.replace(/[ \t]+/g, ' ');
-    if (text.trim().length < 30) { status.textContent = 'Cole o texto da ficha do oGol para importar.'; return; }
-    const lines = text.split('\n').map(x => x.trim()).filter(Boolean);
-    const pick = (label, stop) => {
-      const re = new RegExp('^' + label + '(?:\\s*[:：]\\s*|\\s+)(.+)$', 'i');
-      for (let i = 0; i < lines.length; i++) {
-        const m = lines[i].match(re); if (m && m[1].length < 120) return m[1].trim();
-        if (new RegExp('^' + label + '\\s*[:：]?$', 'i').test(lines[i]) && lines[i+1] && !stop.test(lines[i+1])) return lines[i+1];
-      }
-      return '';
-    };
-    const stop = /^(data de nascimento|nacionalidade|pa[ií]s|posi[cç][aã]o|p[eé] preferencial|altura|situa[cç][aã]o|futebol)$/i;
-    const name = pick('Nome', stop);
-    const details = text.split(/DADOS PESSOAIS/i)[1] || text;
-    const posMatch = details.match(/\b(lateral(?:[- ](?:direit[oa]|esquerd[oa]))|ponta(?:[- ](?:direit[oa]|esquerd[oa]))|centroavante|atacante|zagueiro|goleiro|volante|meia(?:[- ]atacante)?|defensor)\b/i);
-    const birth = text.match(/(?:Data de Nascimento|Nascimento)\s*[:：]?\s*(\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4})/i);
-    const height = text.match(/Altura\s*\/\s*Peso\s*[:：]?\s*([^\n]{1,55})/i);
-    const club = text.match(/(?:clube atual|equipe atual|time atual)\s*[:：]\s*([^\n]{2,80})/i);
-    const position = posMatch ? posMatch[1] : '';
-    if (!name && !position && !birth && !height) { status.textContent = 'Não encontrei dados suficientes. Copie também a seção “Dados pessoais” da ficha.'; return; }
-    const added = [];
-    if (name && !$('#tn').value.trim()) { $('#tn').value = name; added.push('nome'); }
-    if (position && !$('#tp').value.trim()) { $('#tp').value = position; added.push('posição'); }
-    if (club && !$('#tc').value.trim()) { $('#tc').value = club[1].trim(); added.push('clube'); }
-    const notes = [birth ? 'Nascimento: ' + birth[1] : '', height ? 'Altura / peso: ' + height[1].trim() : ''].filter(Boolean);
-    if (notes.length && !$('#tt').value.trim()) { $('#tt').value = 'Fonte: ficha do oGol copiada pela equipe.\n' + notes.join('\n'); added.push('observações'); }
-    fields.hidden = false;
-    status.textContent = added.length ? 'Preenchido: ' + added.join(', ') + '. Confira os dados; informações não encontradas ficaram em branco.' : 'Os campos já preenchidos foram preservados. Confira a ficha abaixo.';
-    fields.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   async function saveTg(id) {
     const name = $('#tn').value.trim(); if (!name) return toast('Informe o nome do atleta');
@@ -1106,7 +1074,7 @@
       case 'mcat': S.mCat = v || ''; return go('modelos');
       case 'ask-del-tpl': return confirmBox('Excluir modelo', 'O link sai da lista da equipe. Quer mesmo excluir?', 'del-tpl', id);
       case 'del-tpl': { const r = await sb.from('agency_templates').delete().eq('id', id); if (r.error) return toast('Não foi possível excluir'); closeModal(); toast('Modelo excluído'); return go('modelos'); }
-      case 'ogol-import': return importOgol();
+      case 'player-page': return searchPlayers(+v);
       case 'player-search': return searchPlayers();
       case 'player-import': return importPlayer(+v, el);
       case 'player-manual': { const fields = $('#ag-player-fields'); if (fields) { fields.hidden = false; $('#tn').focus(); } return; }
