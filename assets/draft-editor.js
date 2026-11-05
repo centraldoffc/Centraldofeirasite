@@ -75,7 +75,16 @@
     }
     function format(c) {
       if (!c) return;
+      const toggle = ['bold','italic','underline','ul'].includes(c);
+      const btn = toggle ? tools.querySelector(`[data-cmd="${c}"]`) : null;
+      const before = btn ? btn.getAttribute('aria-pressed') === 'true' : false;
       restore();
+      if(toggle) {
+        const nativeCmd = c === 'ul' ? 'insertUnorderedList' : c;
+        // restore() pode zerar o estilo "pendente" do cursor; só alterna se o estado atual ainda é o de antes do clique
+        if (document.queryCommandState(nativeCmd) === before) document.execCommand(nativeCmd, false);
+        remember(); syncButtons(); schedule(); return;
+      }
       if(c==='link') { let u=prompt('Endereço do link (https://…)'); if(!u)return; if(!/^https?:/i.test(u))u='https://'+u; if(!url(u))return; restore(); document.execCommand('createLink',false,url(u)); }
       else if(c==='h2'||c==='quote') document.execCommand('formatBlock',false,c==='h2'?'h2':'blockquote');
       else document.execCommand(({ul:'insertUnorderedList',clear:'removeFormat'})[c]||c,false);
