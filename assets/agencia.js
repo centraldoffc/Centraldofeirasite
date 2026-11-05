@@ -720,6 +720,13 @@
   const daysTo = d => d ? Math.round((new Date(d + 'T12:00:00') - Date.now()) / 864e5) : null;
   const igName = h => String(h || '').trim().replace(/^@/, '');
   const igUrl = h => { h = igName(h); return /^[A-Za-z0-9._]{1,30}$/.test(h) ? 'https://instagram.com/' + h : ''; };
+  const playerSearchUrl = (name, site) => 'https://www.google.com/search?q=' + encodeURIComponent('site:' + site + ' ' + String(name || '').trim() + ' jogador');
+  function playerSearchLinks(t) {
+    if (!String(t.name || '').trim()) return '';
+    return `<div class="panel-header" style="margin-top:14px"><h3>Ficha do jogador</h3></div>
+      <p class="ag-meta">Busque o nome no oGol ou no Transfermarkt pelo Google. Confira o clube e a posição para identificar o jogador correto.</p>
+      <div class="ag-btns l"><a class="btn g s" href="${esc(playerSearchUrl(t.name, 'ogol.com.br'))}" target="_blank" rel="noopener noreferrer" aria-label="Buscar ${esc(t.name)} no oGol pelo Google (nova aba)">${I('search', 14)}Buscar no oGol</a><a class="btn o s" href="${esc(playerSearchUrl(t.name, 'transfermarkt.com.br'))}" target="_blank" rel="noopener noreferrer" aria-label="Buscar ${esc(t.name)} no Transfermarkt pelo Google (nova aba)">${I('search', 14)}Buscar no Transfermarkt</a></div>`;
+  }
   const RUMOR = /(interesse|negoci|acert|sonda|proposta|chega|refor[cç]o|contrat|empr[eé]stimo|apresent|rescis|libera)/i;
   const tgOf = id => S.tg.find(t => t.id === id), agOf = id => S.agn.find(a => a.id === id);
   const optsOf = (arr, sel, lab) => arr.map(([k, l]) => `<option value="${esc(k)}" ${k === sel ? 'selected' : ''}>${esc(l)}</option>`).join('');
@@ -825,6 +832,7 @@
       <div class="ag-an"><div class="ag-nh"><b>Cruzamento de indícios</b><span class="badge ${a.sc < .35 ? 'u' : a.sc < .65 ? 'd' : ''}" style="margin-left:auto">Confiabilidade ${a.label} · ${Math.round(a.sc * 100)}%</span></div>${meter(a)}
         <ul>${a.why.map(w => `<li>${esc(w)}</li>`).join('')}</ul><small class="ag-meta">Isto mede o peso dos indícios, não confirma nada. “Confirmado” exige fonte oficial.</small></div>
       <div class="ag-info">${t.contract_until ? `<div><span>Contrato até</span><b>${fdate(t.contract_until)}${dl !== null ? ` (${dl < 0 ? 'vencido' : dl + ' dias'})` : ''}</b></div>` : ''}${ag ? `<div><span>Empresário</span><b>${esc(ag.name)}</b></div>` : ''}${igu ? `<div><span>Instagram</span><b><a class="ag-src" href="${igu}" target="_blank" rel="noopener noreferrer">@${esc(igName(t.instagram))}</a></b></div>` : ''}</div>
+      ${playerSearchLinks(t)}
       ${t.notes ? `<p class="ag-p pre">${esc(t.notes)}</p>` : ''}
       <div class="panel-header" style="margin-top:14px"><h3>Pistas (${cl.length})</h3><button class="btn s" data-ag="new-clue" data-id="${id}">${I('plus', 14)}Nova pista</button></div>
       <div class="ag-stack">${cl.length ? cl.map(c => clueRow(c, true)).join('') : empty('Sem pistas ainda.')}</div>
