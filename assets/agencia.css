@@ -464,3 +464,9 @@ dialog.ag-onboarding .ag-btns .btn{min-height:48px;flex:1}
 .ag-draft-preview{min-height:0;margin-top:16px}
 .cr-bg{z-index:2000}.cr{color:#17221b}
 @media(max-width:700px){.ag-compose-grid{grid-template-columns:minmax(0,1fr)}.ag-modal.ag-article-editor{padding-top:20px}.ag-compose-tools{top:-20px}.ag-article-editor .ag-mh{margin-bottom:18px}.ag-article-editor input,.ag-article-editor textarea,.ag-article-editor select{font-size:16px!important}}
+
+/* A formatação aparece ao editar o texto; no celular acompanha o teclado. */
+.ag-compose-tools[hidden]{display:none!important}
+.ag-compose-tools.is-keyboard-toolbar{position:fixed;left:0;right:0;bottom:auto;z-index:30;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;gap:6px;padding:8px max(12px,env(safe-area-inset-right)) 8px max(12px,env(safe-area-inset-left));border-top:1px solid var(--line);box-shadow:0 -4px 18px #0004;max-width:100%;box-sizing:border-box;scrollbar-width:none}
+.ag-compose-tools.is-keyboard-toolbar .btn{flex:none;white-space:nowrap;min-height:38px}
+.ag-compose-tools.is-keyboard-toolbar::-webkit-scrollbar{display:none}

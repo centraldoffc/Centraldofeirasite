@@ -26,13 +26,41 @@
     const {sb,memberId,author} = options;
     let images=[...(draft.images||[])].filter(url), cover=url(draft.image_url), range=null, selected=null, busy=false;
     root.innerHTML=`<div class="ag-compose-grid"><div><p class="ag-meta">O resumo é gerado automaticamente a partir do texto.</p><label>Texto</label>
-    <div class="ag-compose-tools" role="toolbar" aria-label="Formatação">${[['bold','Negrito'],['italic','Itálico'],['underline','Sublinhado'],['h2','Subtítulo'],['quote','Citação'],['ul','Lista'],['link','Link'],['unlink','Sem link'],['clear','Limpar']].map(([c,t])=>`<button type="button" class="btn o s" data-cmd="${c}">${t}</button>`).join('')}</div>
+    <div class="ag-compose-tools" hidden role="toolbar" aria-label="Formatação">${[['bold','Negrito'],['italic','Itálico'],['underline','Sublinhado'],['h2','Subtítulo'],['quote','Citação'],['ul','Lista'],['link','Link'],['unlink','Sem link'],['clear','Limpar']].map(([c,t])=>`<button type="button" class="btn o s" data-cmd="${c}">${t}</button>`).join('')}</div>
     <div class="ag-rich-text" contenteditable="true" role="textbox" aria-label="Texto da matéria" aria-multiline="true" spellcheck="true"></div>
     <button type="button" class="btn o s" data-select-image>Selecionar imagem no texto</button>
     <div class="ag-image-controls" hidden><label>Tamanho<select data-width><option value="50">Pequena (50%)</option><option value="75">Média (75%)</option><option value="100">Largura total</option></select></label><label>Alinhamento<select data-align><option value="left">Esquerda</option><option value="center">Centro</option><option value="right">Direita</option></select></label><label>Descrição da imagem<input data-alt></label><div class="ag-btns l">${[['up','↑ Mover acima'],['down','↓ Mover abaixo'],['remove','Remover do texto'],['close','Concluir']].map(([a,t])=>`<button type="button" class="btn o s" data-img="${a}">${t}</button>`).join('')}</div></div></div>
     <aside><label>Autor<input data-author maxlength="120" value="${esc(draft.author_name || author)}"></label><label class="ag-chk"><input type="checkbox" data-featured ${draft.featured?'checked':''}> Destaque na capa</label><div data-cover></div><label>Imagens</label><input type="file" accept="image/*" multiple data-files hidden><button type="button" class="btn o" data-upload>Enviar imagens</button><div class="ag-compose-gallery"></div><p class="ag-meta">“Capa” define a imagem principal. “No texto” insere a imagem onde estiver o cursor.</p></aside></div><p class="ag-compose-status" role="status"></p>`;
     const $=s=>root.querySelector(s), editor=$('.ag-rich-text'), status=$('.ag-compose-status'), controls=$('.ag-image-controls');
     editor.innerHTML=html(draft.body);
+    const tools = $('.ag-compose-tools'), viewport = window.visualViewport;
+    const mobile = matchMedia('(max-width:900px)'), controller = new AbortController();
+    let frame = 0;
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(positionTools); };
+    function positionTools() {
+      frame = 0;
+      const active = root.isConnected && (editor.contains(document.activeElement) || tools.contains(document.activeElement));
+      tools.hidden = !active;
+      tools.classList.toggle('is-keyboard-toolbar', active && mobile.matches);
+      if (!active || !mobile.matches) { tools.style.removeProperty('top'); return; }
+      const bottom = (viewport?.offsetTop || 0) + (viewport?.height || innerHeight);
+      tools.style.top = `${Math.max(viewport?.offsetTop || 0, bottom - tools.offsetHeight)}px`;
+      const selection = getSelection();
+      if (selection.rangeCount && editor.contains(selection.focusNode)) {
+        const caret = selection.getRangeAt(0).cloneRange(); caret.collapse(false);
+        const rect = caret.getBoundingClientRect(), toolbarTop = tools.getBoundingClientRect().top;
+        const scroller = root.closest('.ag-article-editor');
+        if (scroller && rect.height && rect.bottom > toolbarTop - 12) scroller.scrollTop += rect.bottom - toolbarTop + 12;
+      }
+    }
+    document.addEventListener('focusin', schedule, {signal:controller.signal});
+    document.addEventListener('focusout', schedule, {signal:controller.signal});
+    window.addEventListener('resize', schedule, {signal:controller.signal});
+    viewport?.addEventListener('resize', schedule, {signal:controller.signal});
+    viewport?.addEventListener('scroll', schedule, {signal:controller.signal});
+    editor.addEventListener('input', schedule);
+    editor.addEventListener('keyup', schedule);
+    const destroy = () => { controller.abort(); cancelAnimationFrame(frame); tools.hidden = true; };
     const remember=()=>{const s=getSelection();if(s.rangeCount && editor.contains(s.anchorNode))range=s.getRangeAt(0).cloneRange();};
     editor.addEventListener('keyup',remember);editor.addEventListener('mouseup',remember);editor.addEventListener('touchend',remember);editor.addEventListener('input',remember);editor.addEventListener('blur',remember);
     function restore(){editor.focus({preventScroll:true});const s=getSelection();if(!range||!editor.contains(range.commonAncestorContainer)){range=document.createRange();range.selectNodeContents(editor);range.collapse(false);}s.removeAllRanges();s.addRange(range);}
@@ -53,7 +81,7 @@
     $('[data-files]').onchange=async e=>{setBusy(true);try{for(const f of e.target.files){status.textContent='Preparando imagem…';const blob=await crop(f);if(!root.isConnected)break;if(!blob)continue;const u=await upload(blob);images.push(u);if(!cover)cover=u;gallery();}status.textContent='Imagens prontas. Salve a matéria para guardar as alterações.';}catch(err){status.textContent=err.message;}finally{e.target.value='';setBusy(false);}};
     root.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-cover-index')){cover=images[+b.dataset.coverIndex];gallery();}if(b.hasAttribute('data-insert')){restore();document.execCommand('insertHTML',false,`<img src="${esc(images[+b.dataset.insert])}" alt="" data-width="100" data-align="center"><p><br></p>`);remember();}if(b.hasAttribute('data-remove')){const removed=images.splice(+b.dataset.remove,1)[0];if(cover===removed)cover=images[0]||'';gallery();}if(b.hasAttribute('data-crop-cover')&&!busy){setBusy(true);try{const r=await fetch(cover);if(!r.ok)throw new Error('Não foi possível abrir a capa.');const blob=await crop(await r.blob());if(blob&&root.isConnected){cover=await upload(blob);images.push(cover);gallery();}}catch(err){status.textContent=err.message;}finally{setBusy(false);}}});
     gallery();
-    return {get busy(){return busy;},value:()=>({body:clean(editor.innerHTML),images,image_url:cover||null,author_name:$('[data-author]').value.trim(),featured:$('[data-featured]').checked})};
+    return {destroy,get busy(){return busy;},value:()=>({body:clean(editor.innerHTML),images,image_url:cover||null,author_name:$('[data-author]').value.trim(),featured:$('[data-featured]').checked})};
   }
   window.FFCDraftEditor={mount,html,clean,text};
 })();
