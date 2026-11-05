@@ -880,17 +880,17 @@
   /* ---- Instagram: acesso ao perfil no DolphinRadar ---- */
   const dolphinUrl = h => {
     h = igName(h).toLowerCase();
-    return /^[a-z0-9._]{1,30}$/.test(h) ? 'https://www.dolphinradar.com/analytics/not-active/' + encodeURIComponent(h) : '';
+    return /^[a-z0-9._]{1,30}$/.test(h) ? 'https://www.dolphinradar.com/instagram-new-follow-tracker' : '';
   };
   function apInsta() {
     const w = S.igw;
-    return `<div class="ag-banner">${I('ext')}<span>Abra o perfil no <b>DolphinRadar</b> para consultar a atividade do Instagram. O perfil já vai selecionado. O serviço pode solicitar login ou assinatura.</span></div>
+    return `<div class="ag-banner">${I('ext')}<span>O botão copia o @ e abre a ferramenta de <b>seguidores e seguidos recentes do DolphinRadar</b>. Cole o @ na busca e escolha Followers (seguidores) ou Following (seguidos). O serviço pode solicitar login ou assinatura.</span></div>
     <div class="ag-btns l" style="margin:0 0 14px"><button class="btn g s" data-ag="new-igw">${I('plus', 14)}Monitorar perfil</button></div>
     ${w.length ? `<div class="ag-tgs">${w.map(x => { const t = tgOf(x.target_id), g = agOf(x.agent_id), can = x.created_by === me.id || isLeader();
       return `<article class="panel ag-tgc2"><div class="ag-nh"><b>@${esc(x.handle)}</b><span class="badge" style="margin-left:auto">${x.kind === 'seguidos' ? 'Seguidos' : 'Seguidores'}</span></div>
         <a class="ag-src" href="${igUrl(x.handle)}" target="_blank" rel="noopener noreferrer">${I('ext', 14)}Abrir no Instagram</a>
         <small>${t ? 'Atleta: ' + esc(t.name) : ''}${t && g ? ' · ' : ''}${g ? 'Empresário: ' + esc(g.name) : ''}${!t && !g ? 'Sem atleta ou empresário ligado' : ''}</small>
-        <div class="ag-btns l">${dolphinUrl(x.handle) ? `<a class="btn g s" href="${dolphinUrl(x.handle)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir @${esc(x.handle)} no DolphinRadar (nova aba)">${I('ext', 14)}Abrir no DolphinRadar</a>` : '<span class="ag-meta">Perfil inválido. Cadastre novamente.</span>'}${can ? `<button class="btn r s" data-ag="ask-del-igw" data-id="${x.id}">Excluir</button>` : ''}</div></article>`; }).join('')}</div>` : `<div class="panel">${empty('Nenhum perfil monitorado. Toque em “Monitorar perfil” e cadastre o Instagram de um atleta ou empresário.')}</div>`}`;
+        <div class="ag-btns l">${dolphinUrl(x.handle) ? `<a class="btn g s" href="${dolphinUrl(x.handle)}" data-ag="dolphin-open" data-id="${x.id}" target="_blank" rel="noopener noreferrer" aria-label="Copiar @${esc(x.handle)} e abrir seguidores e seguidos recentes no DolphinRadar (nova aba)">${I('ext', 14)}Copiar @ e abrir DolphinRadar</a>` : '<span class="ag-meta">Perfil inválido. Cadastre novamente.</span>'}${can ? `<button class="btn r s" data-ag="ask-del-igw" data-id="${x.id}">Excluir</button>` : ''}</div></article>`; }).join('')}</div>` : `<div class="panel">${empty('Nenhum perfil monitorado. Toque em “Monitorar perfil” e cadastre o Instagram de um atleta ou empresário.')}</div>`}`;
   }
   function igwForm() {
     modal('Monitorar perfil', `<label for="gh">Perfil do Instagram (público)</label><input type="text" id="gh" maxlength="31" placeholder="@perfil" autocapitalize="none" autocomplete="off">
@@ -1054,6 +1054,12 @@
       case 'ap-kind': S.ap.kind = v || ''; return drawAp();
       case 'ap-mk': S.ap.mk = v; return drawAp();
       case 'ap-news': return runNews();
+      case 'dolphin-open': {
+        const w = S.igw.find(x => x.id === id); if (!w) return;
+        try { await navigator.clipboard.writeText('@' + igName(w.handle)); toast('@ copiado. Cole na busca do DolphinRadar'); }
+        catch { toast('Não foi possível copiar. Busque por @' + igName(w.handle) + ' no DolphinRadar'); }
+        return;
+      }
       case 'new-igw': return igwForm();
       case 'save-igw': return saveIgw();
       case 'ask-del-igw': return confirmBox('Parar de monitorar', 'Remover este perfil da Agência? O acompanhamento no DolphinRadar deve ser gerenciado por lá.', 'del-igw', id);
