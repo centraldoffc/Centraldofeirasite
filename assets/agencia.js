@@ -1211,10 +1211,11 @@
   async function firstAccess() {
     return new Promise(resolve => {
       const dialog = document.createElement('dialog');
-      dialog.className = 'ag-modal';
-      dialog.style.cssText = 'width:min(92vw,560px);max-height:90dvh;color:var(--ink);background:var(--side);';
+      dialog.className = 'ag-modal ag-onboarding';
+      dialog.setAttribute('aria-label', 'Primeiro acesso');
+      document.body.classList.add('ag-onboarding-open');
       document.body.appendChild(dialog);
-      const finish = ok => { dialog.close(); dialog.remove(); resolve(ok); };
+      const finish = ok => { dialog.close(); dialog.remove(); document.body.classList.remove('ag-onboarding-open'); resolve(ok); };
       dialog.addEventListener('cancel', e => e.preventDefault());
       const request = async body => {
         const { data, error } = await sb.functions.invoke('agencia-membros', { body });
@@ -1240,7 +1241,7 @@
             <label for="on-password">Sua nova senha</label><input id="on-password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required><small>Use pelo menos 8 caracteres e uma senha diferente da provisória.</small>
             <label for="on-confirm">Repita a nova senha</label><input id="on-confirm" name="confirm" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
             <p role="alert" class="on-error"></p><div class="ag-btns"><button type="button" class="btn o on-exit">Sair</button><button type="submit" class="btn g">Salvar e entrar</button></div></form>`;
-          dialog.querySelector('#on-name').focus();
+          const heading = dialog.querySelector('h2'); heading.tabIndex = -1; heading.focus();
           dialog.querySelector('form').onsubmit = async e => {
             e.preventDefault();
             const form = e.currentTarget, values = Object.fromEntries(new FormData(form));

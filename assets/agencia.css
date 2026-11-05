@@ -1,6 +1,6 @@
 /* Agência Central do FFC — visual escuro (layout do painel de referência, paleta verde do site) */
 /* ===== paleta (só aqui; troque estes valores para mudar as cores do painel) ===== */
-body.ag-page,.ag-root,.ag-bg{--bg:#04140d;          /* fundo da página */
+body.ag-page,.ag-root,.ag-bg,.ag-onboarding{--bg:#04140d;          /* fundo da página */
   --side:#091d14;        /* menu lateral, folhas, topo */
   --card:#0b2318;        /* cartões */
   --card2:#0f2d20;       /* cartões internos, campos */
@@ -430,3 +430,15 @@ button.ag-src{background:none;border:0;padding:0;font:inherit;font-weight:700;co
 .ag-aptabs{flex-wrap:wrap;overflow:visible}
 .ag-aptabs button{min-height:44px}
 @media(max-width:620px){.ag-aptabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.ag-aptabs button{padding:10px 4px;font-size:13px;white-space:normal}.ag-filters .ag-search{flex:1 1 100%}.ag-status-filter{width:100%}.ag-status-filter select{min-width:0;flex:1}.ag-tgc .btn{min-height:44px;flex:1}}
+
+/* Primeiro acesso: página inteira, independente dos modais da agência. */
+body.ag-onboarding-open{overflow:hidden}
+dialog.ag-modal.ag-onboarding{position:fixed;inset:0;margin:0;width:100%;max-width:none;height:100vh;height:100dvh;max-height:none;box-sizing:border-box;border:0;border-radius:0;box-shadow:none;background:var(--side);color:var(--ink);padding:max(28px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scroll-padding-block:24px}
+dialog.ag-onboarding::before{display:none}
+dialog.ag-onboarding::backdrop{background:#091d14}
+dialog.ag-onboarding>h2,dialog.ag-onboarding>p,dialog.ag-onboarding>form,dialog.ag-onboarding>.ag-btns{width:100%;max-width:560px;margin-left:auto;margin-right:auto;box-sizing:border-box}
+dialog.ag-onboarding>h2{font-size:clamp(26px,5vw,34px);line-height:1.2;margin-top:0;margin-bottom:16px;outline:none}
+dialog.ag-onboarding>p{line-height:1.55;color:var(--dim)}
+dialog.ag-onboarding input,dialog.ag-onboarding textarea{box-sizing:border-box;font-size:16px!important}
+dialog.ag-onboarding .ag-btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+dialog.ag-onboarding .ag-btns .btn{min-height:48px;flex:1}
