@@ -847,15 +847,49 @@
     toast('Status atualizado'); await go('apuracao'); openTg(id);
   }
   function tgForm(id) {
+    S.playerLookup = null; S.playerRequest = null;
     const t = id ? tgOf(id) : { name: '', position: '', club: '', contract_until: '', free_agent: false, instagram: '', agent_id: '', status: 'monitorado', notes: '' };
-    modal(id ? 'Editar atleta' : 'Novo atleta', `<label for="tn">Nome</label><input type="text" id="tn" maxlength="120" value="${esc(t.name)}">
+    modal(id ? 'Editar atleta' : 'Novo atleta', `${id ? '' : `<label for="ag-player-q">Pesquisar jogador</label><input type="search" id="ag-player-q" maxlength="100" placeholder="Ex.: Neymar, João Pedro…" autocomplete="off"><div class="ag-btns l"><button class="btn g" data-ag="player-search">${I('search', 14)}Pesquisar</button><button class="btn o" data-ag="player-manual">Cadastrar sem busca</button></div><p class="ag-meta">Fonte: TheSportsDB. Pesquise e escolha o atleta para preencher a ficha. A base pode não incluir todos os jogadores.</p><div id="ag-player-results" role="status" aria-live="polite"></div>`}<div id="ag-player-fields" ${id ? '' : 'hidden'}><label for="tn">Nome</label><input type="text" id="tn" maxlength="120" value="${esc(t.name)}">
       <div class="ag-two"><div><label for="tp">Posição</label><input type="text" id="tp" maxlength="40" value="${esc(t.position)}" placeholder="Ex.: Atacante"></div><div><label for="tc">Clube atual</label><input type="text" id="tc" maxlength="80" value="${esc(t.club)}"></div></div>
       <div class="ag-two"><div><label for="td">Contrato até</label><input type="date" id="td" value="${esc(t.contract_until || '')}"></div><div><label for="ti">Instagram (público)</label><input type="text" id="ti" maxlength="40" value="${esc(t.instagram)}" placeholder="@perfil"></div></div>
       <label class="ag-chk"><input type="checkbox" id="tf" ${t.free_agent ? 'checked' : ''}>Atleta livre no mercado</label>
       <label for="ta">Empresário</label><select id="ta"><option value="">Nenhum</option>${S.agn.map(a => `<option value="${a.id}" ${t.agent_id === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select>
       ${id ? '' : `<label for="ts">Status inicial</label><select id="ts">${optsOf(Object.keys(APST).filter(k => k !== 'confirmado').map(k => [k, APST[k][0]]), 'monitorado')}</select>`}
       <label for="tt">Observações</label><textarea id="tt" rows="3" maxlength="2000">${esc(t.notes)}</textarea>
-      <div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn g" data-ag="save-tg" data-id="${id || ''}">Salvar</button></div>`, 'wide');
+      <div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn g" data-ag="save-tg" data-id="${id || ''}">Salvar</button></div></div>`, 'wide');
+  }
+  async function searchPlayers() {
+    const input = $('#ag-player-q'), box = $('#ag-player-results'); if (!input || !box) return;
+    const q = input.value.trim(); if (q.length < 2) return toast('Digite pelo menos 2 letras');
+    S.playerLookup = null;
+    const request = {}; S.playerRequest = request;
+    box.textContent = 'Pesquisando jogadores…'; box.setAttribute('aria-busy', 'true');
+    try {
+      const r = await fetch('/api/jogadores?q=' + encodeURIComponent(q), { signal: AbortSignal.timeout(15000) });
+      const data = await r.json(); if (!r.ok) throw new Error(data.error || 'Não foi possível pesquisar');
+      if (S.playerRequest !== request || !box.isConnected) return;
+      S.playerLookup = Array.isArray(data.items) ? data.items : [];
+      box.innerHTML = S.playerLookup.length ? `<p class="ag-meta">Escolha o jogador correto para importar:</p><div class="ag-stack">${S.playerLookup.map((p, i) => `<div class="panel"><b>${esc(p.name)}</b><p class="ag-meta">${esc([p.club, p.position, p.nationality, p.birth_date ? 'Nascimento: ' + fdate(p.birth_date) : ''].filter(Boolean).join(' · '))}</p><button class="btn g s" data-ag="player-import" data-v="${i}">Importar ficha</button></div>`).join('')}</div>` : '<p class="ag-meta">Nenhum jogador encontrado nesta base. Tente o nome completo ou use “Cadastrar sem busca”.</p>';
+    } catch (e) { if (S.playerRequest === request && box.isConnected) box.textContent = e.name === 'TimeoutError' ? 'A busca demorou demais. Tente novamente.' : e.message; }
+    finally { if (S.playerRequest === request) box.removeAttribute('aria-busy'); }
+  }
+  async function importPlayer(index, button) {
+    const p = (S.playerLookup || [])[index], box = $('#ag-player-results'), fields = $('#ag-player-fields');
+    if (!p || !box || !fields || S.playerImportBusy) return;
+    S.playerImportBusy = true; button.disabled = true; button.textContent = 'Importando…';
+    try {
+      const r = await fetch('/api/jogadores?id=' + encodeURIComponent(p.id), { signal: AbortSignal.timeout(15000) });
+      const data = await r.json(); if (!r.ok) throw new Error(data.error || 'Não foi possível importar');
+      if (!fields.isConnected || (S.playerLookup || [])[index] !== p) return;
+      const player = (data.items || []).find(x => x.id === p.id); if (!player) throw new Error('Ficha não encontrada. Tente pesquisar novamente.');
+      $('#tn').value = player.name || ''; $('#tp').value = player.position || ''; $('#tc').value = player.club || '';
+      $('#ti').value = player.instagram || ''; $('#td').value = ''; $('#tf').checked = false;
+      $('#tt').value = ['Ficha importada de ' + player.source + ' em ' + new Date().toLocaleDateString('pt-BR') + '.', player.source_url, player.full_name ? 'Nome completo: ' + player.full_name : '', player.nationality ? 'Nacionalidade: ' + player.nationality : '', player.birth_date ? 'Nascimento: ' + fdate(player.birth_date) : '', player.height ? 'Altura: ' + player.height : '', player.weight ? 'Peso: ' + player.weight : ''].filter(Boolean).join('\n').slice(0, 2000);
+      fields.hidden = false;
+      box.innerHTML = `<p class="ag-meta">Ficha preenchida de ${esc(player.source)}. Confira os dados antes de salvar; a fonte pode estar desatualizada. Contrato não informado pela fonte.</p>`;
+      fields.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) { if (fields.isConnected) toast(e.name === 'TimeoutError' ? 'A importação demorou demais. Tente novamente.' : e.message); }
+    finally { S.playerImportBusy = false; button.disabled = false; button.textContent = 'Importar ficha'; }
   }
   async function saveTg(id) {
     const name = $('#tn').value.trim(); if (!name) return toast('Informe o nome do atleta');
@@ -1039,6 +1073,9 @@
       case 'mcat': S.mCat = v || ''; return go('modelos');
       case 'ask-del-tpl': return confirmBox('Excluir modelo', 'O link sai da lista da equipe. Quer mesmo excluir?', 'del-tpl', id);
       case 'del-tpl': { const r = await sb.from('agency_templates').delete().eq('id', id); if (r.error) return toast('Não foi possível excluir'); closeModal(); toast('Modelo excluído'); return go('modelos'); }
+      case 'player-search': return searchPlayers();
+      case 'player-import': return importPlayer(+v, el);
+      case 'player-manual': { const fields = $('#ag-player-fields'); if (fields) { fields.hidden = false; $('#tn').focus(); } return; }
       case 'new-tg': return tgForm();
       case 'edit-tg': return tgForm(id);
       case 'open-tg': S.openTg = id; return openTg(id);
@@ -1096,6 +1133,7 @@
   }
   function onSubmit(e) { if (e.target.id === 'ag-compose') { e.preventDefault(); const i = $('#ag-chat-input'), v = i.value.trim(); if (v) { i.value = ''; sendMsg(v); } } }
   function onKey(e) {
+    if (e.key === 'Enter' && e.target && e.target.id === 'ag-player-q') { e.preventDefault(); return searchPlayers(); }
     if (e.key === 'Enter' && e.target && e.target.id === 'ag-nq') { e.preventDefault(); return runNews(); }
     if (e.key === 'Escape') closeModal();
     if (e.key === 'Enter' && e.target.id === 'ck-new') { e.preventDefault(); const b2 = layer.querySelector('[data-ag="ck-add"]'); b2 && b2.click(); }
