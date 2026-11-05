@@ -26,7 +26,7 @@
     const {sb,memberId,author} = options;
     let images=[...(draft.images||[])].filter(url), cover=url(draft.image_url), range=null, selected=null, busy=false;
     root.innerHTML=`<div class="ag-compose-grid"><div><p class="ag-meta">O resumo é gerado automaticamente a partir do texto.</p><label>Texto</label>
-    <div class="ag-compose-tools" hidden role="toolbar" aria-label="Formatação">${[['bold','Negrito'],['italic','Itálico'],['underline','Sublinhado'],['h2','Subtítulo'],['quote','Citação'],['ul','Lista'],['link','Link'],['unlink','Sem link'],['clear','Limpar']].map(([c,t])=>`<button type="button" class="btn o s" data-cmd="${c}">${t}</button>`).join('')}</div>
+    <div class="ag-compose-tools" hidden role="toolbar" aria-label="Formatação">${[['bold','Negrito'],['italic','Itálico'],['underline','Sublinhado'],['h2','Subtítulo'],['quote','Citação'],['ul','Lista'],['link','Link'],['unlink','Sem link'],['clear','Limpar']].map(([c,t])=>`<button type="button" class="btn o s" data-cmd="${c}" aria-label="${t}" title="${t}" ${['bold','italic','underline','ul'].includes(c)?'aria-pressed="false"':''}><span aria-hidden="true">${({bold:'<b>N</b>',italic:'<i>I</i>',underline:'<u>S</u>',h2:'H₂',quote:'“ ”',ul:'☷',link:'Link',unlink:'−Link',clear:'Tx'})[c]}</span></button>`).join('')}</div>
     <div class="ag-rich-text" contenteditable="true" role="textbox" aria-label="Texto da matéria" aria-multiline="true" spellcheck="true"></div>
     <button type="button" class="btn o s" data-select-image>Selecionar imagem no texto</button>
     <div class="ag-image-controls" hidden><label>Tamanho<select data-width><option value="50">Pequena (50%)</option><option value="75">Média (75%)</option><option value="100">Largura total</option></select></label><label>Alinhamento<select data-align><option value="left">Esquerda</option><option value="center">Centro</option><option value="right">Direita</option></select></label><label>Descrição da imagem<input data-alt></label><div class="ag-btns l">${[['up','↑ Mover acima'],['down','↓ Mover abaixo'],['remove','Remover do texto'],['close','Concluir']].map(([a,t])=>`<button type="button" class="btn o s" data-img="${a}">${t}</button>`).join('')}</div></div></div>
@@ -35,7 +35,7 @@
     editor.innerHTML=html(draft.body);
     const tools = $('.ag-compose-tools'), viewport = window.visualViewport;
     const mobile = matchMedia('(max-width:900px)'), controller = new AbortController();
-    let frame = 0;
+    let frame = 0, revealCaret = false;
     const schedule = () => { if (!frame) frame = requestAnimationFrame(positionTools); };
     function positionTools() {
       frame = 0;
@@ -46,26 +46,64 @@
       const bottom = (viewport?.offsetTop || 0) + (viewport?.height || innerHeight);
       tools.style.top = `${Math.max(viewport?.offsetTop || 0, bottom - tools.offsetHeight)}px`;
       const selection = getSelection();
-      if (selection.rangeCount && editor.contains(selection.focusNode)) {
+      if (revealCaret && selection.rangeCount && editor.contains(selection.focusNode)) {
         const caret = selection.getRangeAt(0).cloneRange(); caret.collapse(false);
         const rect = caret.getBoundingClientRect(), toolbarTop = tools.getBoundingClientRect().top;
         const scroller = root.closest('.ag-article-editor');
         if (scroller && rect.height && rect.bottom > toolbarTop - 12) scroller.scrollTop += rect.bottom - toolbarTop + 12;
       }
+      revealCaret = false;
     }
+    const reveal = () => { revealCaret = true; schedule(); };
+    editor.addEventListener('focus', reveal);
     document.addEventListener('focusin', schedule, {signal:controller.signal});
     document.addEventListener('focusout', schedule, {signal:controller.signal});
     window.addEventListener('resize', schedule, {signal:controller.signal});
-    viewport?.addEventListener('resize', schedule, {signal:controller.signal});
+    viewport?.addEventListener('resize', reveal, {signal:controller.signal});
     viewport?.addEventListener('scroll', schedule, {signal:controller.signal});
-    editor.addEventListener('input', schedule);
-    editor.addEventListener('keyup', schedule);
+    editor.addEventListener('input', reveal);
+    editor.addEventListener('keyup', reveal);
     const destroy = () => { controller.abort(); cancelAnimationFrame(frame); tools.hidden = true; };
     const remember=()=>{const s=getSelection();if(s.rangeCount && editor.contains(s.anchorNode))range=s.getRangeAt(0).cloneRange();};
     editor.addEventListener('keyup',remember);editor.addEventListener('mouseup',remember);editor.addEventListener('touchend',remember);editor.addEventListener('input',remember);editor.addEventListener('blur',remember);
     function restore(){editor.focus({preventScroll:true});const s=getSelection();if(!range||!editor.contains(range.commonAncestorContainer)){range=document.createRange();range.selectNodeContents(editor);range.collapse(false);}s.removeAllRanges();s.addRange(range);}
-    $('.ag-compose-tools').onpointerdown=e=>{if(e.target.closest('button')){remember();e.preventDefault();}};
-    $('.ag-compose-tools').onclick=e=>{const c=e.target.closest('[data-cmd]')?.dataset.cmd;if(!c)return;restore();if(c==='link'){let u=prompt('Endereço do link (https://…)');if(!u)return;if(!/^https?:/i.test(u))u='https://'+u;if(!url(u))return;document.execCommand('createLink',false,url(u));}else if(c==='h2'||c==='quote')document.execCommand('formatBlock',false,c==='h2'?'h2':'blockquote');else document.execCommand(({ul:'insertUnorderedList',clear:'removeFormat'})[c]||c,false);remember();};
+    function syncButtons() {
+      if (!editor.contains(document.activeElement)) return;
+      for (const cmd of ['bold','italic','underline','ul']) {
+        tools.querySelector(`[data-cmd="${cmd}"]`).setAttribute('aria-pressed', String(document.queryCommandState(cmd === 'ul' ? 'insertUnorderedList' : cmd)));
+      }
+    }
+    function format(c) {
+      if (!c) return;
+      restore();
+      if(c==='link') { let u=prompt('Endereço do link (https://…)'); if(!u)return; if(!/^https?:/i.test(u))u='https://'+u; if(!url(u))return; restore(); document.execCommand('createLink',false,url(u)); }
+      else if(c==='h2'||c==='quote') document.execCommand('formatBlock',false,c==='h2'?'h2':'blockquote');
+      else document.execCommand(({ul:'insertUnorderedList',clear:'removeFormat'})[c]||c,false);
+      remember(); syncButtons(); schedule();
+    }
+    document.addEventListener('selectionchange', () => { remember(); syncButtons(); }, {signal:controller.signal});
+    let gesture = null, lastPointerAction = 0;
+    tools.onmousedown=e=>{if(e.target.closest('button'))e.preventDefault();};
+    tools.onpointerdown=e=>{
+      const button=e.target.closest('[data-cmd]'); if(!button || e.isPrimary===false || e.button>0)return;
+      remember(); gesture={id:e.pointerId,x:e.clientX,y:e.clientY,button,moved:false};
+      if(e.pointerType==='mouse')e.preventDefault();
+    };
+    tools.onpointermove=e=>{if(gesture && e.pointerId===gesture.id && Math.hypot(e.clientX-gesture.x,e.clientY-gesture.y)>8)gesture.moved=true;};
+    tools.onpointercancel=()=>{gesture=null;lastPointerAction=performance.now();};
+    tools.onpointerup=e=>{
+      const tap=gesture; gesture=null;
+      if(!tap || tap.id!==e.pointerId)return;
+      lastPointerAction=performance.now();
+      if(tap.moved || e.target.closest('[data-cmd]')!==tap.button)return;
+      e.preventDefault(); format(tap.button.dataset.cmd);
+    };
+    tools.onclick=e=>{
+      const button=e.target.closest('[data-cmd]');if(!button)return;
+      e.preventDefault();
+      if(e.detail!==0 && performance.now()-lastPointerAction<700)return;
+      format(button.dataset.cmd);
+    };
     editor.addEventListener('paste',e=>{e.preventDefault();const data=e.clipboardData;restore();document.execCommand('insertHTML',false,data.getData('text/html')?clean(data.getData('text/html')):html(data.getData('text/plain')));remember();});
     editor.addEventListener('drop',e=>e.preventDefault());
     function select(image){selected?.removeAttribute('data-selected');selected=image;controls.hidden=!image;if(image){image.dataset.selected='true';$('select[data-width]').value=image.dataset.width||'100';$('select[data-align]').value=image.dataset.align||'center';$('[data-alt]').value=image.alt;}}
