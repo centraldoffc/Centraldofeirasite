@@ -56,7 +56,7 @@
   /* ---------- estado ---------- */
   let sb, mount, host = {}, layer, me = null, rt = null, token = 0, dbTimer = 0;
   const S = {
-    view: 'inicio', arg: null, members: [], notices: [], tasks: [], events: [], notifs: [], chats: [], cmine: [], reqs: [], recent: [],
+    view: 'inicio', arg: null, roles: [], members: [], notices: [], tasks: [], events: [], notifs: [], chats: [], cmine: [], reqs: [], recent: [],
     tFilter: 'all', tStatus: 'todo', tQ: '', tCat: '', tMem: '', month: null, folder: null, fq: '', folders: [], files: [],
     drafts: [], tpls: [], mCat: '', mQ: '', isAdm: false,
     tg: [], agn: [], cl: [], igw: [], ap: { tab: 'painel', st: '', kind: '', tgt: '', mk: 'livres', q: '', nq: 'Feira FC', news: null, busy: false },
@@ -125,10 +125,11 @@
       sb.from('agency_chats').select('*'),
       sb.from('agency_chat_members').select('*').eq('member_id', me.id),
       sb.from('agency_requests').select('*').order('created_at', { ascending: false }),
-      sb.from('agency_messages').select('id,chat_id,sender_id,body,file_path,created_at').order('created_at', { ascending: false }).limit(300)
+      sb.from('agency_messages').select('id,chat_id,sender_id,body,file_path,created_at').order('created_at', { ascending: false }).limit(300),
+      sb.from('agency_roles').select('name').order('name')
     ]);
     if (rs[0].error || rs[1].error || rs[2].error) toast('Erro ao carregar os dados da agência');
-    [S.members, S.notices, S.tasks, S.events, S.notifs, S.chats, S.cmine, S.reqs, S.recent] = rs.map(r => r.data || []);
+    [S.members, S.notices, S.tasks, S.events, S.notifs, S.chats, S.cmine, S.reqs, S.recent, S.roles] = rs.map(r => r.data || []);
     S.tasks.forEach(t => { t.assignees = t.assignees || []; t.checklist = Array.isArray(t.checklist) ? t.checklist : []; });
     S.loadedAt = Date.now();
     me = mem(me.id) || me;
@@ -553,13 +554,43 @@
       <div class="panel"><div class="panel-header"><h3>Tarefas de ${esc(first(m.name))}</h3></div>${open.slice(0, 8).map(t => `<button class="ag-line ag-btnrow" data-ag="task" data-id="${t.id}"><div class="tx"><b>${esc(t.title)}</b><small>${esc(t.category)} · ${ST.find(s => s[0] === t.status)[1]}${t.due_date ? ' · prazo ' + dm(t.due_date) : ''}</small></div></button>`).join('') || empty('Nenhuma tarefa em aberto.')}
       ${manage || (isLeader() && mine) ? `<div class="panel-header" style="margin-top:22px"><h3>Gerenciar</h3></div>${manageBox(m, mine)}` : ''}</div></div>`;
   }
+  function rolePicker(id, selected = 'Assistente') {
+    const names = [...new Set(['Assistente', 'Designer', 'Redator', 'Editor de vídeo', 'Social media', ...S.roles.map(r => r.name), ...S.members.map(m => m.role_title), selected].filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    return `<label for="${id}">Cargo</label><select id="${id}">${names.map(name => `<option value="${esc(name)}" ${name === selected ? 'selected' : ''}>${esc(name)}</option>`).join('')}</select>
+    <button type="button" class="btn o s" style="margin-top:10px" data-ag="new-role" data-id="${id}" aria-controls="${id}-new" aria-expanded="false">+ Criar cargo</button>
+    <div id="${id}-new" hidden><label for="${id}-name">Nome do novo cargo</label><input id="${id}-name" type="text" maxlength="40" placeholder="Ex.: Fotógrafo"><p id="${id}-error" role="alert" class="ag-meta"></p><div class="ag-btns l"><button type="button" class="btn o" data-ag="cancel-role" data-id="${id}">Cancelar</button><button type="button" class="btn g" data-ag="save-role" data-id="${id}">Salvar cargo</button></div></div>`;
+  }
+  async function saveRole(id, button) {
+    if (!isLeader()) return;
+    const name = $('#' + id + '-name').value.trim().replace(/\s+/g, ' ');
+    const error = $('#' + id + '-error'); error.textContent = '';
+    if (!name) { error.textContent = 'Escreva o nome do cargo.'; return; }
+    button.disabled = true;
+    try {
+      let result = await sb.from('agency_roles').insert({ name }).select('name').single();
+      if (result.error?.code === '23505') {
+        const existing = await sb.from('agency_roles').select('name');
+        result = { data: (existing.data || []).find(r => r.name.toLocaleLowerCase() === name.toLocaleLowerCase()), error: existing.error };
+      }
+      if (result.error || !result.data) throw new Error('Não foi possível salvar o cargo. Tente novamente.');
+      const saved = result.data.name;
+      if (!S.roles.some(r => r.name === saved)) S.roles.push({ name: saved });
+      const select = $('#' + id);
+      if (![...select.options].some(o => o.value === saved)) select.add(new Option(saved, saved));
+      select.value = saved;
+      $('#' + id + '-new').hidden = true;
+      document.querySelector(`[data-ag="new-role"][data-id="${id}"]`).setAttribute('aria-expanded', 'false');
+      select.focus(); toast('Cargo disponível e selecionado');
+    } catch (err) { error.textContent = err.message; }
+    finally { button.disabled = false; }
+  }
   function manageBox(m, mine) {
-    return `<label for="mnm">Nome</label><input type="text" id="mnm" value="${esc(m.name)}" maxlength="80"><label for="mr">Cargo</label><input type="text" id="mr" value="${esc(m.role_title)}" maxlength="40">
+    return `<label for="mnm">Nome</label><input type="text" id="mnm" value="${esc(m.name)}" maxlength="80">${rolePicker('mr', m.role_title)}
     ${isSuper() && !mine ? `<label for="ml">Nível de acesso</label><select id="ml">${Object.entries(LV).map(([k, l]) => `<option value="${k}" ${m.access_level === k ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}
     <label for="mbd">Aniversário</label><input type="date" id="mbd" value="${esc(m.birthday || '')}"><div class="ag-btns l"><button class="btn g" data-ag="save-member" data-id="${m.id}">Salvar</button>${mine ? '' : `<button class="btn o" data-ag="ask-reset" data-id="${m.id}">${I('key', 15)}Redefinir senha</button><button class="btn r" data-ag="ask-toggle" data-id="${m.id}" data-v="${m.active ? 0 : 1}">${m.active ? 'Desativar' : 'Reativar'}</button>${isSuper() ? `<button class="btn r" data-ag="ask-remove" data-id="${m.id}">Excluir de vez</button>` : ''}`}</div>`;
   }
   function memberForm() {
-    modal('Novo membro', `<label for="mn">Nome</label><input type="text" id="mn" maxlength="80"><label for="mrole">Cargo</label><input type="text" id="mrole" list="ag-roles" value="Assistente" maxlength="40"><datalist id="ag-roles"><option>Assistente</option><option>Designer</option><option>Redator</option><option>Editor de vídeo</option><option>Social media</option></datalist>
+    modal('Novo membro', `<label for="mn">Nome</label><input type="text" id="mn" maxlength="80">${rolePicker('mrole')}
     ${isSuper() ? `<label for="mlv">Nível de acesso</label><select id="mlv"><option value="membro">Membro</option><option value="lider">Líder</option><option value="super">Super Administrador</option></select>` : ''}<label for="mb">Aniversário (opcional)</label><input type="date" id="mb"><p class="ag-meta" style="margin-top:12px">O ID e a senha provisória são gerados automaticamente e aparecem uma única vez.</p><div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn g" data-ag="create-member">Criar membro</button></div>`, 'sm');
   }
   const ERR = { sem_permissao: 'sem permissão', nome_obrigatorio: 'escreva o nome', membro_nao_encontrado: 'membro não encontrado', nao_pode_alterar_a_si_mesmo: 'não dá para fazer isso na sua própria conta' };
@@ -1050,6 +1081,9 @@
       case 'open-file': return openFile(el.dataset.path, el.dataset.name);
       /* equipe */
       case 'new-member': return memberForm();
+      case 'new-role': $('#' + id + '-new').hidden = false; el.setAttribute('aria-expanded', 'true'); $('#' + id + '-name').focus(); return;
+      case 'cancel-role': $('#' + id + '-new').hidden = true; document.querySelector(`[data-ag="new-role"][data-id="${id}"]`).setAttribute('aria-expanded', 'false'); return;
+      case 'save-role': return saveRole(id, el);
       case 'create-member': { const name = $('#mn').value.trim(); if (!name) return toast('Escreva o nome'); el.disabled = true; const r = await callMembers({ action: 'create', name, role_title: $('#mrole').value.trim(), access_level: $('#mlv') ? $('#mlv').value : 'membro', birthday: $('#mb').value || null }); el.disabled = false; if (r) { log('criou um membro', name, 'equipe'); credModal('Membro criado', r); loadBase(); } return; }
       case 'save-member': { const m = mem(id), p = { name: $('#mnm').value.trim() || m.name, role_title: $('#mr').value.trim() || 'Assistente', birthday: $('#mbd').value || null }; if ($('#ml')) p.access_level = $('#ml').value; const r = await sb.from('agency_members').update(p).eq('id', id); if (r.error) return toast('Não foi possível salvar'); log('atualizou um membro', p.name, 'equipe'); toast('Membro atualizado'); return refresh(); }
       case 'ask-reset': return confirmBox('Redefinir senha', 'Gerar uma nova senha para este membro? A atual deixa de funcionar.', 'do-reset', id, 'Gerar nova senha', false);
