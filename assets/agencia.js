@@ -755,31 +755,46 @@
   async function vApuracao() {
     const [a, g, c, iw] = await Promise.all([sb.from('agency_targets').select('*').order('updated_at', { ascending: false }), sb.from('agency_agents').select('*').order('name'), sb.from('agency_clues').select('*').order('happened_at', { ascending: false }).order('created_at', { ascending: false }), sb.from('agency_ig_watch').select('*').order('created_at', { ascending: false })]);
     S.tg = a.data || []; S.agn = g.data || []; S.cl = c.data || []; S.igw = iw.data || [];
-    return `${head('Apuração de transferências', 'Investigação de possíveis reforços do Feira FC. Indício não é confirmação.', b('new-tg', I('plus') + 'Novo atleta', 'g'))}
-    <div class="ag-banner">${I('lock')}<span>Registre só informação pública e com fonte. Nunca dados pessoais nem nomes de passageiros de voos.</span></div>
+    return `${head('Apuração de transferências', 'Investigação de possíveis reforços do Feira FC. Indício não é confirmação.', b('new-tg', I('plus') + 'Buscar e adicionar atleta', 'g'))}
+
     <div id="ag-ap"></div>`;
   }
   function drawAp() {
     const box = $('#ag-ap'); if (!box) return; const A = S.ap;
-    const tabs = [['painel', 'Painel'], ['historico', 'Histórico'], ['instagram', 'Instagram'], ['mercado', 'Mercado'], ['noticias', 'Notícias'], ['empresarios', 'Empresários']];
+    const tabs = [['painel', 'Atletas'], ['historico', 'Pistas'], ['voos', 'Voos'], ['instagram', 'Instagram'], ['mercado', 'Mercado'], ['noticias', 'Notícias'], ['empresarios', 'Empresários']];
     const bar = `<div class="ag-aptabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" data-ag="ap-tab" data-v="${k}" aria-selected="${A.tab === k}">${l}</button>`).join('')}</div>`;
-    box.innerHTML = bar + ({ painel: apPainel, historico: apHist, instagram: apInsta, mercado: apMercado, noticias: apNews, empresarios: apAgents }[A.tab] || apPainel)();
+    box.innerHTML = bar + ({ painel: apPainel, historico: apHist, voos: apFlights, instagram: apInsta, mercado: apMercado, noticias: apNews, empresarios: apAgents }[A.tab] || apPainel)();
   }
   function tgCard(t) {
     const a = analyze(t), st = APST[t.status], ag = agOf(t.agent_id), dl = daysTo(t.contract_until);
-    return `<button class="ag-tgc" data-ag="open-tg" data-id="${t.id}"><div class="ag-nh"><span class="badge ${st[1]}">${st[0]}</span>${t.free_agent ? '<span class="badge f">Livre</span>' : ''}<span class="ag-meta" style="margin-left:auto">${a.n} pista${a.n === 1 ? '' : 's'}</span></div>
-      <b>${esc(t.name)}</b><small>${esc([t.position, t.club].filter(Boolean).join(' · ') || 'Sem clube informado')}</small>
-      ${meter(a)}<div class="ag-nh"><small>Confiabilidade: <b>${a.label}</b> (${Math.round(a.sc * 100)}%)</small>${dl !== null && !t.free_agent ? `<small style="margin-left:auto">${dl < 0 ? 'Contrato vencido' : 'Contrato: ' + fdate(t.contract_until)}</small>` : ''}</div>
-      ${ag ? `<small>Empresário: ${esc(ag.name)}</small>` : ''}</button>`;
+    const last = S.cl.find(c => c.target_id === t.id);
+    return `<article class="ag-tgc"><div class="ag-nh"><span class="badge ${st[1]}">${st[0]}</span>${t.free_agent ? '<span class="badge f">Livre</span>' : ''}<span class="ag-meta" style="margin-left:auto">${a.n} pista${a.n === 1 ? '' : 's'}</span></div>
+      <button class="ag-player-title" data-ag="open-tg" data-id="${t.id}">${esc(t.name)}</button><small>${esc([t.position, t.club].filter(Boolean).join(' · ') || 'Sem clube informado')}</small>
+      <p class="ag-latest">${last ? esc(last.text.slice(0, 150)) : 'Nenhuma pista registrada. Adicione a primeira informação.'}</p>
+      <small>${last ? 'Última pista: ' + fdate(last.happened_at) : 'Abra a ficha para consultar os dados do atleta.'}</small>
+      <div class="ag-btns l"><button class="btn g s" data-ag="new-clue" data-id="${t.id}">${I('plus', 14)}Nova pista</button><button class="btn o s" data-ag="open-tg" data-id="${t.id}">Ver ficha</button></div></article>`;
   }
+
   function apPainel() {
     const A = S.ap, q = norm(A.q), cnt = k => S.tg.filter(t => !k || t.status === k).length;
     const l = S.tg.filter(t => (!A.st || t.status === A.st) && (!q || norm(t.name + ' ' + t.club + ' ' + t.position).includes(q)));
     return `<div class="panel ag-filters"><div class="ag-search">${I('search')}<input type="search" id="ag-apq" placeholder="Buscar atleta, clube ou posição…" value="${esc(A.q)}" aria-label="Buscar atleta"></div>
-      <div class="ag-chips"><button class="btn o s" data-ag="ap-st" data-v="" aria-pressed="${A.st === ''}">Todos ${cnt('')}</button>${Object.keys(APST).map(k => `<button class="btn o s" data-ag="ap-st" data-v="${k}" aria-pressed="${A.st === k}">${APST[k][0]} ${cnt(k)}</button>`).join('')}</div></div>
+      <label class="ag-status-filter">Status<select id="ag-ap-status">${optsOf([['', 'Todos (' + cnt('') + ')'], ...Object.keys(APST).map(k => [k, APST[k][0] + ' (' + cnt(k) + ')'])], A.st)}</select></label></div>
+
     <div id="ag-aplist">${apList(l)}</div>`;
   }
   const apList = l => l.length ? `<div class="ag-tgs">${l.map(tgCard).join('')}</div>` : `<div class="panel">${empty(S.tg.length ? 'Nenhum atleta com esse filtro.' : 'Nenhum atleta investigado ainda. Toque em “Novo atleta” para começar.')}</div>`;
+  function apFlights() {
+    const f = S.ap.flight || (S.ap.flight = { from: '', to: 'Feira de Santana', date: '' });
+    return `<div class="panel"><h3>Voos entre cidades</h3><p class="ag-meta">Escolha a rota e consulte as opções e horários no Google Flights.</p><div class="ag-two"><div><label for="ag-flight-from">Cidade de origem</label><input id="ag-flight-from" maxlength="100" value="${esc(f.from)}" placeholder="Ex.: São Paulo"></div><div><label for="ag-flight-to">Cidade de destino</label><input id="ag-flight-to" maxlength="100" value="${esc(f.to)}" placeholder="Ex.: Salvador"></div></div><label for="ag-flight-date">Data da viagem</label><input type="date" id="ag-flight-date" value="${esc(f.date)}"><div class="ag-btns l"><button class="btn g" data-ag="flight-search">${I('search',14)}Consultar voos</button><button class="btn o" data-ag="flight-clue">Registrar pista de voo</button></div><p class="ag-meta">A consulta abre em outra aba. Se não houver rota para Feira de Santana, tente Salvador. Confira a disponibilidade na data escolhida.</p></div>`;
+  }
+  function flightDetails() {
+    const from = $('#ag-flight-from').value.trim(), to = $('#ag-flight-to').value.trim(), date = $('#ag-flight-date').value;
+    S.ap.flight = { from, to, date };
+    if (!from || !to || !date) { toast('Informe origem, destino e data'); return null; }
+    const query = 'Voos de ' + from + ' para ' + to + ' em ' + date;
+    return { text: query, url: 'https://www.google.com/travel/flights?hl=pt-BR&q=' + encodeURIComponent(query), date };
+  }
   function apHist() {
     const A = S.ap, l = S.cl.filter(c => (!A.kind || c.kind === A.kind) && (!A.tgt || c.target_id === A.tgt));
     return `<div class="panel ag-filters"><div class="ag-chips"><button class="btn o s" data-ag="ap-kind" data-v="" aria-pressed="${A.kind === ''}">Tudo</button>${Object.keys(CK).map(k => `<button class="btn o s" data-ag="ap-kind" data-v="${k}" aria-pressed="${A.kind === k}">${CK[k]}</button>`).join('')}</div>
@@ -1096,6 +1111,8 @@
       case 'save-agent': return saveAgent(id || null);
       case 'ask-del-agent': return confirmBox('Excluir empresário', 'Os atletas ligados a ele ficam sem empresário. Quer mesmo excluir?', 'del-agent', id);
       case 'del-agent': { const r = await sb.from('agency_agents').delete().eq('id', id); if (r.error) return toast('Não foi possível excluir'); closeModal(); toast('Empresário excluído'); return go('apuracao'); }
+      case 'flight-search': { const f = flightDetails(); if (f) window.open(f.url, '_blank', 'noopener,noreferrer'); return; }
+      case 'flight-clue': { const f = flightDetails(); if (f) return clueForm(null, 'voo', {text: f.text + '. Consulta de rota; confirmar o voo e a fonte.', url: f.url, date: f.date, src: 'observacao'}); return; }
       case 'ap-tab': S.ap.tab = v; return drawAp();
       case 'ap-st': S.ap.st = v || ''; return drawAp();
       case 'ap-kind': S.ap.kind = v || ''; return drawAp();
@@ -1117,6 +1134,7 @@
     }
   }
   function onChange(e) {
+    if (e.target.id === 'ag-ap-status') { S.ap.st = e.target.value; return drawAp(); }
     const t = e.target;
     if (t.id === 'ag-up') { const f = [...t.files]; t.value = ''; if (f.length) uploadFiles(f); return; }
     if (t.id === 'ag-cup') { const f = t.files[0]; t.value = ''; if (f) sendMsg($('#ag-chat-input').value.trim(), f); return; }
@@ -1128,6 +1146,7 @@
     if (t.dataset.agChange === 'ck') { const task = S.tasks.find(x => x.id === t.dataset.id), n = +t.dataset.n; saveChecklist(task.id, task.checklist.map((i, k) => k === n ? { ...i, done: t.checked } : i)); }
   }
   function onInput(e) {
+    if (e.target.id.startsWith('ag-flight-')) { const key = e.target.id.replace('ag-flight-', ''); if (S.ap.flight) S.ap.flight[key] = e.target.value; }
     if (e.target.id === 'ag-tq') { S.tQ = e.target.value; drawBoard(); }
     if (e.target.id === 'ag-apq') { S.ap.q = e.target.value; const l = $('#ag-aplist'); if (l) { const q = norm(S.ap.q); l.innerHTML = apList(S.tg.filter(t => (!S.ap.st || t.status === S.ap.st) && (!q || norm(t.name + ' ' + t.club + ' ' + t.position).includes(q)))); } }
     if (e.target.id === 'ag-mq') { S.mQ = e.target.value; drawTpls(); }

@@ -84,7 +84,7 @@
 <script>
 const sb = supabase.createClient(FFC_SUPABASE_URL, FFC_SUPABASE_KEY);
 const $ = s => document.querySelector(s);
-const DOMAIN = 'membros.centraldoffc.app', IDLE = 15 * 60 * 1000;
+const DOMAIN = 'membros.centraldoffc.app', IDLE = 5 * 60 * 1000;
 let sessionEmail = '', ready = false, locked = false, lastAct = Date.now(), justLogged = false, booting = false;
 
 function gate(w) { $('#gLogin').hidden = w !== 'login'; $('#gLock').hidden = w !== 'lock'; $('#app').hidden = w !== 'app'; }
@@ -145,8 +145,18 @@ async function boot(fresh) {
 function drawMe() { const m = AG.me; if (!m) return; $('#meAv').innerHTML = AG.av(m, 40); $('#meName').textContent = AG.first(m.name); $('#meRole').textContent = m.role_title; $('#sbAv').innerHTML = AG.av(m, 42); $('#sbName').textContent = AG.first(m.name); $('#sbRole').textContent = m.role_title; }
 
 /* bloqueio por inatividade */
-['click', 'keydown', 'touchstart', 'scroll'].forEach(ev => addEventListener(ev, () => { if (!locked) lastAct = Date.now(); }, { passive: true }));
-setInterval(() => { if (ready && !locked && Date.now() - lastAct > IDLE) lock(true); }, 20000);
+function checkIdle() {
+  if (ready && !locked && Date.now() - lastAct >= IDLE) { lock(true); return true; }
+  return false;
+}
+['pointerdown', 'pointermove', 'keydown', 'touchstart', 'scroll'].forEach(ev => addEventListener(ev, e => {
+  if (checkIdle()) { if (e.cancelable) e.preventDefault(); e.stopImmediatePropagation(); return; }
+  if (!locked && ready) lastAct = Date.now();
+}, { capture: true, passive: false }));
+setInterval(checkIdle, 1000);
+document.addEventListener('visibilitychange', checkIdle);
+addEventListener('pageshow', checkIdle);
+addEventListener('focus', checkIdle);
 function lock(auto) {
   const m = AG.me; if (!m) return; locked = true; setMenu(false); AG.closeModal();
   $('#lkAv').innerHTML = AG.av(m, 84); $('#lkName').textContent = AG.first(m.name); gate('lock');

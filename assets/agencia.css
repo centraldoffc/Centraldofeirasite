@@ -422,3 +422,11 @@ aside .nav[hidden]{display:none!important}
 .ag-mk{display:flex;align-items:center;gap:12px;width:100%;text-align:left;color:inherit;padding:14px 16px}.ag-mk .tx{flex:1;min-width:0}.ag-mk b{display:block;font-size:15.5px}.ag-mk small{color:var(--dim);font-size:12.5px}
 button.ag-src{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--link);text-align:left;cursor:pointer}
 .ag-filters select{max-width:none}
+/* Apuração: ações acessíveis e navegação visível no celular. */
+.ag-player-title{padding:0;border:0;background:none;text-align:left;color:var(--link);font:inherit;font-size:19px;font-weight:800;overflow-wrap:anywhere;cursor:pointer}
+.ag-latest{margin:5px 0;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.ag-tgc .ag-btns{margin-top:auto;padding-top:10px;flex-wrap:wrap}
+.ag-status-filter{display:flex;gap:8px;align-items:center;margin:0;color:var(--dim);font-size:13px}
+.ag-aptabs{flex-wrap:wrap;overflow:visible}
+.ag-aptabs button{min-height:44px}
+@media(max-width:620px){.ag-aptabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.ag-aptabs button{padding:10px 4px;font-size:13px;white-space:normal}.ag-filters .ag-search{flex:1 1 100%}.ag-status-filter{width:100%}.ag-status-filter select{min-width:0;flex:1}.ag-tgc .btn{min-height:44px;flex:1}}
