@@ -2,6 +2,7 @@
   const sb = supabase.createClient(FFC_SUPABASE_URL, FFC_SUPABASE_KEY);
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let articleCredits = [], editorialMembers = [], creditsError = false;
   let arts = [], cur = null, imgs = [], cover = '', filt = 'all', range = null;
 
   const toast = m => { const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role','status'); t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2400); };
@@ -27,7 +28,10 @@
   async function load(){
     const { data, error } = await sb.from('articles').select('*').order('created_at', { ascending: false });
     if (error) return toast('Erro ao carregar as notícias');
-    arts = data || []; draw(); loadBio();
+    arts = data || [];
+    const [credits, members] = await Promise.all([sb.from('article_credits').select('*'), sb.from('agency_members').select('id,code,name')]);
+    articleCredits = credits.data || []; editorialMembers = members.data || []; creditsError = !!credits.error;
+    draw(); loadBio();
   }
 
   const item = a => `<div class="it"><div class="th" style="${a.image_url ? `background-image:url('${esc(a.image_url)}')` : ''}"></div>

@@ -152,7 +152,7 @@
         <div class="panel progress-card"><h3>Visão das publicações</h3><div class="publication-ring" id="publication-ring"><div><strong id="publication-percent">0%</strong><small>publicadas</small></div></div><div class="legend"><span><i></i>Publicadas</span><span><i></i>Rascunhos</span></div></div>
       </div>
       <div class="row" id="dx-people">
-        <div class="panel"><div class="panel-header"><h3>Equipe da redação</h3><span id="dx-team-count"></span></div><p class="dx-sub">Quem assina as notícias da Central do FFC.</p><div class="dx-team" id="dx-team"></div></div>
+        <div class="panel"><div class="panel-header"><h3>Equipe da redação</h3><span id="dx-team-count"></span></div><p class="dx-sub">Produção vinculada ao ID de cada perfil, independente da assinatura no site.</p><div class="dx-team" id="dx-team"></div></div>
         <div class="panel"><div class="panel-header"><h3>Quem mais publicou</h3><div class="dx-seg" id="dx-seg"><button class="btn o s" data-p="7" aria-pressed="false">7 dias</button><button class="btn o s" data-p="30" aria-pressed="true">30 dias</button><button class="btn o s" data-p="0" aria-pressed="false">Sempre</button></div></div><div class="dx-rank" id="dx-rank"></div></div>
       </div>
       <div class="row" id="dx-more">
@@ -245,7 +245,7 @@
           <h3>Publicação</h3>
           <div class="sw"><span>Publicada no site</span><input type="checkbox" id="pub"></div>
           <div class="sw"><span>Destaque na capa</span><input type="checkbox" id="ft"></div>
-          <label>Autor</label><input type="text" id="au" value="Redação Central do FFC">
+          <label>Assinatura no site</label><input type="text" id="au" value="Redação Central do FFC"><p class="editor-hint">Este nome aparece no site. Alterá-lo não muda o perfil responsável pela matéria.</p>
           <div class="cover-editor" id="cover-editor" hidden>
             <label>Capa da notícia</label>
             <img id="cover-preview" alt="Prévia da capa da notícia">
@@ -290,19 +290,32 @@
   /* equipe + ranking (a partir das notícias já carregadas) */
   function people(){
     const map = new Map();
-    arts.forEach(a => { const k = key(a.author), m = map.get(k) || { name: norm(a.author), total: 0, pub: 0, dr: 0, ft: 0, last: null, items: [] };
+    const credits = new Map(articleCredits.map(c => [c.article_id, c]));
+    const members = new Map(editorialMembers.map(m => [m.id, m]));
+    arts.forEach(a => {
+      const credit = credits.get(a.id), k = credit?.author_profile_id;
+      if (!k) return;
+      const profile = members.get(k);
+      const m = map.get(k) || { id:k, code:profile?.code || k, name:profile?.name || 'Perfil indisponível', total:0, pub:0, dr:0, ft:0, last:null, items:[], publications:[] };
       m.total++; a.published ? m.pub++ : m.dr++; if (a.featured) m.ft++;
-      if (!m.last || new Date(a.created_at) > new Date(m.last)) m.last = a.created_at; m.items.push(a.created_at); map.set(k, m); });
+      if (!m.last || new Date(a.created_at) > new Date(m.last)) m.last=a.created_at;
+      m.items.push(a.created_at);
+      if (a.published && credit.first_published_at) m.publications.push(credit.first_published_at);
+      map.set(k,m);
+    });
     return [...map.values()];
   }
   function drawPeople(){
     const all = people().sort((a, b) => b.total - a.total || new Date(b.last) - new Date(a.last));
     $('dx-team-count').textContent = plural(all.length, 'membro', 'membros');
-    $('dx-team').innerHTML = all.map(m => `<div class="dx-m">${av(m.name)}<div><b title="${esc(m.name)}">${esc(m.name)}</b><small>${plural(m.total, 'notícia', 'notícias')} · última ${rel(m.last)}</small>${key(m.name) === key(DEF) ? '<span class="badge">Assinatura da redação</span>' : ''}</div></div>`).join('') || '<p class="dx-empty">Ainda não há notícias assinadas.</p>';
+    $('dx-team').innerHTML = all.map(m => `<div class="dx-m">${av(m.name)}<div><b title="${esc(m.name)}">${esc(m.name)}</b><small>${plural(m.total, 'notícia', 'notícias')} · última ${rel(m.last)}</small><small>ID: ${esc(m.code)}</small></div></div>`).join('') || '<p class="dx-empty">Ainda não há notícias vinculadas a perfis.</p>';
+    const unidentified = arts.length - all.reduce((n,m)=>n+m.total,0);
+    if (creditsError) $('dx-team').innerHTML = '<p class="dx-empty">Não foi possível carregar os vínculos dos perfis. Atualize a página.</p>';
+    else if (unidentified) $('dx-team').innerHTML += `<p class="dx-empty">${unidentified} notícia(s) sem vínculo de perfil registrado. Não entram no ranking.</p>`;
     const since = period ? Date.now() - period * DAY : 0;
-    const rk = all.map(m => { const n = m.items.filter(d => new Date(d) >= since).length; return { ...m, n }; }).filter(m => m.n > 0).sort((a, b) => b.n - a.n).slice(0, 5);
+    const rk = all.map(m => { const n = m.publications.filter(d => new Date(d) >= since).length; return { ...m, n }; }).filter(m => m.n > 0).sort((a, b) => b.n - a.n).slice(0, 5);
     const mx = Math.max(1, ...rk.map(r => r.n));
-    $('dx-rank').innerHTML = rk.map((r, i) => `<div class="dx-r"><span class="dx-pos">${i + 1}º</span>${av(r.name)}<div style="min-width:0"><b title="${esc(r.name)}">${esc(r.name)}</b><small>${plural(r.pub, 'publicada', 'publicadas')} · ${plural(r.dr, 'rascunho', 'rascunhos')}</small><div class="dx-track"><i style="width:${Math.max(6, r.n / mx * 100)}%"></i></div></div><div class="dx-n">${r.n}<small> notícia${r.n === 1 ? '' : 's'}</small></div></div>`).join('') || `<p class="dx-empty">Ninguém publicou ${period ? `nos últimos ${period} dias` : 'ainda'}.</p>`;
+    $('dx-rank').innerHTML = rk.map((r, i) => `<div class="dx-r"><span class="dx-pos">${i + 1}º</span>${av(r.name)}<div style="min-width:0"><b title="${esc(r.name)}">${esc(r.name)}</b><small>ID: ${esc(r.code)} · ${plural(r.n, 'publicada', 'publicadas')} no período</small><div class="dx-track"><i style="width:${Math.max(6, r.n / mx * 100)}%"></i></div></div><div class="dx-n">${r.n}<small> notícia${r.n === 1 ? '' : 's'}</small></div></div>`).join('') || `<p class="dx-empty">Ninguém publicou ${period ? `nos últimos ${period} dias` : 'ainda'}.</p>`;
     document.querySelectorAll('#dx-seg [data-p]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.p === period)));
   }
 

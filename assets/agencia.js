@@ -706,7 +706,7 @@
     if (src) content += `<p>Fonte: <a href="${esc(src)}" target="_blank" rel="noopener noreferrer">${esc(hostOf(src))}</a></p>`;
     const summary = plain(d.body).slice(0, 180);
     const slug = norm(d.title).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 70) + '-' + Math.random().toString(36).slice(2, 6);
-    const r = await sb.from('articles').insert({ title: d.title, summary, content, author: d.author_name || (a ? a.name : 'Redação Central do FFC'), images: d.images || [], image_url: d.image_url || null, featured: !!d.featured, slug, published: false });
+    const r = await sb.from('articles').insert({ source_draft_id: d.id, title: d.title, summary, content, author: d.author_name || (a ? a.name : 'Redação Central do FFC'), images: d.images || [], image_url: d.image_url || null, featured: !!d.featured, slug, published: false });
     if (r.error) return toast('Não foi possível criar no editor'); log('passou uma matéria para o editor', d.title, 'noticias');
     toast('Criada como rascunho no painel editorial');
   }
