@@ -442,3 +442,25 @@ dialog.ag-onboarding>p{line-height:1.55;color:var(--dim)}
 dialog.ag-onboarding input,dialog.ag-onboarding textarea{box-sizing:border-box;font-size:16px!important}
 dialog.ag-onboarding .ag-btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
 dialog.ag-onboarding .ag-btns .btn{min-height:48px;flex:1}
+
+/* Editor editorial da agência: tela inteira, texto e publicação lado a lado. */
+.ag-modal.ag-article-editor{position:fixed;inset:0;width:100%;max-width:none;height:100dvh;max-height:none;border:0;border-radius:0;padding:24px max(20px,calc((100vw - 1200px)/2)) calc(28px + env(safe-area-inset-bottom));box-sizing:border-box}
+.ag-modal.ag-article-editor::before{display:none}
+.ag-compose-grid{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:24px}
+.ag-compose-grid>*{min-width:0}
+.ag-compose-tools{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:-24px;z-index:2;background:var(--side);padding:12px 0}
+.ag-compose-tools .btn{min-height:38px;padding:8px 10px}
+.ag-rich-text{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:18px;min-height:350px;line-height:1.75;font-size:16px;overflow-wrap:anywhere;outline:none;margin-bottom:14px}
+.ag-rich-text:focus{border-color:var(--link)}
+.ag-rich-text img{display:block;width:100%;max-width:100%;height:auto;margin:18px auto}
+.ag-rich-text img[data-width="50"]{width:50%}.ag-rich-text img[data-width="75"]{width:75%}
+.ag-rich-text img[data-align="left"]{margin-left:0;margin-right:auto}.ag-rich-text img[data-align="right"]{margin-left:auto;margin-right:0}
+.ag-rich-text img[data-selected]{outline:3px solid var(--acc)}
+.ag-rich-text a{color:var(--link);text-decoration:underline}
+.ag-rich-text blockquote{border-left:3px solid var(--acc);padding-left:16px;margin-left:0}
+.ag-compose-gallery{display:grid;gap:16px;margin-top:16px}
+.ag-compose-gallery img,[data-cover]>img{width:100%;max-height:240px;object-fit:contain;border-radius:12px}
+.ag-image-controls{padding:14px;border:1px solid var(--line);border-radius:14px}
+.ag-draft-preview{min-height:0;margin-top:16px}
+.cr-bg{z-index:2000}.cr{color:#17221b}
+@media(max-width:700px){.ag-compose-grid{grid-template-columns:minmax(0,1fr)}.ag-modal.ag-article-editor{padding-top:20px}.ag-compose-tools{top:-20px}.ag-article-editor .ag-mh{margin-bottom:18px}.ag-article-editor input,.ag-article-editor textarea,.ag-article-editor select{font-size:16px!important}}

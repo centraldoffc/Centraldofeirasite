@@ -1,0 +1,1 @@
+alter table public.agency_drafts add column images jsonb not null default '[]'::jsonb check (jsonb_typeof(images) = 'array'), add column image_url text, add column author_name text not null default '', add column featured boolean not null default false;

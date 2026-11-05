@@ -637,7 +637,8 @@
 
   /* =====================================================  NOTÍCIAS (redator)  */
   const DST = { rascunho: ['Rascunho', ''], enviado: ['Em revisão', 'd'], aprovado: ['Aprovada', ''], devolvido: ['Devolvida', 'u'] };
-  const plain = t => String(t || '').replace(/\s+/g, ' ').trim();
+  const plain = t => window.FFCDraftEditor.text(t);
+  let draftEditor = null;
   function safeUrl(u) { try { const x = new URL(String(u || '').trim()); return /^https?:$/.test(x.protocol) ? x.href : ''; } catch { return ''; } }
   const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
   async function vNoticias() {
@@ -669,15 +670,19 @@
   function draftForm(id) {
     const d = id ? S.drafts.find(x => x.id === id) : { title: '', body: '', source_url: '' };
     modal(id ? 'Editar matéria' : 'Nova matéria', `<label for="dt">Título</label><input type="text" id="dt" maxlength="200" value="${esc(d.title)}" placeholder="Título da matéria">
-      <label for="db">Texto</label><textarea id="db" rows="12" maxlength="60000" placeholder="Escreva a matéria aqui. Use uma linha em branco para separar os parágrafos.">${esc(d.body)}</textarea>
+      <div id="ag-draft-editor"></div>
       <label for="ds">Link da fonte (opcional)</label><input type="url" id="ds" maxlength="1000" value="${esc(d.source_url)}" placeholder="https://…">
-      <div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn o" data-ag="save-draft" data-id="${id || ''}">Salvar rascunho</button><button class="btn g" data-ag="save-draft" data-id="${id || ''}" data-send="1">Salvar e enviar</button></div>`, 'wide');
+      <div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn o" data-ag="save-draft" data-id="${id || ''}">Salvar rascunho</button><button class="btn g" data-ag="save-draft" data-id="${id || ''}" data-send="1">Salvar e enviar</button></div>`, 'ag-article-editor');
+    draftEditor = FFCDraftEditor.mount($('#ag-draft-editor'), d, { sb, memberId: me.id, author: me.name });
   }
   async function saveDraft(id, send) {
-    const title = $('#dt').value.trim(), body = $('#db').value.trim(), raw = $('#ds').value.trim(), src = raw ? safeUrl(raw) : '';
+    if (draftEditor.busy) return toast('Aguarde o envio das imagens');
+    const rich = draftEditor.value();
+    const title = $('#dt').value.trim(), body = rich.body, raw = $('#ds').value.trim(), src = raw ? safeUrl(raw) : '';
     if (!title) return toast('Escreva um título'); if (raw && !src) return toast('O link da fonte precisa começar com https://');
-    if (send && body.length < 20) return toast('Escreva o texto antes de enviar');
-    const p = { title, body, source_url: src, status: send ? 'enviado' : 'rascunho', feedback: '', updated_at: new Date().toISOString() };
+    if (body.length > 60000) return toast('O texto ultrapassa o limite de 60 mil caracteres');
+    if (send && plain(body).length < 20) return toast('Escreva o texto antes de enviar');
+    const p = { ...rich, title, body, source_url: src, status: send ? 'enviado' : 'rascunho', feedback: '', updated_at: new Date().toISOString() };
     const r = id ? await sb.from('agency_drafts').update(p).eq('id', id) : await sb.from('agency_drafts').insert({ ...p, author_id: me.id });
     if (r.error) return toast('Não foi possível salvar'); log(send ? 'enviou uma matéria para revisão' : 'salvou um rascunho', title, 'noticias');
     if (send) await notify(leaderIds().filter(x => x !== me.id), `${first(me.name)} enviou a matéria “${title}” para revisão`, 'noticias');
@@ -691,16 +696,16 @@
   function viewDraft(id) {
     const d = S.drafts.find(x => x.id === id); if (!d) return; const a = mem(d.author_id), st = DST[d.status] || DST.rascunho, src = safeUrl(d.source_url);
     modal(d.title, `<div class="ag-tm"><span class="badge ${st[1]}">${st[0]}</span><span class="ag-meta">${a ? esc(a.name) + ' · ' : ''}${when(d.updated_at)}</span></div>
-      <p class="ag-p pre" style="margin-top:14px">${esc(d.body) || '—'}</p>${src ? `<a class="ag-src" href="${esc(src)}" target="_blank" rel="noopener noreferrer">${I('link', 14)}${esc(src)}</a>` : ''}
-      <div class="ag-btns l"><button class="btn o s" data-ag="copy" data-t="${esc(d.title + '\n\n' + d.body)}">${I('copy', 14)}Copiar texto</button></div>`, 'wide');
+      <div class="ag-rich-text ag-draft-preview">${FFCDraftEditor.html(d.body) || '—'}</div>${src ? `<a class="ag-src" href="${esc(src)}" target="_blank" rel="noopener noreferrer">${I('link', 14)}${esc(src)}</a>` : ''}
+      <div class="ag-btns l"><button class="btn o s" data-ag="copy" data-t="${esc(d.title + '\n\n' + plain(d.body))}">${I('copy', 14)}Copiar texto</button></div>`, 'wide');
   }
   async function toEditor(id) {
     const d = S.drafts.find(x => x.id === id); if (!d) return; const a = mem(d.author_id), src = safeUrl(d.source_url);
-    const paras = String(d.body).split(/\n{2,}/).map(t => t.trim()).filter(Boolean).map(t => `<p>${esc(t).replace(/\n/g, '<br>')}</p>`);
-    if (src) paras.push(`<p>Fonte: <a href="${esc(src)}" target="_blank" rel="noopener noreferrer">${esc(hostOf(src))}</a></p>`);
-    const content = paras.join(''), summary = plain(d.body).slice(0, 180);
+    let content = FFCDraftEditor.html(d.body);
+    if (src) content += `<p>Fonte: <a href="${esc(src)}" target="_blank" rel="noopener noreferrer">${esc(hostOf(src))}</a></p>`;
+    const summary = plain(d.body).slice(0, 180);
     const slug = norm(d.title).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 70) + '-' + Math.random().toString(36).slice(2, 6);
-    const r = await sb.from('articles').insert({ title: d.title, summary, content, author: a ? a.name : 'Redação Central do FFC', slug, published: false });
+    const r = await sb.from('articles').insert({ title: d.title, summary, content, author: d.author_name || (a ? a.name : 'Redação Central do FFC'), images: d.images || [], image_url: d.image_url || null, featured: !!d.featured, slug, published: false });
     if (r.error) return toast('Não foi possível criar no editor'); log('passou uma matéria para o editor', d.title, 'noticias');
     toast('Criada como rascunho no painel editorial');
   }
@@ -1110,7 +1115,7 @@
       case 'edit-draft': return draftForm(id);
       case 'view-draft': return viewDraft(id);
       case 'save-draft': return saveDraft(id || null, !!el.dataset.send);
-      case 'send-draft': { const d = S.drafts.find(x => x.id === id); if (!d || d.body.trim().length < 20) return toast('Escreva o texto antes de enviar'); await setDraft(id, { status: 'enviado', feedback: '' }, 'Enviada para revisão'); await notify(leaderIds().filter(x => x !== me.id), `${first(me.name)} enviou a matéria “${d.title}” para revisão`, 'noticias'); return; }
+      case 'send-draft': { const d = S.drafts.find(x => x.id === id); if (!d || plain(d.body).length < 20) return toast('Escreva o texto antes de enviar'); await setDraft(id, { status: 'enviado', feedback: '' }, 'Enviada para revisão'); await notify(leaderIds().filter(x => x !== me.id), `${first(me.name)} enviou a matéria “${d.title}” para revisão`, 'noticias'); return; }
       case 'approve-draft': log('aprovou uma matéria', (S.drafts.find(x => x.id === id) || {}).title, 'noticias'); return setDraft(id, { status: 'aprovado', feedback: '' }, 'Matéria aprovada', 'Sua matéria “{t}” foi aprovada');
       case 'return-draft': return modal('Devolver matéria', `<label for="df">O que precisa ajustar?</label><textarea id="df" rows="4" maxlength="1000" placeholder="Explique o que o redator deve mudar"></textarea><div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn g" data-ag="save-return" data-id="${id}">Devolver</button></div>`, 'sm');
       case 'save-return': { const f = $('#df').value.trim(); if (!f) return toast('Explique o que ajustar'); return setDraft(id, { status: 'devolvido', feedback: f }, 'Matéria devolvida', 'Sua matéria “{t}” voltou com ajustes'); }
@@ -1190,7 +1195,7 @@
   function onKey(e) {
     if (e.key === 'Enter' && e.target && e.target.id === 'ag-player-q') { e.preventDefault(); return searchPlayers(); }
     if (e.key === 'Enter' && e.target && e.target.id === 'ag-nq') { e.preventDefault(); return runNews(); }
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape' && !document.querySelector('.cr-bg')) closeModal();
     if (e.key === 'Enter' && e.target.id === 'ck-new') { e.preventDefault(); const b2 = layer.querySelector('[data-ag="ck-add"]'); b2 && b2.click(); }
     if (e.key === 'Enter' && e.target.id === 'cm-new') { e.preventDefault(); const b2 = layer.querySelector('[data-ag="cm-add"]'); b2 && b2.click(); }
   }
