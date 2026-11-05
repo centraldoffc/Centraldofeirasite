@@ -569,7 +569,7 @@
     if (error && !d) { try { d = await error.context.json(); } catch (e) { d = null; } }
     if (!d || d.error) { toast('Não foi possível concluir: ' + (ERR[d && d.error] || (d && d.error) || 'tente de novo')); return null; } return d;
   }
-  const credModal = (title, r) => modal(title, `<p class="ag-p">Passe estes dados para <b>${esc(r.name)}</b>. A senha não será mostrada de novo.</p><div class="ag-cred"><small>ID</small><b>${esc(r.code)}</b><small style="margin-top:10px;display:block">Senha provisória</small><b>${esc(r.password)}</b></div><div class="ag-btns"><button class="btn o" data-ag="close">Fechar</button><button class="btn g" data-ag="copy" data-t="${esc(`ID: ${r.code}\nSenha: ${r.password}`)}">Copiar ID e senha</button></div>`, 'sm');
+  const credModal = (title, r) => modal(title, `<p class="ag-p">Passe estes dados para <b>${esc(r.name)}</b>. A senha não será mostrada de novo. No primeiro acesso, a pessoa deverá trocá-la e completar o perfil.</p><div class="ag-cred"><small>ID</small><b>${esc(r.code)}</b><small style="margin-top:10px;display:block">Senha provisória</small><b>${esc(r.password)}</b></div><div class="ag-btns"><button class="btn o" data-ag="close">Fechar</button><button class="btn g" data-ag="copy" data-t="${esc(`ID: ${r.code}\nSenha: ${r.password}`)}">Copiar ID e senha</button></div>`, 'sm');
   function profileForm() {
     modal('Meu perfil', `<div class="ag-pr">${av(me, 64)}<input type="file" id="ag-pf" accept="image/*" hidden><button class="btn o s" data-ag="pick-photo">Trocar foto</button></div><label for="pn">Nome</label><input type="text" id="pn" value="${esc(me.name)}" maxlength="80"><label for="pb">Bio</label><textarea id="pb" rows="3" maxlength="300">${esc(me.bio)}</textarea><label for="pd">Aniversário</label><input type="date" id="pd" value="${esc(me.birthday || '')}"><div class="ag-btns"><button class="btn o" data-ag="pw-form">Trocar senha</button><button class="btn g" data-ag="save-profile">Salvar perfil</button></div>`, 'sm');
   }
@@ -1174,11 +1174,69 @@
     if ($('#ag-icons')) return; const d = document.createElement('div'); d.id = 'ag-icons';
     d.innerHTML = `<svg width="0" height="0" style="position:absolute" aria-hidden="true">${Object.entries(ICONS).map(([k, v]) => `<symbol id="ag-${k}" viewBox="0 0 24 24">${v}</symbol>`).join('')}</svg>`; document.body.appendChild(d);
   }
+  async function firstAccess() {
+    return new Promise(resolve => {
+      const dialog = document.createElement('dialog');
+      dialog.className = 'ag-modal';
+      dialog.style.cssText = 'width:min(92vw,560px);max-height:90dvh;color:var(--ink);background:var(--side);';
+      document.body.appendChild(dialog);
+      const finish = ok => { dialog.close(); dialog.remove(); resolve(ok); };
+      dialog.addEventListener('cancel', e => e.preventDefault());
+      const request = async body => {
+        const { data, error } = await sb.functions.invoke('agencia-membros', { body });
+        if (error) {
+          let message = 'Não foi possível verificar seu acesso. Tente novamente.';
+          try { message = (await error.context.json()).error || message; } catch {}
+          throw new Error(message);
+        }
+        if (data?.error) throw new Error(data.error);
+        return data;
+      };
+      const load = async () => {
+        dialog.innerHTML = '<p>Verificando seu acesso…</p>';
+        try {
+          const status = await request({ action: 'onboarding_status' });
+          if (!status.required) return finish(true);
+          const m = status.member;
+          dialog.innerHTML = `<h2>Bem-vindo à equipe</h2><p>Sua senha é provisória. Crie sua senha pessoal e complete seu perfil para entrar.</p><form>
+            <label for="on-name">Como você quer ser chamado?</label><input id="on-name" name="name" required maxlength="80" autocomplete="name" value="${esc(m.name || '')}">
+            <label for="on-bio">Sobre você (opcional)</label><textarea id="on-bio" name="bio" maxlength="500" rows="2">${esc(m.bio || '')}</textarea>
+            <label for="on-birthday">Nascimento (opcional)</label><input id="on-birthday" name="birthday" type="date" max="${new Date().toISOString().slice(0,10)}" value="${esc(m.birthday || '')}">
+            <label for="on-current">Senha provisória recebida</label><input id="on-current" name="current_password" type="password" autocomplete="current-password" required>
+            <label for="on-password">Sua nova senha</label><input id="on-password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required><small>Use pelo menos 8 caracteres e uma senha diferente da provisória.</small>
+            <label for="on-confirm">Repita a nova senha</label><input id="on-confirm" name="confirm" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+            <p role="alert" class="on-error"></p><div class="ag-btns"><button type="button" class="btn o on-exit">Sair</button><button type="submit" class="btn g">Salvar e entrar</button></div></form>`;
+          dialog.querySelector('#on-name').focus();
+          dialog.querySelector('form').onsubmit = async e => {
+            e.preventDefault();
+            const form = e.currentTarget, values = Object.fromEntries(new FormData(form));
+            const error = dialog.querySelector('.on-error'); error.textContent = '';
+            if (values.password !== values.confirm) { error.textContent = 'As senhas não conferem.'; return; }
+            if (values.password === values.current_password) { error.textContent = 'Escolha uma senha diferente da provisória.'; return; }
+            const buttons = [...dialog.querySelectorAll('button')]; buttons.forEach(b => b.disabled = true);
+            try {
+              await request({ action: 'complete_onboarding', ...values });
+              form.reset();
+              await sb.auth.refreshSession();
+              finish(true);
+            } catch (err) { error.textContent = err.message; buttons.forEach(b => b.disabled = false); }
+          };
+        } catch (err) {
+          dialog.innerHTML = `<h2>Verificar acesso</h2><p role="alert">${esc(err.message)}</p><div class="ag-btns"><button class="btn o on-exit">Sair</button><button class="btn g on-retry">Tentar novamente</button></div>`;
+          dialog.querySelector('.on-retry').onclick = load;
+        }
+        const exit = dialog.querySelector('.on-exit');
+        if (exit) exit.onclick = async () => { await sb.auth.signOut(); finish(false); };
+      };
+      dialog.showModal(); load();
+    });
+  }
   async function init(o) {
     sb = o.sb; mount = o.mount; host = o; injectIcons();
     if (!layer) { layer = document.createElement('div'); layer.id = 'ag-layer'; document.body.appendChild(layer); layer.addEventListener('click', onClick); layer.addEventListener('change', onChange); mount.addEventListener('click', onClick); mount.addEventListener('change', onChange); mount.addEventListener('input', onInput); mount.addEventListener('submit', onSubmit); layer.addEventListener('input', onInput); document.addEventListener('keydown', onKey); dnd(mount); }
     me = null; await sb.rpc('agency_bootstrap');
     const u = (await sb.auth.getUser()).data.user; if (!u) { o.onDenied && o.onDenied(); return false; }
+    if (!await firstAccess()) return false;
     const r = await sb.from('agency_members').select('*').eq('id', u.id).maybeSingle();
     if (!r.data || !r.data.active) { o.onDenied && o.onDenied(); return false; }
     me = r.data; S.isAdm = false; try { S.isAdm = (await sb.rpc('is_admin')).data === true; } catch {} await loadBase(); subscribe(); return true;
