@@ -59,7 +59,7 @@
     view: 'inicio', arg: null, members: [], notices: [], tasks: [], events: [], notifs: [], chats: [], cmine: [], reqs: [], recent: [],
     tFilter: 'all', tStatus: 'todo', tQ: '', tCat: '', tMem: '', month: null, folder: null, fq: '', folders: [], files: [],
     drafts: [], tpls: [], mCat: '', mQ: '', isAdm: false,
-    tg: [], agn: [], cl: [], igw: [], igm: {}, igBusy: false, igDiff: null, ap: { tab: 'painel', st: '', kind: '', tgt: '', mk: 'livres', q: '', nq: 'Feira FC', news: null, busy: false },
+    tg: [], agn: [], cl: [], igw: [], ap: { tab: 'painel', st: '', kind: '', tgt: '', mk: 'livres', q: '', nq: 'Feira FC', news: null, busy: false },
     chatId: null, msgs: [], reply: null, rFilter: 'aberto', aFilter: '', aMem: '', urls: {}, loadedAt: 0
   };
 
@@ -746,8 +746,8 @@
   const meter = (a) => `<div class="ag-meter" title="Confiabilidade do conjunto de indícios"><i style="width:${Math.round(a.sc * 100)}%"></i></div>`;
 
   async function vApuracao() {
-    const [a, g, c, iw, im] = await Promise.all([sb.from('agency_targets').select('*').order('updated_at', { ascending: false }), sb.from('agency_agents').select('*').order('name'), sb.from('agency_clues').select('*').order('happened_at', { ascending: false }).order('created_at', { ascending: false }), sb.from('agency_ig_watch').select('*').order('created_at', { ascending: false }), sb.from('agency_ig_snaps').select('id,watch_id,n,taken_at').order('taken_at', { ascending: false })]);
-    S.tg = a.data || []; S.agn = g.data || []; S.cl = c.data || []; S.igw = iw.data || []; S.igm = {}; (im.data || []).forEach(x => { if (!S.igm[x.watch_id]) S.igm[x.watch_id] = x; });
+    const [a, g, c, iw] = await Promise.all([sb.from('agency_targets').select('*').order('updated_at', { ascending: false }), sb.from('agency_agents').select('*').order('name'), sb.from('agency_clues').select('*').order('happened_at', { ascending: false }).order('created_at', { ascending: false }), sb.from('agency_ig_watch').select('*').order('created_at', { ascending: false })]);
+    S.tg = a.data || []; S.agn = g.data || []; S.cl = c.data || []; S.igw = iw.data || [];
     return `${head('Apuração de transferências', 'Investigação de possíveis reforços do Feira FC. Indício não é confirmação.', b('new-tg', I('plus') + 'Novo atleta', 'g'))}
     <div class="ag-banner">${I('lock')}<span>Registre só informação pública e com fonte. Nunca dados pessoais nem nomes de passageiros de voos.</span></div>
     <div id="ag-ap"></div>`;
@@ -877,26 +877,20 @@
     log('registrou uma pista de ' + (CK[kind] || 'outro').toLowerCase() + ' sobre ' + ((tgOf(tid) || {}).name || ''), '', 'apuracao'); closeModal(); toast('Pista registrada'); await go('apuracao'); if (S.openTg === tid) openTg(tid);
   }
 
-  /* ---- Instagram: comparador de listas públicas (colagem manual, sem login e sem raspagem) ---- */
-  const IGSTOP = new Set(['seguir', 'seguindo', 'remover', 'verificado', 'mensagem', 'seguidores', 'seguidos', 'followers', 'following', 'follow', 'remove', 'message', 'verified', 'posts', 'mil', 'sugerido', 'sugeridos', 'segue', 'para', 'mais', 'outros', 'comum', 'de', 'da', 'do', 'em', 'no', 'na', 'um', 'uma', 'por', 'com', 'que', 'dos', 'das', 'ver', 'tudo', 'perfil', 'conta', 'contas']);
-  function parseHandles(txt, self) {
-    const out = new Set();
-    String(txt || '').split(/[\s,;|•·]+/).forEach(t => {
-      t = t.replace(/^@/, '').replace(/[.:!?]+$/, ''); if (!/^[a-z0-9._]{2,30}$/.test(t) || !/[a-z]/.test(t) || IGSTOP.has(t) || t === self) return; out.add(t);
-    });
-    return [...out];
-  }
-  const strongH = h => /[._0-9]/.test(h);
+  /* ---- Instagram: acesso ao perfil no DolphinRadar ---- */
+  const dolphinUrl = h => {
+    h = igName(h).toLowerCase();
+    return /^[a-z0-9._]{1,30}$/.test(h) ? 'https://www.dolphinradar.com/analytics/not-active/' + encodeURIComponent(h) : '';
+  };
   function apInsta() {
     const w = S.igw;
-    return `<div class="ag-banner">${I('copy')}<span><b>Como usar:</b> no computador, abra o perfil <b>público</b> no Instagram, abra a lista de “seguindo”, role até o fim, selecione tudo, copie e cole aqui. Na colagem seguinte o sistema mostra só quem entrou e quem saiu.</span></div>
+    return `<div class="ag-banner">${I('ext')}<span>Abra o perfil no <b>DolphinRadar</b> para consultar a atividade do Instagram. O perfil já vai selecionado. O serviço pode solicitar login ou assinatura.</span></div>
     <div class="ag-btns l" style="margin:0 0 14px"><button class="btn g s" data-ag="new-igw">${I('plus', 14)}Monitorar perfil</button></div>
-    ${w.length ? `<div class="ag-tgs">${w.map(x => { const m = S.igm[x.id], t = tgOf(x.target_id), g = agOf(x.agent_id), can = x.created_by === me.id || isLeader();
+    ${w.length ? `<div class="ag-tgs">${w.map(x => { const t = tgOf(x.target_id), g = agOf(x.agent_id), can = x.created_by === me.id || isLeader();
       return `<article class="panel ag-tgc2"><div class="ag-nh"><b>@${esc(x.handle)}</b><span class="badge" style="margin-left:auto">${x.kind === 'seguidos' ? 'Seguidos' : 'Seguidores'}</span></div>
         <a class="ag-src" href="${igUrl(x.handle)}" target="_blank" rel="noopener noreferrer">${I('ext', 14)}Abrir no Instagram</a>
         <small>${t ? 'Atleta: ' + esc(t.name) : ''}${t && g ? ' · ' : ''}${g ? 'Empresário: ' + esc(g.name) : ''}${!t && !g ? 'Sem atleta ou empresário ligado' : ''}</small>
-        <small>${m ? `Última colagem: ${m.n} contas · ${when(m.taken_at)}` : 'Nenhuma colagem ainda'}</small>
-        <div class="ag-btns l"><button class="btn g s" data-ag="ig-paste" data-id="${x.id}">Nova colagem</button><button class="btn o s" data-ag="ig-hist" data-id="${x.id}">Histórico</button>${can ? `<button class="btn r s" data-ag="ask-del-igw" data-id="${x.id}">Excluir</button>` : ''}</div></article>`; }).join('')}</div>` : `<div class="panel">${empty('Nenhum perfil monitorado. Toque em “Monitorar perfil” e cadastre o Instagram de um atleta ou empresário.')}</div>`}`;
+        <div class="ag-btns l">${dolphinUrl(x.handle) ? `<a class="btn g s" href="${dolphinUrl(x.handle)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir @${esc(x.handle)} no DolphinRadar (nova aba)">${I('ext', 14)}Abrir no DolphinRadar</a>` : '<span class="ag-meta">Perfil inválido. Cadastre novamente.</span>'}${can ? `<button class="btn r s" data-ag="ask-del-igw" data-id="${x.id}">Excluir</button>` : ''}</div></article>`; }).join('')}</div>` : `<div class="panel">${empty('Nenhum perfil monitorado. Toque em “Monitorar perfil” e cadastre o Instagram de um atleta ou empresário.')}</div>`}`;
   }
   function igwForm() {
     modal('Monitorar perfil', `<label for="gh">Perfil do Instagram (público)</label><input type="text" id="gh" maxlength="31" placeholder="@perfil" autocapitalize="none" autocomplete="off">
@@ -912,50 +906,6 @@
     if (r.error) return toast(r.error.code === '23505' ? 'Esse perfil já está sendo monitorado' : 'Não foi possível salvar');
     log('começou a monitorar @' + h, '', 'apuracao'); closeModal(); toast('Perfil adicionado'); return go('apuracao');
   }
-  function igPaste(id) {
-    const w = S.igw.find(x => x.id === id); if (!w) return; const m = S.igm[id];
-    modal('Nova colagem · @' + w.handle, `<p class="ag-p">Cole aqui a lista de <b>${w.kind}</b> de @${esc(w.handle)}. ${m ? `Vou comparar com a colagem de ${when(m.taken_at)} (${m.n} contas).` : 'Esta será a primeira colagem: ela só serve de ponto de partida.'}</p>
-      <textarea id="igt" rows="9" placeholder="Cole o texto copiado da lista do Instagram"></textarea><p class="ag-meta" id="igc">0 perfis reconhecidos</p>
-      <div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn g" data-ag="ig-save" data-id="${id}">Comparar e salvar</button></div>`, 'wide');
-  }
-  async function igSave(id) {
-    if (S.igBusy) return; const w = S.igw.find(x => x.id === id); if (!w) return; const hs = parseHandles($('#igt').value, w.handle).sort();
-    if (hs.length < 2) return toast('Não reconheci perfis. Cole a lista copiada do Instagram'); if (hs.length > 20000) return toast('Lista grande demais');
-    S.igBusy = true;
-    try {
-      const pv = await sb.from('agency_ig_snaps').select('handles,taken_at,n').eq('watch_id', id).order('taken_at', { ascending: false }).limit(1);
-      const ins = await sb.from('agency_ig_snaps').insert({ watch_id: id, handles: hs, n: hs.length, created_by: me.id }); if (ins.error) return toast('Não foi possível salvar a colagem');
-      log('colou a lista de @' + w.handle, hs.length + ' contas', 'apuracao');
-      const prev = pv.data && pv.data[0]; if (!prev) { closeModal(); toast('Ponto de partida salvo. Cole de novo mais tarde para comparar'); return go('apuracao'); }
-      const A = new Set(prev.handles), B = new Set(hs), novos = hs.filter(x => !A.has(x)), sairam = prev.handles.filter(x => !B.has(x));
-      novos.sort((x, y) => strongH(y) - strongH(x)); S.igDiff = { w, novos, sairam, prevN: prev.n, prevAt: prev.taken_at, n: hs.length };
-      await go('apuracao'); igDiffModal();
-    } finally { S.igBusy = false; }
-  }
-  function igDiffModal() {
-    const d = S.igDiff; if (!d) return; const w = d.w, small = d.n < d.prevN * .6, chip = (x, i) => `<div class="ag-line"><div class="tx"><a class="ag-src" href="${igUrl(x)}" target="_blank" rel="noopener noreferrer">@${esc(x)}</a></div><button class="btn g s" data-ag="ig-clue" data-v="${i}">Virar pista</button></div>`;
-    modal('Mudanças em @' + w.handle, `<div class="ag-tm"><span class="badge">+${d.novos.length} novos</span><span class="badge u">−${d.sairam.length} saíram</span><span class="ag-meta">${d.prevN} → ${d.n} contas</span></div>
-      ${small ? `<div class="ag-banner">${I('lock')}<span>A lista nova é bem menor que a anterior. A colagem pode ter ficado incompleta, então “saíram” pode estar errado.</span></div>` : ''}
-      <p class="ag-meta" style="margin:10px 0">“Novos” podem incluir palavras de nomes copiadas junto. Confira antes de registrar. A data é de quando você colou, não de quando a conta foi seguida.</p>
-      <div class="panel-header"><h3>Novos</h3>${d.novos.length ? `<button class="btn s" data-ag="ig-clue-all">Registrar resumo</button>` : ''}</div>
-      ${d.novos.length ? d.novos.slice(0, 80).map(chip).join('') + (d.novos.length > 80 ? `<p class="ag-meta">E mais ${d.novos.length - 80}.</p>` : '') : empty('Nenhuma conta nova.')}
-      <div class="panel-header" style="margin-top:14px"><h3>Saíram</h3></div>
-      ${d.sairam.length ? `<p class="ag-p">${d.sairam.slice(0, 60).map(x => '@' + esc(x)).join(', ')}${d.sairam.length > 60 ? ` e mais ${d.sairam.length - 60}` : ''}</p>` : empty('Ninguém saiu.')}
-      <div class="ag-btns"><button class="btn o" data-ag="close">Fechar</button></div>`, 'wide');
-  }
-  function igClue(i) {
-    const d = S.igDiff; if (!d) return; const w = d.w, today = new Date().toLocaleDateString('pt-BR');
-    const txt = i === 'all' ? `Comparação de listas públicas de @${w.handle}: ${d.novos.length} contas novas em “${w.kind}”. Algumas: ${d.novos.slice(0, 15).map(x => '@' + x).join(', ')}. Detectado em ${today}.`
-      : (w.kind === 'seguidos' ? `@${w.handle} passou a seguir @${d.novos[i]}. Detectado em ${today} pela comparação de listas públicas.` : `@${d.novos[i]} passou a seguir @${w.handle}. Detectado em ${today} pela comparação de listas públicas.`);
-    S.openTg = null; clueForm(null, 'instagram', { tid: w.target_id || '', text: txt, url: igUrl(w.handle), src: 'rede_social', rel: 3 });
-  }
-  async function igHist(id) {
-    const w = S.igw.find(x => x.id === id); if (!w) return; const r = await sb.from('agency_ig_snaps').select('handles,taken_at,n').eq('watch_id', id).order('taken_at', { ascending: false }).limit(12), l = r.data || [];
-    const rows = l.map((x, i) => { const p = l[i + 1]; if (!p) return `<div class="ag-line"><div class="tx"><b>${when(x.taken_at)}</b><small>Ponto de partida · ${x.n} contas</small></div></div>`; const A = new Set(p.handles), B = new Set(x.handles), nv = x.handles.filter(h => !A.has(h)), sr = p.handles.filter(h => !B.has(h));
-      return `<div class="ag-line"><div class="tx"><b>${when(x.taken_at)} · ${x.n} contas</b><small>+${nv.length} novos, −${sr.length} saíram</small>${nv.length ? `<small>${nv.slice(0, 8).map(h => '@' + esc(h)).join(', ')}${nv.length > 8 ? '…' : ''}</small>` : ''}</div></div>`; }).join('');
-    modal('Histórico · @' + w.handle, rows || empty('Nenhuma colagem ainda.'), 'wide');
-  }
-
   function agentForm(id) {
     const a = id ? agOf(id) : { name: '', company: '', instagram: '', notes: '' };
     modal(id ? 'Editar empresário' : 'Novo empresário', `<label for="an">Nome</label><input type="text" id="an" maxlength="120" value="${esc(a.name)}"><label for="ac">Empresa ou agência</label><input type="text" id="ac" maxlength="120" value="${esc(a.company)}">
@@ -1106,13 +1056,8 @@
       case 'ap-news': return runNews();
       case 'new-igw': return igwForm();
       case 'save-igw': return saveIgw();
-      case 'ig-paste': return igPaste(id);
-      case 'ig-save': return igSave(id);
-      case 'ig-hist': return igHist(id);
-      case 'ask-del-igw': return confirmBox('Parar de monitorar', 'O perfil e as listas coladas dele serão apagados. Quer mesmo excluir?', 'del-igw', id);
+      case 'ask-del-igw': return confirmBox('Parar de monitorar', 'Remover este perfil da Agência? O acompanhamento no DolphinRadar deve ser gerenciado por lá.', 'del-igw', id);
       case 'del-igw': { const r = await sb.from('agency_ig_watch').delete().eq('id', id); if (r.error) return toast('Não foi possível excluir'); closeModal(); toast('Perfil removido'); return go('apuracao'); }
-      case 'ig-clue': return igClue(+v);
-      case 'ig-clue-all': return igClue('all');
       case 'bell': return notifModal();
       case 'notif': { const n = S.notifs.find(x => x.id === id); if (n && !n.read) { n.read = true; sb.from('agency_notifications').update({ read: true }).eq('id', id).then(() => {}); badges(); } closeModal(); return openLink(n && n.link); }
       case 'notif-all': { S.notifs.forEach(n => n.read = true); await sb.from('agency_notifications').update({ read: true }).eq('member_id', me.id).eq('read', false); badges(); return notifModal(); }
@@ -1131,7 +1076,6 @@
   }
   function onInput(e) {
     if (e.target.id === 'ag-tq') { S.tQ = e.target.value; drawBoard(); }
-    if (e.target.id === 'igt') { const n = parseHandles(e.target.value, '').length; $('#igc').textContent = n + ' perfis reconhecidos'; }
     if (e.target.id === 'ag-apq') { S.ap.q = e.target.value; const l = $('#ag-aplist'); if (l) { const q = norm(S.ap.q); l.innerHTML = apList(S.tg.filter(t => (!S.ap.st || t.status === S.ap.st) && (!q || norm(t.name + ' ' + t.club + ' ' + t.position).includes(q)))); } }
     if (e.target.id === 'ag-mq') { S.mQ = e.target.value; drawTpls(); }
     if (e.target.id === 'ag-fq') { clearTimeout(dbTimer); const v = e.target.value; dbTimer = setTimeout(() => { S.fq = v.trim(); drawFiles(); }, 300); }
