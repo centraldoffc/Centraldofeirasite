@@ -121,12 +121,21 @@
   $('q').oninput = () => { $('global-search').value = $('q').value; draw(); };
   document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { filt = b.dataset.f; draw(); });
 
-  async function toggle(id, k){ const a = arts.find(x => x.id === id);
-    const now = new Date().toISOString();
-    const changes = { [k]: !a[k], updated_at: now };
-    if (k === 'published' && !a.published) changes.created_at = now;
-    const { error } = await sb.from('articles').update(changes).eq('id', id);
-    error ? toast('Não foi possível alterar') : (a[k] = !a[k], draw()); }
+  const changingArticles = new Set();
+  async function toggle(id, k){
+    if (changingArticles.has(id)) return;
+    const a = arts.find(x => x.id === id); if (!a) return;
+    changingArticles.add(id);
+    try {
+      const now = new Date().toISOString(), changes = { [k]: !a[k], updated_at: now };
+      if (k === 'published' && !a.published) changes.created_at = now;
+      const { data, error } = await sb.from('articles').update(changes).eq('id', id).select('*').single();
+      if (error || !data) return toast('Não foi possível salvar a alteração. Tente novamente.');
+      Object.assign(a, data); draw();
+      toast(k === 'featured' ? (data.featured ? 'Destaque salvo no site' : 'Destaque removido') : (data.published ? 'Notícia publicada' : 'Notícia despublicada'));
+    } catch (_) { toast('Não foi possível salvar a alteração. Tente novamente.'); }
+    finally { changingArticles.delete(id); }
+  }
   async function del(id){ if (!confirm('Excluir esta notícia para sempre?')) return;
     const { error } = await sb.from('articles').delete().eq('id', id);
     error ? toast('Não foi possível excluir') : (arts = arts.filter(x => x.id !== id), draw(), toast('Notícia excluída')); }

@@ -8,7 +8,7 @@ const shape = (a, o) => ({ ...a, summary: summary(a.content, a.title), url: a.sl
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+  res.setHeader('Cache-Control', 'no-store');
   const o = origin(req), { slug, id, page = '1', limit = '10', search } = req.query;
   try {
     if (slug || id) {
@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
       return rows[0] ? res.json(shape(rows[0], o)) : res.status(404).json({ error: 'nao_encontrada' });
     }
     const l = Math.min(50, Math.max(1, +limit || 10)), p = Math.max(1, +page || 1);
-    let path = `articles?published=eq.true&select=${COLS},content&order=created_at.desc&limit=${l + 1}&offset=${(p - 1) * l}`;
+    let path = `articles?published=eq.true&select=${COLS},content&order=featured.desc,created_at.desc&limit=${l + 1}&offset=${(p - 1) * l}`;
     if (search) path += `&title=ilike.*${encodeURIComponent(String(search).replace(/[*%,()]/g, ' '))}*`;
     const rows = await q(path);
     res.json({ page: p, hasMore: rows.length > l, items: rows.slice(0, l).map(a => { const { content, ...item } = shape(a, o); return item; }) });
