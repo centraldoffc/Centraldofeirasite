@@ -497,3 +497,22 @@ dialog.ag-onboarding.ag-access-loading[open]{display:grid;place-items:center;bac
 .ag-access-spinner{display:block;width:24px;height:24px;margin:30px auto 0;border:2px solid #93d5af25;border-top-color:#93d5af;border-radius:50%;animation:ag-access-spin .9s linear infinite}
 @keyframes ag-access-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.ag-access-spinner{animation:none}}
+
+/* Agência integrada ao tema claro do Gerenciar. */
+.manage-page .ag-root,.manage-page .ag-bg,.manage-page .ag-onboarding{--bg:#f7f8f6;--side:#fff;--card:#fff;--card2:#f0f4ef;--line:#dce4da;--ink:#172b20;--dim:#657366;--faint:#7c877c;--link:#216d46;--soft:#edf4e9;color-scheme:light}
+.manage-page #v-ag>.ag-root{background:transparent;padding:0;min-height:0;border-radius:0}
+.manage-page #v-ag,.manage-page #ag-root{min-width:0;max-width:100%}
+.manage-page .ag-team{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
+.manage-page .ag-mc{min-width:0;width:100%;box-sizing:border-box;border-radius:18px;padding:16px;gap:12px}
+.manage-page .ag-mc .ag-av{flex-shrink:0}
+.manage-page .ag-mc b{white-space:normal;overflow-wrap:anywhere}
+.manage-page .ag-root .top{flex-wrap:wrap}
+.manage-page .ag-root .top>div{min-width:0}
+.manage-page .ag-root .badge,.manage-page .ag-bg .badge{background:#e4f1e7;color:#22643d}
+.manage-page .ag-root .badge.f,.manage-page .ag-bg .badge.f{background:#e9edf9;color:#465e96}
+.manage-page .ag-root .badge.d,.manage-page .ag-bg .badge.d{background:#fff1d6;color:#886118}
+.manage-page .ag-root .badge.u,.manage-page .ag-bg .badge.u{background:#fce8e8;color:#a43c43}
+.manage-page .ag-root .btn.o,.manage-page .ag-bg .btn.o{border-color:var(--line)}
+.manage-page .ag-root select option,.manage-page .ag-modal select option{background:#fff;color:#172b20}
+.manage-page .ag-root .ag-empty{padding:28px 16px}
+@media(max-width:620px){.manage-page .ag-root .top h1{font-size:26px}.manage-page .ag-mc{padding:14px}.manage-page .ag-root .top .acts{width:100%}.manage-page .ag-root .top .acts .btn{flex:1}.manage-page .ag-root .ag-team{grid-template-columns:minmax(0,1fr)}}
