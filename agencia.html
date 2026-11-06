@@ -127,6 +127,7 @@ sb.auth.getSession().then(({ data }) => { if (!data.session) gate('login'); });
 
 async function boot(fresh) {
   booting = true;
+  try {
   const ok = await AG.init({
     sb, mount: $('#ag-root'),
     onView: v => { document.querySelectorAll('aside .nav[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === v)); $('#ttl').textContent = AG.TITLES[v] || ''; },
@@ -143,6 +144,11 @@ async function boot(fresh) {
   ['noticias', 'modelos'].forEach(v => { const n = document.querySelector(`aside .nav[data-v="${v}"]`); if (n) n.hidden = !AG.can(v); });
   sb.rpc('is_admin').then(r => { $('#navAdm').hidden = r.data !== true; });
   AG.go('inicio'); if (fresh) AG.log('entrou no painel');
+  } catch (error) {
+    ready = false; gate('login');
+    $('#lerr').textContent = 'Não foi possível abrir o painel. Atualize a página e tente novamente.';
+    console.error('Falha ao iniciar a agência:', error);
+  } finally { booting = false; }
 }
 function drawMe() { const m = AG.me; if (!m) return; $('#meAv').innerHTML = AG.av(m, 40); $('#meName').textContent = AG.first(m.name); $('#meRole').textContent = m.role_title; $('#sbAv').innerHTML = AG.av(m, 42); $('#sbName').textContent = AG.first(m.name); $('#sbRole').textContent = m.role_title; }
 
