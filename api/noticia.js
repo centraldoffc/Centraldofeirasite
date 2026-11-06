@@ -1,5 +1,5 @@
 // Página real de cada notícia: /noticia/<slug> (HTML pronto, com dados para o Google)
-const { summary, hasInlineImage } = require('../assets/article-format');
+const { summary } = require('../assets/article-format');
 const { q, esc, origin, clean } = require('./_lib');
 
 const page = (title, body, head = '') => `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -26,11 +26,9 @@ ${a.image_url ? `<meta property="og:image" content="${esc(a.image_url)}"><meta n
     const text = /<[a-z][\s\S]*>/i.test(a.content || '') ? clean(a.content) : String(a.content || '').split(/\n{2,}/).filter(Boolean).map(p => `<p>${esc(p)}</p>`).join('');
     const minutes = Math.max(1, Math.ceil(text.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).length / 200));
     const date = new Date(a.created_at).toLocaleDateString('pt-BR', { day:'2-digit',month:'long',year:'numeric',timeZone:'America/Bahia' });
-    const hero = a.image_url && !hasInlineImage(text, a.image_url);
     const body = `<article class="news-article">
-${hero ? `<figure class="reader-hero"><img src="${esc(a.image_url)}" alt="${esc(a.title)}" fetchpriority="high"></figure>` : ''}
 <div class="reader-heading"><div class="reader-kicker"><span>${esc(a.category || 'Feira FC')}</span><span>${minutes} min de leitura</span></div>
-<h1>${esc(a.title)}</h1>${desc ? `<p class="lead">${esc(desc)}</p>` : ''}
+<h1>${esc(a.title)}</h1>
 <div class="reader-byline"><img src="/mark.png" alt="" width="42" height="42"><div><span>Por <strong>${esc(a.author || 'Redação Central do FFC')}</strong></span><time datetime="${esc(a.created_at)}">${date}</time></div></div></div>
 <div class="t news-content">${text}</div>
 <footer class="reader-end"><span>Você leu na Central do FFC</span><a href="/site">Veja mais notícias do Feira FC</a></footer></article>
