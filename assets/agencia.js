@@ -112,7 +112,7 @@
     if (draftEditor) { draftEditor.destroy(); draftEditor = null; }
     layer.innerHTML = `<div class="ag ag-bg" data-ag="bg"><div class="ag-modal ${cls}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="ag-mh"><h3>${title}</h3><button class="ag-x" data-ag="close" aria-label="Fechar">${I('x')}</button></div><div class="ag-mb">${html}</div></div></div>`;
   }
-  const closeModal = () => { if (draftEditor) { draftEditor.destroy(); draftEditor = null; } layer.innerHTML = ''; };
+  const closeModal = () => { if (draftEditor) { draftEditor.destroy(); draftEditor = null; } if (layer) layer.innerHTML = ''; };
   const confirmBox = (title, text, act, id, label = 'Confirmar', danger = true) => modal(title, `<p class="ag-p">${text}</p><div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn ${danger ? 'rd' : 'g'}" data-ag="${act}" data-id="${esc(id || '')}">${label}</button></div>`, 'sm');
 
   /* ---------- dados ---------- */

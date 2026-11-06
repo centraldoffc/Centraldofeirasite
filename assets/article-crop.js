@@ -11,9 +11,9 @@ const toast = m => alert(m);
   .cr-view img{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;pointer-events:none;user-select:none}
   .cr-view:after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:14px;box-shadow:inset 0 0 0 2px #fffc;background:linear-gradient(90deg,transparent 33.2%,#fff5 33.3%,#fff5 33.5%,transparent 33.6%,transparent 66.4%,#fff5 66.5%,#fff5 66.7%,transparent 66.8%),linear-gradient(transparent 33.2%,#fff5 33.3%,#fff5 33.5%,transparent 33.6%,transparent 66.4%,#fff5 66.5%,#fff5 66.7%,transparent 66.8%)}
   .cr-hint{margin:0;font-size:12px;color:var(--dim);text-align:center}.cr input[type=range]{width:100%;accent-color:var(--acc)}
-  .cr-act{display:flex;gap:10px}.cr-act .btn{flex:1}`; document.head.appendChild(st); })();
+  .cr-cover-copy{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:5%;background:linear-gradient(0deg,#040c0af0,transparent 75%);color:white;pointer-events:none;font-family:Inter,Arial,sans-serif}.cr-cover-copy strong{font-size:var(--cover-title-size);line-height:1.25;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.cr-cover-copy small{font-size:calc(var(--cover-title-size)*.6);margin-top:8px;color:#c5d1cb}.cr-view.cr-cover-preview:after{background:none}.cr-act{display:flex;gap:10px}.cr-act .btn{flex:1}`; document.head.appendChild(st); })();
   function cropImage(file, o = {}){
-    const { aspect = 1, choices = null, max = 1600, title = 'Recortar imagem' } = o;
+    const { aspect = 1, choices = null, max = 1600, title = 'Recortar imagem', coverTitle = null } = o;
     return new Promise(resolve => {
       const url = URL.createObjectURL(file), im = new Image();
       im.onerror = () => { URL.revokeObjectURL(url); toast('Não foi possível abrir essa imagem'); resolve(null); };
@@ -23,13 +23,14 @@ const toast = m => alert(m);
         bg.innerHTML = `<div class="cr" role="dialog" aria-modal="true" aria-label="${esc(title)}"><h3>${esc(title)}</h3><div class="cr-ch"></div><div class="cr-view"></div><p class="cr-hint">Arraste para posicionar. Use o controle abaixo para ampliar.</p><input type="range" class="cr-z" min="0" max="100" value="0" aria-label="Zoom"><div class="cr-act"><button type="button" class="btn o" data-x>Cancelar</button><button type="button" class="btn g" data-ok>Usar imagem</button></div></div>`;
         const view = bg.querySelector('.cr-view'), z = bg.querySelector('.cr-z'), hint = bg.querySelector('.cr-hint'), chBox = bg.querySelector('.cr-ch');
         im.draggable = false; view.appendChild(im);
+        if (coverTitle !== null) { const overlay = document.createElement('div'); overlay.className = 'cr-cover-copy'; overlay.innerHTML = `<strong>${esc(coverTitle || 'Título da notícia')}</strong><small>há poucos instantes</small>`; view.appendChild(overlay); view.classList.add('cr-cover-preview'); }
         const clamp = () => { x = Math.min(0, Math.max(W - iw * s, x)); y = Math.min(0, Math.max(H - ih * s, y)); };
         const apply = () => { clamp(); im.style.transform = `translate(${x}px,${y}px) scale(${s})`; };
         const zoomTo = (ns, px, py) => { ns = Math.min(min * 4, Math.max(min, ns)); const cx = (px - x) / s, cy = (py - y) / s; s = ns; x = px - cx * s; y = py - cy * s; z.value = Math.round((s / min - 1) / 3 * 100); apply(); };
         const layout = () => {
-          view.hidden = z.hidden = orig; hint.textContent = orig ? 'A imagem será enviada inteira, sem corte.' : 'Arraste para posicionar. Use o controle abaixo para ampliar.'; if (orig) return;
+          view.hidden = z.hidden = orig; hint.textContent = coverTitle !== null ? 'Arraste e amplie a foto. O texto é só uma prévia e não será gravado na imagem.' : orig ? 'A imagem será enviada inteira, sem corte.' : 'Arraste para posicionar. Use o controle abaixo para ampliar.'; if (orig) return;
           W = Math.min(380, innerWidth - 64); H = W / asp; const mh = innerHeight * .46; if (H > mh){ H = mh; W = H * asp; }
-          view.style.width = W + 'px'; view.style.height = H + 'px'; im.style.width = iw + 'px'; im.style.height = ih + 'px';
+          view.style.setProperty('--cover-title-size', (W * .052) + 'px'); view.style.width = W + 'px'; view.style.height = H + 'px'; im.style.width = iw + 'px'; im.style.height = ih + 'px';
           min = Math.max(W / iw, H / ih); s = min; x = (W - iw * s) / 2; y = (H - ih * s) / 2; z.value = 0; apply();
         };
         if (choices){ choices.forEach(([lb, a]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn o s'; b.textContent = lb;

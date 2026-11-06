@@ -124,18 +124,8 @@
     <button class="nav" data-v="forms"><svg class="icon" aria-hidden="true"><use href="#i-tasks"/></svg>Formulários</button>
     <button class="nav" data-v="profile"><svg class="icon" aria-hidden="true"><use href="#i-team"/></svg>Perfil e redes</button>
         <div class="nav-label">Agência</div>
-    <button class="nav" data-v="ag-inicio"><svg class="icon" aria-hidden="true"><use href="#ag-home"/></svg>Visão geral</button>
-    <button class="nav" data-v="ag-avisos"><svg class="icon" aria-hidden="true"><use href="#ag-mega"/></svg>Avisos</button>
-    <button class="nav" data-v="ag-tarefas"><svg class="icon" aria-hidden="true"><use href="#ag-task"/></svg>Tarefas</button>
-    <button class="nav" data-v="ag-calendario"><svg class="icon" aria-hidden="true"><use href="#ag-cal"/></svg>Calendário</button>
-    <button class="nav" data-v="ag-arquivos"><svg class="icon" aria-hidden="true"><use href="#ag-folder"/></svg>Arquivos</button>
-    <button class="nav" data-v="ag-chat"><svg class="icon" aria-hidden="true"><use href="#ag-chat"/></svg>Conversas<span class="nav-count" data-b="chat" hidden></span></button>
-    <button class="nav" data-v="ag-apuracao"><svg class="icon" aria-hidden="true"><use href="#ag-radar"/></svg>Apuração de transferências</button>
-    <button class="nav" data-v="ag-noticias" hidden><svg class="icon" aria-hidden="true"><use href="#ag-news"/></svg>Notícias da agência</button>
-    <button class="nav" data-v="ag-modelos" hidden><svg class="icon" aria-hidden="true"><use href="#ag-layout"/></svg>Modelos de design</button>
     <button class="nav" data-v="ag-equipe"><svg class="icon" aria-hidden="true"><use href="#ag-team"/></svg>Equipe</button>
     <button class="nav" data-v="ag-pedidos"><svg class="icon" aria-hidden="true"><use href="#ag-inbox"/></svg>Pedidos<span class="nav-count" data-b="req" hidden></span></button>
-    <button class="nav" data-v="ag-atividade"><svg class="icon" aria-hidden="true"><use href="#ag-pulse"/></svg>Atividade</button>
     <div class="nav-label">Links</div>
     <a class="nav" href="/site" target="_blank"><svg class="icon" aria-hidden="true"><use href="#i-out"/></svg>Ver o site</a>
     <a class="nav" href="/" target="_blank"><svg class="icon" aria-hidden="true"><use href="#i-out"/></svg>Ver links da bio</a>
@@ -246,17 +236,17 @@
           <div class="sw"><span>Publicada no site</span><input type="checkbox" id="pub"></div>
           <div class="sw"><span>Destaque na capa</span><input type="checkbox" id="ft"></div>
           <label>Assinatura no site</label><input type="text" id="au" value="Redação Central do FFC"><p class="editor-hint">Este nome aparece no site. Alterá-lo não muda o perfil responsável pela matéria.</p>
-          <div class="cover-editor" id="cover-editor" hidden>
-            <label>Capa da notícia</label>
+          <label>Capa</label><input type="file" id="cover-file" accept="image/*" hidden><button type="button" class="btn o" id="upload-cover" onclick="document.getElementById('cover-file').click()">Selecionar capa</button><p class="editor-hint">Formato vertical 9:10, com prévia do título durante o ajuste.</p><div class="cover-editor" id="cover-editor" hidden>
+            
             <img id="cover-preview" alt="Prévia da capa da notícia">
-            <button type="button" class="btn o" id="edit-cover" onclick="editCover()">Ajustar capa</button>
+            <button type="button" class="btn o" id="edit-cover" onclick="editCover()">Ajustar capa</button><button type="button" class="btn o" id="remove-cover" onclick="removeCover()">Remover capa</button>
             <p class="editor-hint">Reposicione, amplie ou recorte a foto. Depois salve a notícia.</p>
           </div>
-          <label>Imagens</label>
+          <label>Imagens no texto</label>
           <input type="file" id="file" accept="image/*" multiple hidden>
           <button class="btn o" style="width:100%" onclick="file.click()">Enviar imagens</button>
           <div class="gal" id="gal"></div>
-          <p style="font-size:12px;color:var(--faint)">“Capa” define a imagem principal. “No texto” coloca a imagem onde o cursor estiver.</p>
+          <p style="font-size:12px;color:var(--faint)">“No texto” coloca a imagem onde o cursor estiver. A capa é selecionada separadamente.</p>
         </div></div>
       </div>
     </section>
@@ -267,6 +257,7 @@
 <script src="config.js"></script>
 <script src="assets/article-format.js"></script>
 <script src="assets/image-editor.js"></script>
+<script src="assets/article-crop.js"></script>
 <script src="assets/gerenciar.js"></script>
 <script src="assets/editor-toolbar.js"></script>
 <script src="assets/formularios.js"></script>
@@ -369,7 +360,6 @@
   if (arts.length) draw();
 })();
 </script>
-<script src="assets/article-crop.js"></script>
 <script src="assets/draft-editor.js"></script>
 <script src="assets/agencia.js"></script>
 <script>

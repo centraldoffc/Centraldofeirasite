@@ -149,7 +149,7 @@
     const title = $('t').value.trim(); if (!title) return toast('Escreva um título');
     const content = FFCImageEditor.content();
     const p = { title, summary: FFCArticle.summary(content, title), content, author: $('au').value.trim() || 'Redação Central do FFC',
-      images: imgs, image_url: cover || imgs[0] || null, featured: $('ft').checked, published: publish ? true : $('pub').checked,
+      images: imgs, image_url: cover || null, featured: $('ft').checked, published: publish ? true : $('pub').checked,
       updated_at: new Date().toISOString() };
     if (cur && !cur.published && p.published) p.created_at = p.updated_at;
     const q = cur ? sb.from('articles').update(p).eq('id', cur.id) : sb.from('articles').insert({ ...p, slug: slug(title) });
@@ -173,15 +173,15 @@
   let coverBusy = false, coverEditorVersion = 0;
   /* imagens */
   function gal(){
-    const currentCover = cover || imgs[0] || '';
+    const currentCover = cover || '';
     $('cover-editor').hidden = !currentCover;
     if (currentCover) $('cover-preview').src = currentCover;
     else $('cover-preview').removeAttribute('src');
-    $('edit-cover').disabled = coverBusy;
-    $('gal').innerHTML = imgs.map((u, i) => `<div class="gi ${u === cover ? 'cv' : ''}"><img src="${esc(u)}" alt=""><div><button onclick="setCover(${i})">${u === cover ? '✓ Capa' : 'Capa'}</button><button onclick="inText(${i})">No texto</button><button onclick="rmImg(${i})">✕</button></div></div>`).join('');
+    $('edit-cover').disabled = coverBusy; $('upload-cover').disabled = coverBusy; $('remove-cover').disabled = coverBusy;
+    $('gal').innerHTML = imgs.map((u, i) => `<div class="gi ${u === cover ? 'cv' : ''}"><img src="${esc(u)}" alt=""><div><button onclick="inText(${i})">No texto</button><button onclick="rmImg(${i})">✕</button></div></div>`).join('');
   }
   async function editCover(){
-    const source = cover || imgs[0];
+    const source = cover;
     if (!source || coverBusy) return;
     const version = coverEditorVersion;
     coverBusy = true; gal();
@@ -190,88 +190,35 @@
       if (!response.ok) throw new Error('Não foi possível carregar a capa.');
       const file = await response.blob();
       if (version !== coverEditorVersion) return;
-      const blob = await cropImage(file, {aspect:16/9, max:1600, title:'Ajustar capa', choices:[['16:9',16/9],['4:3',4/3],['Quadrada',1],['Original',0]]});
+      const blob = await cropImage(file, {aspect:9/10, max:1600, title:'Ajustar capa', coverTitle:$('t').value});
       if (!blob || version !== coverEditorVersion) return;
       const path = `news/cover-${crypto.randomUUID()}.jpg`;
       const { error } = await sb.storage.from('images').upload(path, blob, {contentType:'image/jpeg'});
       if (error) throw error;
       if (version !== coverEditorVersion) return;
       cover = sb.storage.from('images').getPublicUrl(path).data.publicUrl;
-      imgs.push(cover);
+
       toast('Capa ajustada. Salve a notícia para aplicar.');
     } catch (error) { toast(upErr(error)); }
     finally { coverBusy = false; gal(); }
   }
-  const setCover = i => { cover = imgs[i]; gal(); };
-  const rmImg = i => { if (cover === imgs[i]) cover = ''; imgs.splice(i, 1); gal(); };
+  function removeCover(){ if(coverBusy)return;cover='';gal(); }
+  async function uploadCover(file){
+    if(!file || coverBusy)return;const version=coverEditorVersion;coverBusy=true;gal();
+    try { const blob=await cropImage(file,{aspect:9/10,max:1600,title:'Selecionar capa',coverTitle:$('t').value});
+      if(!blob || version!==coverEditorVersion)return;
+      const path=`news/cover-${crypto.randomUUID()}.jpg`;const {error}=await sb.storage.from('images').upload(path,blob,{contentType:'image/jpeg'});if(error)throw error;
+      if(version===coverEditorVersion){cover=sb.storage.from('images').getPublicUrl(path).data.publicUrl;toast('Capa selecionada. Salve a notícia para aplicar.');}
+    }catch(error){toast(upErr(error));}finally{coverBusy=false;gal();$('cover-file').value='';}
+  }
+  $('cover-file').onchange=e=>uploadCover(e.target.files[0]);
+  const rmImg = i => { imgs.splice(i, 1); gal(); };
   function inText(i){
     const b = $('body'); b.focus();
     if (range && b.contains(range.commonAncestorContainer)){ const s = getSelection(); s.removeAllRanges(); s.addRange(range); } else { const r = document.createRange(); r.selectNodeContents(b); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
     document.execCommand('insertHTML', false, `<img src="${esc(imgs[i])}" alt=""><p><br></p>`);
   }
-  /* ===== recorte de imagem ===== */
-  (() => { const st = document.createElement('style'); st.textContent = `
-  .cr-bg{position:fixed;inset:0;background:#0c1a12d9;z-index:1000;display:grid;place-items:center;padding:12px}
-  .cr{background:#fff;border-radius:24px;padding:18px;width:min(100%,440px);max-height:100%;overflow:auto;display:grid;gap:12px}
-  .cr h3{margin:0;font-size:17px}.cr-ch{display:flex;gap:8px;flex-wrap:wrap}.cr-ch .btn{min-height:34px;padding:6px 14px}
-  .cr-view{position:relative;overflow:hidden;background:#17221b;border-radius:14px;touch-action:none;cursor:grab;margin:0 auto;user-select:none;-webkit-user-select:none}
-  .cr-view:active{cursor:grabbing}
-  .cr-view img{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;pointer-events:none;user-select:none}
-  .cr-view:after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:14px;box-shadow:inset 0 0 0 2px #fffc;background:linear-gradient(90deg,transparent 33.2%,#fff5 33.3%,#fff5 33.5%,transparent 33.6%,transparent 66.4%,#fff5 66.5%,#fff5 66.7%,transparent 66.8%),linear-gradient(transparent 33.2%,#fff5 33.3%,#fff5 33.5%,transparent 33.6%,transparent 66.4%,#fff5 66.5%,#fff5 66.7%,transparent 66.8%)}
-  .cr-hint{margin:0;font-size:12px;color:var(--dim);text-align:center}.cr input[type=range]{width:100%;accent-color:var(--acc)}
-  .cr-act{display:flex;gap:10px}.cr-act .btn{flex:1}`; document.head.appendChild(st); })();
-  function cropImage(file, o = {}){
-    const { aspect = 1, choices = null, max = 1600, title = 'Recortar imagem' } = o;
-    return new Promise(resolve => {
-      const url = URL.createObjectURL(file), im = new Image();
-      im.onerror = () => { URL.revokeObjectURL(url); toast('Não foi possível abrir essa imagem'); resolve(null); };
-      im.onload = () => {
-        const iw = im.naturalWidth, ih = im.naturalHeight; let asp = aspect, W = 0, H = 0, s = 1, min = 1, x = 0, y = 0, orig = asp === 0;
-        const bg = document.createElement('div'); bg.className = 'cr-bg';
-        bg.innerHTML = `<div class="cr" role="dialog" aria-modal="true" aria-label="${esc(title)}"><h3>${esc(title)}</h3><div class="cr-ch"></div><div class="cr-view"></div><p class="cr-hint">Arraste para posicionar. Use o controle abaixo para ampliar.</p><input type="range" class="cr-z" min="0" max="100" value="0" aria-label="Zoom"><div class="cr-act"><button type="button" class="btn o" data-x>Cancelar</button><button type="button" class="btn g" data-ok>Usar imagem</button></div></div>`;
-        const view = bg.querySelector('.cr-view'), z = bg.querySelector('.cr-z'), hint = bg.querySelector('.cr-hint'), chBox = bg.querySelector('.cr-ch');
-        im.draggable = false; view.appendChild(im);
-        const clamp = () => { x = Math.min(0, Math.max(W - iw * s, x)); y = Math.min(0, Math.max(H - ih * s, y)); };
-        const apply = () => { clamp(); im.style.transform = `translate(${x}px,${y}px) scale(${s})`; };
-        const zoomTo = (ns, px, py) => { ns = Math.min(min * 4, Math.max(min, ns)); const cx = (px - x) / s, cy = (py - y) / s; s = ns; x = px - cx * s; y = py - cy * s; z.value = Math.round((s / min - 1) / 3 * 100); apply(); };
-        const layout = () => {
-          view.hidden = z.hidden = orig; hint.textContent = orig ? 'A imagem será enviada inteira, sem corte.' : 'Arraste para posicionar. Use o controle abaixo para ampliar.'; if (orig) return;
-          W = Math.min(380, innerWidth - 64); H = W / asp; const mh = innerHeight * .46; if (H > mh){ H = mh; W = H * asp; }
-          view.style.width = W + 'px'; view.style.height = H + 'px'; im.style.width = iw + 'px'; im.style.height = ih + 'px';
-          min = Math.max(W / iw, H / ih); s = min; x = (W - iw * s) / 2; y = (H - ih * s) / 2; z.value = 0; apply();
-        };
-        if (choices){ choices.forEach(([lb, a]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn o s'; b.textContent = lb;
-          const mark = () => b.setAttribute('aria-pressed', String(a === 0 ? orig : !orig && Math.abs(a - asp) < .001)); b.dataset.a = a;
-          b.onclick = () => { orig = a === 0; if (!orig) asp = a; layout(); chBox.querySelectorAll('button').forEach(k => k.setAttribute('aria-pressed', String(+k.dataset.a === 0 ? orig : !orig && Math.abs(+k.dataset.a - asp) < .001))); }; mark(); chBox.appendChild(b); }); } else chBox.hidden = true;
-        /* arrastar e pinçar */
-        const ptr = new Map(); let d0 = 0;
-        view.onpointerdown = e => { view.setPointerCapture(e.pointerId); ptr.set(e.pointerId, [e.clientX, e.clientY]); d0 = 0; };
-        view.onpointermove = e => { if (!ptr.has(e.pointerId)) return; const p = ptr.get(e.pointerId), nx = [e.clientX, e.clientY];
-          if (ptr.size === 1){ x += nx[0] - p[0]; y += nx[1] - p[1]; apply(); ptr.set(e.pointerId, nx); }
-          else { ptr.set(e.pointerId, nx); const [a, b] = [...ptr.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (d0) { const r = view.getBoundingClientRect(); zoomTo(s * d / d0, (a[0] + b[0]) / 2 - r.left, (a[1] + b[1]) / 2 - r.top); } d0 = d; } };
-        view.onpointerup = view.onpointercancel = e => { ptr.delete(e.pointerId); d0 = 0; };
-        view.onwheel = e => { e.preventDefault(); const r = view.getBoundingClientRect(); zoomTo(s * (e.deltaY < 0 ? 1.1 : .9), e.clientX - r.left, e.clientY - r.top); };
-        z.oninput = () => zoomTo(min * (1 + z.value / 100 * 3), W / 2, H / 2);
-        const done = v => { document.removeEventListener('keydown', key); bg.remove(); URL.revokeObjectURL(url); resolve(v); };
-        const key = e => { if (e.key === 'Escape') done(null); };
-        document.addEventListener('keydown', key);
-        bg.querySelector('[data-x]').onclick = () => done(null);
-        bg.querySelector('[data-ok]').onclick = async () => {
-          if (orig){ try { return done(await compress(file, max)); } catch { toast('Não foi possível processar a imagem'); return done(null); } }
-          const sx = -x / s, sy = -y / s, sw = W / s, sh = H / s; let ow, oh;
-          if (asp >= 1){ ow = Math.min(max, Math.round(sw)); oh = Math.round(ow / asp); } else { oh = Math.min(max, Math.round(sh)); ow = Math.round(oh * asp); }
-          const c = document.createElement('canvas'); c.width = Math.max(1, ow); c.height = Math.max(1, oh); const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
-          g.drawImage(im, sx, sy, sw, sh, 0, 0, c.width, c.height); c.toBlob(b => { b ? done(b) : (toast('Não foi possível processar a imagem'), done(null)); }, 'image/jpeg', .88);
-        };
-        document.body.appendChild(bg); layout(); bg.querySelector('[data-ok]').focus();
-      };
-      im.src = url;
-    });
-  }
-  function compress(f, max){ return new Promise((res, rej) => { const im = new Image(), u = URL.createObjectURL(f);
-    im.onload = () => { const k = Math.min(1, (max || 1600) / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = im.width * k; c.height = im.height * k;
-      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u); c.toBlob(b => b ? res(b) : rej(), 'image/jpeg', .85); };
-    im.onerror = rej; im.src = u; }); }
+  const cropImage = (...args) => FFCCrop.cropImage(...args);
   $('file').onchange = async e => {
     const fs = [...e.target.files]; if (!fs.length) return; toast('Enviando ' + fs.length + ' imagem(ns)…');
     for (const [i, f] of fs.entries()){
@@ -282,7 +229,7 @@
         if (error) throw error; imgs.push(sb.storage.from('images').getPublicUrl(path).data.publicUrl);
       } catch (err) { toast(upErr(err)); }
     }
-    if (!cover && imgs.length) cover = imgs[0]; gal(); e.target.value = '';
+    gal(); e.target.value = '';
   };
 
 function setMenu(open){
