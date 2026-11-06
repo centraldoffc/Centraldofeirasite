@@ -186,6 +186,7 @@
     let a = null;
     try { const r = await fetch('/api/noticias?id=' + encodeURIComponent(id)); if (r.ok) a = await r.json(); } catch {}
     if (!a){ location.hash = '#/'; return; }
+    if (a.slug) { location.replace('/noticia/' + encodeURIComponent(a.slug)); return; }
     const paras = (a.content || '').split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
     $('article').innerHTML = `<article class="art">
       <a class="news-back" href="#/">← Todas as notícias</a>

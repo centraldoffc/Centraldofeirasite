@@ -2,11 +2,11 @@
 const { summary, hasInlineImage } = require('../assets/article-format');
 const { q, esc, origin, clean } = require('./_lib');
 
-const page = (title, body, head = '') => `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+const page = (title, body, head = '') => `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>${esc(title)}</title>${head}<link rel="icon" href="/mark.png">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/fonts.css"><link rel="stylesheet" href="/assets/leitura.css"><script defer src="/assets/leitura.js"></script>
-</head><body data-reading="true" class="reading-page"><main class="w"><a class="article-brand" href="/site"><img src="/mark.png" alt="" width="32" height="32"><span>Central do FFC</span></a>${body}</main></body></html>`;
+</head><body data-reading="true" class="reading-page article-reader"><main class="w"><header class="reader-header"><a class="reader-icon" href="/site" aria-label="Voltar às notícias"><img src="/assets/reader-icons/arrow-left.svg" alt=""></a><a class="reader-brand" href="/site"><img src="/mark.png" alt="" width="28" height="28"><span>CENTRAL DO FFC<small>Notícias do Feira FC</small></span></a><button type="button" class="reader-icon" data-reading-action="share" aria-label="Compartilhar matéria"><img src="/assets/reader-icons/share-2.svg" alt=""></button></header>${body}</main></body></html>`;
 
 module.exports = async (req, res) => {
   const o = origin(req), slug = String(req.query.slug || '');
@@ -25,11 +25,21 @@ ${a.image_url ? `<meta property="og:image" content="${esc(a.image_url)}"><meta n
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
     const text = /<[a-z][\s\S]*>/i.test(a.content || '') ? clean(a.content) : String(a.content || '').split(/\n{2,}/).filter(Boolean).map(p => `<p>${esc(p)}</p>`).join('');
     const minutes = Math.max(1, Math.ceil(text.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).length / 200));
-    const body = `<article class="news-article"><a class="news-back" href="/site">← Todas as notícias</a>
-<div class="reading-tools" role="group" aria-label="Preferências de leitura"><button type="button" data-reading-action="size" aria-label="Aumentar texto. Tamanho padrão">Texto padrão</button><button type="button" data-reading-action="theme" aria-pressed="false">Leitura escura</button><span class="reading-status" role="status" aria-live="polite"></span></div>
+    const date = new Date(a.created_at).toLocaleDateString('pt-BR', { day:'2-digit',month:'long',year:'numeric',timeZone:'America/Bahia' });
+    const hero = a.image_url && !hasInlineImage(text, a.image_url);
+    const body = `<article class="news-article">
+${hero ? `<figure class="reader-hero"><img src="${esc(a.image_url)}" alt="${esc(a.title)}" fetchpriority="high"></figure>` : ''}
+<div class="reader-heading"><div class="reader-kicker"><span>${esc(a.category || 'Feira FC')}</span><span>${minutes} min de leitura</span></div>
 <h1>${esc(a.title)}</h1>${desc ? `<p class="lead">${esc(desc)}</p>` : ''}
-<div class="news-meta"><time datetime="${esc(a.created_at)}">${new Date(a.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'America/Bahia' })}</time><span>${esc(a.author || 'Redação Central do FFC')}</span><span>${minutes} min de leitura</span></div>
-${a.image_url && !hasInlineImage(text, a.image_url) ? `<img class="cover" src="${esc(a.image_url)}" alt="${esc(a.title)}">` : ''}<div class="t news-content">${text}</div></article><a class="news-back news-bottom" href="/site">← Voltar às notícias</a>`;
+<div class="reader-byline"><img src="/mark.png" alt="" width="42" height="42"><div><span>Por <strong>${esc(a.author || 'Redação Central do FFC')}</strong></span><time datetime="${esc(a.created_at)}">${date}</time></div></div></div>
+<div class="t news-content">${text}</div>
+<footer class="reader-end"><span>Você leu na Central do FFC</span><a href="/site">Veja mais notícias do Feira FC</a></footer></article>
+<nav class="reader-dock" aria-label="Ações da matéria">
+<button type="button" data-reading-action="save" aria-pressed="false" aria-label="Salvar matéria neste aparelho"><img src="/assets/reader-icons/bookmark.svg" alt=""><span class="action-label">Salvar</span></button>
+<button type="button" data-reading-action="share"><img src="/assets/reader-icons/share-2.svg" alt=""><span class="action-label">Compartilhar</span></button>
+<button type="button" data-reading-action="size" aria-label="Aumentar tamanho do texto"><img src="/assets/reader-icons/type.svg" alt=""><span class="action-label">Texto</span></button>
+<button type="button" data-reading-action="theme" aria-pressed="false"><img src="/assets/reader-icons/moon.svg" alt=""><span class="action-label">Escuro</span></button>
+</nav><p class="reading-status reader-announcement" role="status" aria-live="polite"></p>`;
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
     res.status(200).send(page(`${a.title} — Central do FFC`, body, head));
   } catch (e) {
