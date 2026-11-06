@@ -113,9 +113,9 @@ $('#fLock').onsubmit = async e => {
   e.preventDefault(); $('#lkerr').textContent = '';
   const { error } = await sb.auth.signInWithPassword({ email: sessionEmail, password: $('#lkpw').value });
   if (error) { $('#lkerr').textContent = 'Senha incorreta.'; return; }
-  $('#lkpw').value = ''; locked = false; lastAct = Date.now(); gate('app'); AG.log('desbloqueou o painel');
+  $('#lkpw').value = ''; locked = false; recordActivity(); gate('app'); AG.log('desbloqueou o painel');
 };
-async function logout() { ready = false; locked = false; AG.destroy(); await sb.auth.signOut(); }
+async function logout() { saveIdle(true); ready = false; locked = false; AG.destroy(); await sb.auth.signOut(); }
 
 sb.auth.onAuthStateChange((ev, s) => {
   if (!s) { ready = false; gate('login'); return; }
@@ -139,7 +139,13 @@ async function boot(fresh) {
     onDenied: async () => { await sb.auth.signOut(); gate('login'); $('#lerr').textContent = 'Esta conta não tem acesso à agência.'; }
   });
   booting = false; if (!ok) return;
-  ready = true; lastAct = Date.now(); gate('app'); drawMe();
+  ready = true;
+  const saved = readIdle();
+  lastAct = fresh ? Date.now() : Number(saved?.at || 0);
+  if (fresh) { locked = false; recordActivity(); }
+  if (!fresh && (saved?.locked || Date.now() - lastAct >= IDLE)) lock(true);
+  else gate('app');
+  drawMe();
   $('#navAct').hidden = !AG.isLeader();
   ['noticias', 'modelos'].forEach(v => { const n = document.querySelector(`aside .nav[data-v="${v}"]`); if (n) n.hidden = !AG.can(v); });
   sb.rpc('is_admin').then(r => { $('#navAdm').hidden = r.data !== true; });
@@ -152,21 +158,32 @@ async function boot(fresh) {
 }
 function drawMe() { const m = AG.me; if (!m) return; $('#meAv').innerHTML = AG.av(m, 40); $('#meName').textContent = AG.first(m.name); $('#meRole').textContent = m.role_title; $('#sbAv').innerHTML = AG.av(m, 42); $('#sbName').textContent = AG.first(m.name); $('#sbRole').textContent = m.role_title; }
 
-/* bloqueio por inatividade */
+/* A atividade é persistida para que atualizar/reabrir não reinicie os cinco minutos. */
+function idleKey() { return 'ffc:agency:idle:' + sessionEmail; }
+function readIdle() { try { return JSON.parse(localStorage.getItem(idleKey())); } catch { return null; } }
+function saveIdle(isLocked = locked) {
+  try { localStorage.setItem(idleKey(), JSON.stringify({ at: lastAct, locked: isLocked })); } catch {}
+}
+function recordActivity() { lastAct = Date.now(); saveIdle(false); }
 function checkIdle() {
-  if (ready && !locked && Date.now() - lastAct >= IDLE) { lock(true); return true; }
+  if (!ready || locked) return false;
+  const saved = readIdle();
+  if (saved?.locked || Date.now() - lastAct >= IDLE) { lock(true); return true; }
   return false;
 }
-['pointerdown', 'pointermove', 'keydown', 'touchstart', 'scroll'].forEach(ev => addEventListener(ev, e => {
+// Somente ações intencionais: movimento do mouse e rolagem automática não renovam o prazo.
+['pointerdown', 'keydown', 'touchstart', 'touchmove', 'wheel', 'click'].forEach(ev => addEventListener(ev, e => {
+  if (!e.isTrusted) return;
   if (checkIdle()) { if (e.cancelable) e.preventDefault(); e.stopImmediatePropagation(); return; }
-  if (!locked && ready) lastAct = Date.now();
+  if (!locked && ready && !document.hidden) recordActivity();
 }, { capture: true, passive: false }));
 setInterval(checkIdle, 1000);
 document.addEventListener('visibilitychange', checkIdle);
 addEventListener('pageshow', checkIdle);
 addEventListener('focus', checkIdle);
+addEventListener('storage', e => { if (e.key === idleKey()) checkIdle(); });
 function lock(auto) {
-  const m = AG.me; if (!m) return; locked = true; setMenu(false); AG.closeModal();
+  const m = AG.me; if (!m) return; locked = true; saveIdle(true); setMenu(false); AG.closeModal();
   $('#lkAv').innerHTML = AG.av(m, 84); $('#lkName').textContent = AG.first(m.name); gate('lock');
   AG.log(auto ? 'teve o painel bloqueado por inatividade' : 'bloqueou o painel');
 }
