@@ -1234,9 +1234,11 @@
         return data;
       };
       const load = async () => {
-        dialog.innerHTML = '<p>Verificando seu acesso…</p>';
+        dialog.classList.add('ag-access-loading');
+        dialog.innerHTML = '<div class="ag-access-status" role="status" aria-live="polite"><div class="ag-access-logo"><img src="/mark.png" alt="Central do FFC" width="88" height="88"></div><span class="ag-access-label">CENTRAL DO FFC</span><h2>Preparando seu painel</h2><p>Estamos verificando seu acesso.<br>Só um instante.</p><span class="ag-access-spinner" aria-hidden="true"></span></div>';
         try {
           const status = await request({ action: 'onboarding_status' });
+          dialog.classList.remove('ag-access-loading');
           if (!status.required) return finish(true);
           const m = status.member;
           dialog.innerHTML = `<h2>Bem-vindo à equipe</h2><p>Sua senha é provisória. Crie sua senha pessoal e complete seu perfil para entrar.</p><form>
@@ -1263,6 +1265,7 @@
             } catch (err) { error.textContent = err.message; buttons.forEach(b => b.disabled = false); }
           };
         } catch (err) {
+          dialog.classList.remove('ag-access-loading');
           dialog.innerHTML = `<h2>Verificar acesso</h2><p role="alert">${esc(err.message)}</p><div class="ag-btns"><button class="btn o on-exit">Sair</button><button class="btn g on-retry">Tentar novamente</button></div>`;
           dialog.querySelector('.on-retry').onclick = load;
         }
