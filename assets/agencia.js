@@ -655,7 +655,7 @@
   function draftCard(d) {
     const a = mem(d.author_id), st = DST[d.status] || DST.rascunho, own = d.author_id === me.id, lead = isLeader(), src = safeUrl(d.source_url);
     const ex = plain(d.body).slice(0, 170);
-    return `<article class="panel ag-draft"><div class="ag-nh"><span class="badge ${st[1]}">${st[0]}</span><span class="ag-meta">${a ? esc(a.name) + ' · ' : ''}${when(d.updated_at)}</span></div>
+    return `<article class="panel ag-draft"><div class="ag-nh"><span class="ag-meta">${a ? esc(a.name) + ' · ' : ''}${when(d.updated_at)}</span></div>
       <h4>${esc(d.title)}</h4>${ex ? `<p class="ag-p">${esc(ex)}${plain(d.body).length > 170 ? '…' : ''}</p>` : ''}
       ${src ? `<a class="ag-src" href="${esc(src)}" target="_blank" rel="noopener noreferrer">${I('link', 14)}${esc(hostOf(src))}</a>` : ''}
       ${d.status === 'devolvido' && d.feedback ? `<div class="ag-banner">${I('reply')}<span><b>Ajustes pedidos:</b> ${esc(d.feedback)}</span></div>` : ''}
@@ -696,7 +696,7 @@
   }
   function viewDraft(id) {
     const d = S.drafts.find(x => x.id === id); if (!d) return; const a = mem(d.author_id), st = DST[d.status] || DST.rascunho, src = safeUrl(d.source_url);
-    modal(d.title, `<div class="ag-tm"><span class="badge ${st[1]}">${st[0]}</span><span class="ag-meta">${a ? esc(a.name) + ' · ' : ''}${when(d.updated_at)}</span></div>
+    modal(d.title, `<div class="ag-tm"><span class="ag-meta">${a ? esc(a.name) + ' · ' : ''}${when(d.updated_at)}</span></div>
       <div class="ag-rich-text ag-draft-preview">${FFCDraftEditor.html(d.body) || '—'}</div>${src ? `<a class="ag-src" href="${esc(src)}" target="_blank" rel="noopener noreferrer">${I('link', 14)}${esc(src)}</a>` : ''}
       <div class="ag-btns l"><button class="btn o s" data-ag="copy" data-t="${esc(d.title + '\n\n' + plain(d.body))}">${I('copy', 14)}Copiar texto</button></div>`, 'wide');
   }
@@ -750,7 +750,6 @@
 
 
   /* =====================================================  APURAÇÃO DE TRANSFERÊNCIAS  */
-  const APST = { monitorado: ['Monitorado', ''], sondagem: ['Sondagem', 'f'], negociacao: ['Negociação', 'd'], avancado: ['Avançado', 'd'], confirmado: ['Confirmado', ''], descartado: ['Descartado', 'u'] };
   const CK = { instagram: 'Instagram', voo: 'Voo público', mercado: 'Mercado', noticia: 'Notícia', empresario: 'Empresário', outro: 'Outro' };
   const SRC = { oficial: ['Oficial (clube, federação, atleta)', 1], imprensa: ['Imprensa identificada', .7], fonte_proxima: ['Fonte próxima', .6], rede_social: ['Rede social pública', .4], observacao: ['Observação própria', .3] };
   const fdate = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
@@ -803,9 +802,9 @@
     box.innerHTML = bar + ({ painel: apPainel, historico: apHist, voos: apFlights, instagram: apInsta, mercado: apMercado, noticias: apNews, empresarios: apAgents }[A.tab] || apPainel)();
   }
   function tgCard(t) {
-    const a = analyze(t), st = APST[t.status], ag = agOf(t.agent_id), dl = daysTo(t.contract_until);
+    const a = analyze(t);
     const last = S.cl.find(c => c.target_id === t.id);
-    return `<article class="ag-tgc"><div class="ag-nh"><span class="badge ${st[1]}">${st[0]}</span>${t.free_agent ? '<span class="badge f">Livre</span>' : ''}<span class="ag-meta" style="margin-left:auto">${a.n} pista${a.n === 1 ? '' : 's'}</span></div>
+    return `<article class="ag-tgc"><div class="ag-nh">${t.free_agent ? '<span class="badge f">Livre</span>' : ''}<span class="ag-meta" style="margin-left:auto">${a.n} pista${a.n === 1 ? '' : 's'}</span></div>
       <button class="ag-player-title" data-ag="open-tg" data-id="${t.id}">${esc(t.name)}</button><small>${esc([t.position, t.club].filter(Boolean).join(' · ') || 'Sem clube informado')}</small>
       <p class="ag-latest">${last ? esc(last.text.slice(0, 150)) : 'Nenhuma pista registrada. Adicione a primeira informação.'}</p>
       <small>${last ? 'Última pista: ' + fdate(last.happened_at) : 'Abra a ficha para consultar os dados do atleta.'}</small>
@@ -813,10 +812,10 @@
   }
 
   function apPainel() {
-    const A = S.ap, q = norm(A.q), cnt = k => S.tg.filter(t => !k || t.status === k).length;
-    const l = S.tg.filter(t => (!A.st || t.status === A.st) && (!q || norm(t.name + ' ' + t.club + ' ' + t.position).includes(q)));
+    const A = S.ap, q = norm(A.q);
+    const l = S.tg.filter(t => (!q || norm(t.name + ' ' + t.club + ' ' + t.position).includes(q)));
     return `<div class="panel ag-filters"><div class="ag-search">${I('search')}<input type="search" id="ag-apq" placeholder="Buscar atleta, clube ou posição…" value="${esc(A.q)}" aria-label="Buscar atleta"></div>
-      <label class="ag-status-filter">Status<select id="ag-ap-status">${optsOf([['', 'Todos (' + cnt('') + ')'], ...Object.keys(APST).map(k => [k, APST[k][0] + ' (' + cnt(k) + ')'])], A.st)}</select></label></div>
+</div>
 
     <div id="ag-aplist">${apList(l)}</div>`;
   }
@@ -849,7 +848,7 @@
   }
   function apMercado() {
     const A = S.ap, r = t => daysTo(t.contract_until);
-    let l = S.tg.filter(t => t.status !== 'descartado' && t.status !== 'confirmado');
+    let l = [...S.tg];
     if (A.mk === 'livres') l = l.filter(t => t.free_agent); else if (A.mk === 'vencendo') l = l.filter(t => !t.free_agent && r(t) !== null && r(t) <= 180);
     l.sort((x, y) => (r(x) ?? 9999) - (r(y) ?? 9999));
     const chip = (k, lab) => `<button class="btn o s" data-ag="ap-mk" data-v="${k}" aria-pressed="${A.mk === k}">${lab}</button>`;
@@ -879,25 +878,17 @@
   /* ficha do atleta */
   function openTg(id) {
     const t = tgOf(id); if (!t) return; const a = analyze(t), ag = agOf(t.agent_id), cl = S.cl.filter(c => c.target_id === id), igu = igUrl(t.instagram), dl = daysTo(t.contract_until);
-    modal(t.name, `<div class="ag-tm"><span class="badge ${APST[t.status][1]}">${APST[t.status][0]}</span>${t.free_agent ? '<span class="badge f">Livre</span>' : ''}<span class="ag-meta">${esc([t.position, t.club].filter(Boolean).join(' · '))}</span></div>
-      <label>Status da apuração</label><div class="ag-chips">${Object.keys(APST).map(k => `<button class="btn o s" data-ag="set-st" data-id="${id}" data-v="${k}" aria-pressed="${t.status === k}">${APST[k][0]}</button>`).join('')}</div>
+    modal(t.name, `<div class="ag-tm">${t.free_agent ? '<span class="badge f">Livre</span>' : ''}<span class="ag-meta">${esc([t.position, t.club].filter(Boolean).join(' · '))}</span></div>
       <div class="ag-an"><div class="ag-nh"><b>Cruzamento de indícios</b><span class="badge ${a.sc < .35 ? 'u' : a.sc < .65 ? 'd' : ''}" style="margin-left:auto">Confiabilidade ${a.label} · ${Math.round(a.sc * 100)}%</span></div>${meter(a)}
-        <ul>${a.why.map(w => `<li>${esc(w)}</li>`).join('')}</ul><small class="ag-meta">Isto mede o peso dos indícios, não confirma nada. “Confirmado” exige fonte oficial.</small></div>
+        <ul>${a.why.map(w => `<li>${esc(w)}</li>`).join('')}</ul><small class="ag-meta">Isto organiza os indícios registrados; não confirma negociações ou contratações.</small></div>
       <div class="ag-info">${t.contract_until ? `<div><span>Contrato até</span><b>${fdate(t.contract_until)}${dl !== null ? ` (${dl < 0 ? 'vencido' : dl + ' dias'})` : ''}</b></div>` : ''}${ag ? `<div><span>Empresário</span><b>${esc(ag.name)}</b></div>` : ''}${igu ? `<div><span>Instagram</span><b><a class="ag-src" href="${igu}" target="_blank" rel="noopener noreferrer">@${esc(igName(t.instagram))}</a></b></div>` : ''}</div>
       ${playerSearchLinks(t)}
-      ${t.notes ? `<p class="ag-p pre">${esc(t.notes)}</p>` : ''}
+      ${t.notes && !/^Ficha importada de /i.test(t.notes) ? `<p class="ag-p pre">${esc(t.notes)}</p>` : ''}
       <div class="panel-header" style="margin-top:14px"><h3>Pistas (${cl.length})</h3><button class="btn s" data-ag="new-clue" data-id="${id}">${I('plus', 14)}Nova pista</button></div>
       <div class="ag-stack">${cl.length ? cl.map(c => clueRow(c, true)).join('') : empty('Sem pistas ainda.')}</div>
       <div class="ag-btns"><button class="btn o" data-ag="edit-tg" data-id="${id}">Editar</button>${t.created_by === me.id || isLeader() ? `<button class="btn r" data-ag="ask-del-tg" data-id="${id}">Excluir</button>` : ''}</div>`, 'wide');
   }
-  async function setSt(id, k) {
-    const t = tgOf(id); if (!t || t.status === k) return;
-    if (k === 'confirmado' && !analyze(t).hasOff) return toast('Para confirmar, registre antes uma pista com fonte oficial a favor');
-    const r = await sb.from('agency_targets').update({ status: k, updated_at: new Date().toISOString() }).eq('id', id); if (r.error) return toast('Não foi possível mudar o status');
-    log('mudou o status de ' + t.name + ' para ' + APST[k][0], '', 'apuracao');
-    if (['avancado', 'confirmado'].includes(k)) await notify(leaderIds().filter(x => x !== me.id), `${t.name} agora está como “${APST[k][0]}” na apuração`, 'apuracao');
-    toast('Status atualizado'); await go('apuracao'); openTg(id);
-  }
+
   function tgForm(id) {
     S.playerLookup = null; S.playerRequest = null;
     const t = id ? tgOf(id) : { name: '', position: '', club: '', contract_until: '', free_agent: false, instagram: '', agent_id: '', status: 'monitorado', notes: '' };
@@ -906,7 +897,6 @@
       <div class="ag-two"><div><label for="td">Contrato até</label><input type="date" id="td" value="${esc(t.contract_until || '')}"></div><div><label for="ti">Instagram (público)</label><input type="text" id="ti" maxlength="40" value="${esc(t.instagram)}" placeholder="@perfil"></div></div>
       <label class="ag-chk"><input type="checkbox" id="tf" ${t.free_agent ? 'checked' : ''}>Atleta livre no mercado</label>
       <label for="ta">Empresário</label><select id="ta"><option value="">Nenhum</option>${S.agn.map(a => `<option value="${a.id}" ${t.agent_id === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select>
-      ${id ? '' : `<label for="ts">Status inicial</label><select id="ts">${optsOf(Object.keys(APST).filter(k => k !== 'confirmado').map(k => [k, APST[k][0]]), 'monitorado')}</select>`}
       <label for="tt">Observações</label><textarea id="tt" rows="3" maxlength="2000">${esc(t.notes)}</textarea>
       <div class="ag-btns"><button class="btn o" data-ag="close">Cancelar</button><button class="btn g" data-ag="save-tg" data-id="${id || ''}">Salvar</button></div></div>`, 'wide');
   }
@@ -937,7 +927,6 @@
       const player = (data.items || []).find(x => x.id === p.id); if (!player) throw new Error('Ficha não encontrada. Tente pesquisar novamente.');
       $('#tn').value = player.name || ''; $('#tp').value = player.position || ''; $('#tc').value = player.club || '';
       $('#ti').value = player.instagram || ''; $('#td').value = player.contract_until || ''; $('#tf').checked = false;
-      $('#tt').value = ['Ficha importada de ' + player.source + ' em ' + new Date().toLocaleDateString('pt-BR') + '.', player.source_url, player.full_name ? 'Nome completo: ' + player.full_name : '', player.nationality ? 'Nacionalidade: ' + player.nationality : '', player.birth_date ? 'Nascimento: ' + fdate(player.birth_date) : '', player.height ? 'Altura: ' + player.height : '', player.weight ? 'Peso: ' + player.weight : ''].filter(Boolean).join('\n').slice(0, 2000);
       fields.hidden = false;
       box.innerHTML = `<p class="ag-meta">Ficha preenchida de ${esc(player.source)}. Confira os dados antes de salvar; a fonte pode estar desatualizada. Campos sem informação ficam em branco.</p>`;
       fields.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -947,7 +936,7 @@
   async function saveTg(id) {
     const name = $('#tn').value.trim(); if (!name) return toast('Informe o nome do atleta');
     const p = { name, position: $('#tp').value.trim(), club: $('#tc').value.trim(), contract_until: $('#td').value || null, free_agent: $('#tf').checked, instagram: igName($('#ti').value), agent_id: $('#ta').value || null, notes: $('#tt').value.trim(), updated_at: new Date().toISOString() };
-    if (!id) p.status = $('#ts').value;
+    if (!id) p.status = 'monitorado';
     const r = id ? await sb.from('agency_targets').update(p).eq('id', id) : await sb.from('agency_targets').insert({ ...p, created_by: me.id });
     if (r.error) return toast('Não foi possível salvar'); log(id ? 'editou o atleta ' + name : 'começou a apurar ' + name, '', 'apuracao'); closeModal(); toast('Atleta salvo'); return go('apuracao');
   }
@@ -1137,7 +1126,6 @@
       case 'edit-tg': return tgForm(id);
       case 'open-tg': S.openTg = id; return openTg(id);
       case 'save-tg': return saveTg(id || null);
-      case 'set-st': return setSt(id, v);
       case 'ask-del-tg': return confirmBox('Excluir atleta', 'O atleta e todas as pistas dele serão apagados. Quer mesmo excluir?', 'del-tg', id);
       case 'del-tg': { const r = await sb.from('agency_targets').delete().eq('id', id); if (r.error) return toast('Não foi possível excluir'); closeModal(); toast('Atleta excluído'); return go('apuracao'); }
       case 'new-clue': S.openTg = id || null; return clueForm(null, el.dataset.kind, { tid: id || (S.ap.tgt || '') });
@@ -1154,7 +1142,6 @@
       case 'flight-search': { const f = flightDetails(); if (f) window.open(f.url, '_blank', 'noopener,noreferrer'); return; }
       case 'flight-clue': { const f = flightDetails(); if (f) return clueForm(null, 'voo', {text: f.text + '. Consulta de rota; confirmar o voo e a fonte.', url: f.url, date: f.date, src: 'observacao'}); return; }
       case 'ap-tab': S.ap.tab = v; return drawAp();
-      case 'ap-st': S.ap.st = v || ''; return drawAp();
       case 'ap-kind': S.ap.kind = v || ''; return drawAp();
       case 'ap-mk': S.ap.mk = v; return drawAp();
       case 'ap-news': return runNews();
@@ -1174,7 +1161,6 @@
     }
   }
   function onChange(e) {
-    if (e.target.id === 'ag-ap-status') { S.ap.st = e.target.value; return drawAp(); }
     const t = e.target;
     if (t.id === 'ag-up') { const f = [...t.files]; t.value = ''; if (f.length) uploadFiles(f); return; }
     if (t.id === 'ag-cup') { const f = t.files[0]; t.value = ''; if (f) sendMsg($('#ag-chat-input').value.trim(), f); return; }
