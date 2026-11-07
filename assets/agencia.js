@@ -805,7 +805,7 @@
     const a = analyze(t);
     const last = S.cl.find(c => c.target_id === t.id);
     return `<article class="ag-tgc"><div class="ag-nh">${t.free_agent ? '<span class="badge f">Livre</span>' : ''}<span class="ag-meta" style="margin-left:auto">${a.n} pista${a.n === 1 ? '' : 's'}</span></div>
-      <button class="ag-player-title" data-ag="open-tg" data-id="${t.id}">${esc(t.name)}</button><small>${esc([t.position, t.club].filter(Boolean).join(' · ') || 'Sem clube informado')}</small>
+      <button class="ag-player-title" data-ag="open-tg" data-id="${t.id}">${esc(t.name)}</button><small>${esc([t.position, t.free_agent ? 'Sem clube' : t.club].filter(Boolean).join(' · ') || 'Sem clube informado')}</small>
       <p class="ag-latest">${last ? esc(last.text.slice(0, 150)) : 'Nenhuma pista registrada. Adicione a primeira informação.'}</p>
       <small>${last ? 'Última pista: ' + fdate(last.happened_at) : 'Abra a ficha para consultar os dados do atleta.'}</small>
       <div class="ag-btns l"><button class="btn g s" data-ag="new-clue" data-id="${t.id}">${I('plus', 14)}Nova pista</button><button class="btn o s" data-ag="open-tg" data-id="${t.id}">Ver ficha</button></div></article>`;
@@ -853,7 +853,7 @@
     l.sort((x, y) => (r(x) ?? 9999) - (r(y) ?? 9999));
     const chip = (k, lab) => `<button class="btn o s" data-ag="ap-mk" data-v="${k}" aria-pressed="${A.mk === k}">${lab}</button>`;
     return `<div class="panel ag-filters"><div class="ag-chips">${chip('livres', 'Atletas livres')}${chip('vencendo', 'Contrato até 6 meses')}${chip('todos', 'Todos')}</div></div>
-    ${l.length ? `<div class="ag-stack">${l.map(t => { const d = r(t), ag = agOf(t.agent_id); return `<button class="panel ag-mk" data-ag="open-tg" data-id="${t.id}"><div class="tx"><b>${esc(t.name)}</b><small>${esc([t.position, t.club].filter(Boolean).join(' · ') || 'Sem clube')}${ag ? ' · ' + esc(ag.name) : ''}</small></div>${t.free_agent ? '<span class="badge f">Livre</span>' : d === null ? '<span class="ag-meta">Sem data</span>' : `<span class="badge ${d < 0 ? 'u' : d <= 90 ? 'd' : ''}">${d < 0 ? 'Vencido' : 'em ' + d + ' dias'}</span>`}</button>`; }).join('')}</div>` : `<div class="panel">${empty('Nenhum atleta nesse recorte. Cadastre o contrato ou marque como livre no cadastro do atleta.')}</div>`}`;
+    ${l.length ? `<div class="ag-stack">${l.map(t => { const d = r(t), ag = agOf(t.agent_id); return `<button class="panel ag-mk" data-ag="open-tg" data-id="${t.id}"><div class="tx"><b>${esc(t.name)}</b><small>${esc([t.position, t.free_agent ? 'Sem clube' : t.club].filter(Boolean).join(' · ') || 'Sem clube')}${ag ? ' · ' + esc(ag.name) : ''}</small></div>${t.free_agent ? '<span class="badge f">Livre</span>' : d === null ? '<span class="ag-meta">Sem data</span>' : `<span class="badge ${d < 0 ? 'u' : d <= 90 ? 'd' : ''}">${d < 0 ? 'Vencido' : 'em ' + d + ' dias'}</span>`}</button>`; }).join('')}</div>` : `<div class="panel">${empty('Nenhum atleta nesse recorte. Cadastre o contrato ou marque como livre no cadastro do atleta.')}</div>`}`;
   }
   function apNews() {
     const A = S.ap, n = A.news;
@@ -876,12 +876,19 @@
   }
 
   /* ficha do atleta */
+  function playerAge(birth, today = new Date()) {
+    if (!birth) return null;
+    const [y, m, d] = birth.split('-').map(Number);
+    if (!y || !m || !d) return null;
+    const age = today.getFullYear() - y - (today.getMonth() + 1 < m || (today.getMonth() + 1 === m && today.getDate() < d) ? 1 : 0);
+    return age >= 0 && age < 120 ? age : null;
+  }
   function openTg(id) {
     const t = tgOf(id); if (!t) return; const a = analyze(t), ag = agOf(t.agent_id), cl = S.cl.filter(c => c.target_id === id), igu = igUrl(t.instagram), dl = daysTo(t.contract_until);
-    modal(t.name, `<div class="ag-tm">${t.free_agent ? '<span class="badge f">Livre</span>' : ''}<span class="ag-meta">${esc([t.position, t.club].filter(Boolean).join(' · '))}</span></div>
+    modal(t.name, `<div class="ag-tm">${t.free_agent ? '<span class="badge f">Livre</span>' : ''}<span class="ag-meta">${esc([t.position, t.free_agent ? 'Sem clube' : t.club].filter(Boolean).join(' · '))}</span></div>
       <div class="ag-an"><div class="ag-nh"><b>Cruzamento de indícios</b><span class="badge ${a.sc < .35 ? 'u' : a.sc < .65 ? 'd' : ''}" style="margin-left:auto">Confiabilidade ${a.label} · ${Math.round(a.sc * 100)}%</span></div>${meter(a)}
         <ul>${a.why.map(w => `<li>${esc(w)}</li>`).join('')}</ul><small class="ag-meta">Isto organiza os indícios registrados; não confirma negociações ou contratações.</small></div>
-      <div class="ag-info">${t.contract_until ? `<div><span>Contrato até</span><b>${fdate(t.contract_until)}${dl !== null ? ` (${dl < 0 ? 'vencido' : dl + ' dias'})` : ''}</b></div>` : ''}${ag ? `<div><span>Empresário</span><b>${esc(ag.name)}</b></div>` : ''}${igu ? `<div><span>Instagram</span><b><a class="ag-src" href="${igu}" target="_blank" rel="noopener noreferrer">@${esc(igName(t.instagram))}</a></b></div>` : ''}</div>
+      <div class="ag-info"><div><span>Idade</span><b>${playerAge(t.birth_date) === null ? 'Não informada' : playerAge(t.birth_date) + ' anos'}</b></div><div><span>Altura</span><b>${t.height_cm ? (t.height_cm / 100).toFixed(2).replace('.', ',') + ' m' : 'Não informada'}</b></div>${!t.free_agent && t.contract_until ? `<div><span>Contrato até</span><b>${fdate(t.contract_until)}${dl !== null ? ` (${dl < 0 ? 'vencido' : dl + ' dias'})` : ''}</b></div>` : ''}${ag ? `<div><span>Empresário</span><b>${esc(ag.name)}</b></div>` : ''}${igu ? `<div><span>Instagram</span><b><a class="ag-src" href="${igu}" target="_blank" rel="noopener noreferrer">@${esc(igName(t.instagram))}</a></b></div>` : ''}</div>
       ${playerSearchLinks(t)}
       ${t.notes && !/^Ficha importada de /i.test(t.notes) ? `<p class="ag-p pre">${esc(t.notes)}</p>` : ''}
       <div class="panel-header" style="margin-top:14px"><h3>Pistas (${cl.length})</h3><button class="btn s" data-ag="new-clue" data-id="${id}">${I('plus', 14)}Nova pista</button></div>
@@ -895,6 +902,7 @@
     modal(id ? 'Editar atleta' : 'Novo atleta', `${id ? '' : `<label for="ag-player-q">Pesquisar jogador</label><input type="search" id="ag-player-q" maxlength="100" placeholder="Ex.: Bisneto, Marquinho Carioca…" autocomplete="off"><div class="ag-btns l"><button class="btn g" data-ag="player-search">${I('search', 14)}Pesquisar</button><button class="btn o" data-ag="player-manual">Cadastrar sem busca</button></div><p class="ag-meta">Pesquise pelo nome e escolha o jogador. A ficha será preenchida com os dados disponíveis no Transfermarkt.</p><div id="ag-player-results" role="status" aria-live="polite"></div>`}<div id="ag-player-fields" ${id ? '' : 'hidden'}><label for="tn">Nome</label><input type="text" id="tn" maxlength="120" value="${esc(t.name)}">
       <div class="ag-two"><div><label for="tp">Posição</label><input type="text" id="tp" maxlength="40" value="${esc(t.position)}" placeholder="Ex.: Atacante"></div><div><label for="tc">Clube atual</label><input type="text" id="tc" maxlength="80" value="${esc(t.club)}"></div></div>
       <div class="ag-two"><div><label for="td">Contrato até</label><input type="date" id="td" value="${esc(t.contract_until || '')}"></div><div><label for="ti">Instagram (público)</label><input type="text" id="ti" maxlength="40" value="${esc(t.instagram)}" placeholder="@perfil"></div></div>
+      <div class="ag-two"><div><label for="tbd">Nascimento</label><input type="date" id="tbd" value="${esc(t.birth_date || '')}"></div><div><label for="th">Altura (cm)</label><input type="number" id="th" min="50" max="260" step="1" placeholder="Ex.: 171" value="${esc(t.height_cm || '')}"></div></div>
       <label class="ag-chk"><input type="checkbox" id="tf" ${t.free_agent ? 'checked' : ''}>Atleta livre no mercado</label>
       <label for="ta">Empresário</label><select id="ta"><option value="">Nenhum</option>${S.agn.map(a => `<option value="${a.id}" ${t.agent_id === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select>
       <label for="tt">Observações</label><textarea id="tt" rows="3" maxlength="2000">${esc(t.notes)}</textarea>
@@ -927,6 +935,7 @@
       const player = (data.items || []).find(x => x.id === p.id); if (!player) throw new Error('Ficha não encontrada. Tente pesquisar novamente.');
       $('#tn').value = player.name || ''; $('#tp').value = player.position || ''; $('#tc').value = player.club || '';
       $('#ti').value = player.instagram || ''; $('#td').value = player.contract_until || ''; $('#tf').checked = false;
+      $('#tbd').value = player.birth_date || ''; $('#th').value = parseInt(player.height, 10) || '';
       fields.hidden = false;
       box.innerHTML = `<p class="ag-meta">Ficha preenchida de ${esc(player.source)}. Confira os dados antes de salvar; a fonte pode estar desatualizada. Campos sem informação ficam em branco.</p>`;
       fields.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -935,7 +944,10 @@
   }
   async function saveTg(id) {
     const name = $('#tn').value.trim(); if (!name) return toast('Informe o nome do atleta');
-    const p = { name, position: $('#tp').value.trim(), club: $('#tc').value.trim(), contract_until: $('#td').value || null, free_agent: $('#tf').checked, instagram: igName($('#ti').value), agent_id: $('#ta').value || null, notes: $('#tt').value.trim(), updated_at: new Date().toISOString() };
+    const birth = $('#tbd').value, height = $('#th').value ? Number($('#th').value) : null;
+    if (birth && playerAge(birth) === null) return toast('Informe uma data de nascimento válida');
+    if (height !== null && (!Number.isInteger(height) || height < 50 || height > 260)) return toast('Informe a altura em centímetros');
+    const p = { birth_date: birth || null, height_cm: height, name, position: $('#tp').value.trim(), club: $('#tc').value.trim(), contract_until: $('#td').value || null, free_agent: $('#tf').checked, instagram: igName($('#ti').value), agent_id: $('#ta').value || null, notes: $('#tt').value.trim(), updated_at: new Date().toISOString() };
     if (!id) p.status = 'monitorado';
     const r = id ? await sb.from('agency_targets').update(p).eq('id', id) : await sb.from('agency_targets').insert({ ...p, created_by: me.id });
     if (r.error) return toast('Não foi possível salvar'); log(id ? 'editou o atleta ' + name : 'começou a apurar ' + name, '', 'apuracao'); closeModal(); toast('Atleta salvo'); return go('apuracao');
