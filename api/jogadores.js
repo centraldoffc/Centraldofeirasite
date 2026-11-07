@@ -15,6 +15,31 @@ module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'GET') { res.setHeader('Allow','GET'); return res.status(405).json({error:'Método não permitido.'}); }
   const {q, id, page='1'} = req.query || {};
+  if (typeof req.query?.historico === 'string') {
+    const nome = req.query.historico.trim(), nasc = iso(req.query.nasc);
+    if (nome.length < 2 || nome.length > 100) return res.status(400).json({error:'Nome inválido.'});
+    try {
+      const signal = AbortSignal.timeout(18000);
+      const found = await get('/quick-search', [['term', nome], ['page', '1']], signal);
+      const ids = (found.result?.playerIds || []).slice(0, 10);
+      if (!ids.length) return res.json({clubs: []});
+      const rows = await get('/players', ids.map(i => ['ids[]', i]), signal);
+      const pl = (nasc && rows.find(p => p.lifeDates?.dateOfBirth === nasc)) || rows[0];
+      if (!pl) return res.json({clubs: []});
+      let ordered = [];
+      try {
+        const th = await get('/transfer/history/player/' + pl.id, [], signal);
+        const list = Array.isArray(th) ? th : (th.history?.terminated || th.transfers || []);
+        list.forEach(t => { if (t.transferSource?.clubId) ordered.push(t.transferSource.clubId); if (t.transferDestination?.clubId) ordered.push(t.transferDestination.clubId); });
+      } catch (e) { /* cai para os vínculos do cadastro */ }
+      (pl.clubAssignments || []).forEach(a => { if (a.clubId) ordered.push(a.clubId); });
+      const cids = [...new Set(ordered.map(String))];
+      const clubs = cids.length ? await get('/clubs', cids.map(i => ['ids[]', i]), signal) : [];
+      const names = new Map(clubs.map(c => [String(c.id), c.name]));
+      res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=600');
+      return res.json({clubs: cids.map(i => text(names.get(i), 80)).filter(Boolean), source: 'Transfermarkt'});
+    } catch (e) { console.error('player_history_failed', e.message); return res.status(502).json({error:'Não foi possível consultar o histórico agora.'}); }
+  }
   if ((id !== undefined && (typeof id !== 'string' || !/^\d{1,12}$/.test(id))) || (id === undefined && (typeof q !== 'string' || q.trim().length < 2 || q.length > 100)) || typeof page !== 'string' || !/^[1-9]\d?$/.test(page)) return res.status(400).json({error:'Informe o nome do jogador e uma página válida.'});
   try {
     const signal = AbortSignal.timeout(18000);
