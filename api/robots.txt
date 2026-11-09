@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /gerenciar
+Disallow: /gerenciar.html
+Disallow: /painel-ffc.html
+
+Sitemap: https://centraldofeira.vercel.app/sitemap.xml
+Sitemap: https://centraldofeira.vercel.app/news-sitemap.xml
