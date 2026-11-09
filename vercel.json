@@ -1,0 +1,63 @@
+{
+  "redirects": [
+    {
+      "source": "/linkdabio.html",
+      "destination": "/",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/agencia",
+      "destination": "/agencia.html"
+    },
+    {
+      "source": "/formulario",
+      "destination": "/formulario.html"
+    },
+    {
+      "source": "/privacidade",
+      "destination": "/privacidade.html"
+    },
+    {
+      "source": "/termos",
+      "destination": "/termos.html"
+    },
+    {
+      "source": "/formulario/:slug",
+      "destination": "/formulario.html"
+    },
+    {
+      "source": "/",
+      "destination": "/linkdabio.html"
+    },
+    {
+      "source": "/site",
+      "destination": "/site.html"
+    },
+    {
+      "source": "/gerenciar",
+      "destination": "/gerenciar.html"
+    },
+    {
+      "source": "/noticia/:slug",
+      "destination": "/api/noticia?slug=:slug"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/news-sitemap.xml",
+      "destination": "/api/sitemap?news=1"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/api/robots"
+    }
+  ]
+}
