@@ -30,7 +30,7 @@ ${a.image_url ? `<meta property="og:image" content="${esc(a.image_url)}"><meta n
     const body = `<article class="news-article">
 <div class="reader-heading"><div class="reader-kicker"><span>${esc(a.category || 'Feira FC')}</span><span>${minutes} min de leitura</span></div>
 <h1>${esc(a.title)}</h1>
-<div class="reader-byline"><img class="ffc-logo" src="/assets/central-logo.svg" alt="Central do FFC" width="42" height="42"><div><span>Por <strong>${esc(a.author || 'Redação Central do FFC')}</strong></span><time datetime="${esc(a.created_at)}">${date}</time></div></div></div>
+<div class="reader-byline"><div><span>Por <strong>${esc(a.author || 'Redação Central do FFC')}</strong></span><time datetime="${esc(a.created_at)}">${date}</time></div></div></div>
 <div class="t news-content">${text}</div>
 <footer class="reader-end"><span>Você leu na Central do FFC</span><a href="/site">Veja mais notícias do Feira FC</a></footer></article>
 <nav class="reader-dock" aria-label="Ações da matéria">

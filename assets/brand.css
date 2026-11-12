@@ -1,9 +1,8 @@
 /* Marca oficial: verde em superfícies claras, branca em superfícies escuras. */
-img.ffc-logo{width:132px!important;height:52px!important;object-fit:contain!important;border:0!important;border-radius:0!important;background:transparent!important;padding:0!important;box-shadow:none!important;flex-shrink:0;filter:brightness(0) saturate(100%) invert(19%) sepia(20%) saturate(1350%) hue-rotate(105deg) brightness(91%) contrast(94%)}
+img.ffc-logo{width:104px!important;height:42px!important;object-fit:contain!important;border:0!important;border-radius:0!important;background:transparent!important;padding:0!important;box-shadow:none!important;flex-shrink:0;filter:brightness(0) saturate(100%) invert(19%) sepia(20%) saturate(1350%) hue-rotate(105deg) brightness(91%) contrast(94%)}
 body.brand-dark img.ffc-logo,body.ag-page img.ffc-logo,.reading-dark img.ffc-logo,.ag-access-logo img.ffc-logo,.nav img.ffc-logo{filter:brightness(0) invert(1)}
 .reader-brand{justify-content:center;min-width:0}
-.reader-brand img.ffc-logo{width:138px!important;height:54px!important}
-.reader-byline img.ffc-logo{width:64px!important;height:32px!important;padding:0!important}
+.reader-brand img.ffc-logo{width:108px!important;height:42px!important}
 .reader-header>.reader-icon{flex-shrink:0}
 body .brand{gap:0}
 body.ag-page .brand img.ffc-logo{width:144px!important;height:56px!important}
@@ -12,4 +11,4 @@ body.ag-page .lbox>img.ffc-logo{width:176px!important;height:68px!important;marg
 .ag-access-logo img.ffc-logo{width:168px!important;height:66px!important}
 .brand-dark .avatar{width:192px;height:80px;background:none;border:0;border-radius:0;box-shadow:none;overflow:visible}
 .brand-dark .avatar img.ffc-logo{width:192px!important;height:76px!important}
-@media(max-width:360px){.reader-brand img.ffc-logo{width:120px!important;height:48px!important}}
+@media(max-width:360px){.reader-brand img.ffc-logo{width:100px!important;height:40px!important}}
