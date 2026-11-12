@@ -11,9 +11,9 @@
 <meta property="og:title" content="Central do FFC | Central do Feira">
 <meta property="og:description" content="Central do FFC, também conhecida como Central do Feira: notícias, jogos e bastidores do Feira Futebol Clube.">
 <meta property="og:url" content="https://centraldofeira.vercel.app/">
-<meta property="og:image" content="https://centraldofeira.vercel.app/mark.png">
-<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "@id": "https://centraldofeira.vercel.app/#website", "url": "https://centraldofeira.vercel.app/", "name": "Central do FFC", "alternateName": "Central do Feira", "inLanguage": "pt-BR", "publisher": {"@id": "https://centraldofeira.vercel.app/#organization"}}, {"@type": "Organization", "@id": "https://centraldofeira.vercel.app/#organization", "url": "https://centraldofeira.vercel.app/", "name": "Central do FFC", "alternateName": "Central do Feira", "description": "Cobertura independente do Feira Futebol Clube.", "logo": "https://centraldofeira.vercel.app/mark.png", "sameAs": ["https://www.instagram.com/centraldoffc/", "https://x.com/centralfeirafc"]}]}</script>
-<link rel="icon" href="/mark.png">
+<meta property="og:image" content="https://centraldofeira.vercel.app/assets/central-logo.svg">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "@id": "https://centraldofeira.vercel.app/#website", "url": "https://centraldofeira.vercel.app/", "name": "Central do FFC", "alternateName": "Central do Feira", "inLanguage": "pt-BR", "publisher": {"@id": "https://centraldofeira.vercel.app/#organization"}}, {"@type": "Organization", "@id": "https://centraldofeira.vercel.app/#organization", "url": "https://centraldofeira.vercel.app/", "name": "Central do FFC", "alternateName": "Central do Feira", "description": "Cobertura independente do Feira Futebol Clube.", "logo": "https://centraldofeira.vercel.app/assets/central-logo.svg", "sameAs": ["https://www.instagram.com/centraldoffc/", "https://x.com/centralfeirafc"]}]}</script>
+<link rel="icon" href="/assets/central-logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -201,12 +201,13 @@
     color: var(--ink-dim); font-size:14px;
   }
 </style>
+<link rel="stylesheet" href="/assets/brand.css">
 </head>
-<body>
+<body class="brand-dark">
   <div class="grid-layer" aria-hidden="true"></div>
 
   <main class="page">
-    <div class="avatar"><img src="/mark.png" alt="Central do FFC" onerror="this.style.display='none'; this.parentElement.classList.add('avatar-fallback');"></div>
+    <div class="avatar"><img class="ffc-logo" src="/assets/central-logo.svg" alt="Central do FFC" onerror="this.style.display='none'; this.parentElement.classList.add('avatar-fallback');"></div>
     <h1 class="handle" id="handle">Central do FFC</h1>
     <p class="bio" id="bio">Cobertura independente do Feira Futebol Clube.</p>
 
@@ -324,14 +325,7 @@
 
         const avatarImg = document.querySelector('.avatar img');
         const avatarBox = document.querySelector('.avatar');
-        if(profile?.avatar_url && avatarImg){
-          avatarImg.onerror = () => { avatarImg.src = '/mark.png'; };
-          avatarImg.onload = () => {
-            avatarImg.style.display = '';
-            if(avatarBox) avatarBox.classList.remove('avatar-fallback');
-          };
-          avatarImg.src = profile.avatar_url + '?v=' + Date.now();
-        }
+        if (avatarImg) avatarImg.src = '/assets/central-logo.svg';
 
         const socialsWrap = document.getElementById('socials');
         socialsWrap.innerHTML = '';

@@ -9,7 +9,7 @@
 <meta property="og:site_name" content="Central do FFC">
 <meta property="og:title" content="Central do FFC | Central do Feira — Notícias">
 <meta property="og:url" content="https://centraldofeira.vercel.app/site">
-<link rel="icon" href="/mark.png">
+<link rel="icon" href="/assets/central-logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -40,7 +40,7 @@
 
   /* imagens e etiquetas */
   .ph{position:relative;background:#12302a center/cover no-repeat;overflow:hidden}
-  .ph.logo::before{content:"";position:absolute;inset:0;background:url(/mark.png) center/34% no-repeat;opacity:.16}
+  .ph.logo::before{content:"";position:absolute;inset:0;background:url(/assets/central-logo.svg) center/34% no-repeat;opacity:.16}
   .ph.logo{background-image:linear-gradient(135deg,#17413a,#0a1c18)}
   .tag{display:inline-block;font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;background:var(--accent);color:#04120f}
   .meta{font-size:12px;color:var(--faint)}
@@ -118,12 +118,13 @@
 <link rel="stylesheet" href="/assets/leitura.css">
 <script src="/assets/article-format.js"></script>
 <script defer src="/assets/leitura.js"></script>
+<link rel="stylesheet" href="/assets/brand.css">
 </head>
-<body>
+<body class="brand-dark">
 <header class="top">
   <div class="wrap">
     <div class="bar">
-      <a class="brand" href="#/"><img src="/mark.png" alt="" width="32" height="32">Central do FFC</a>
+      <a class="brand" href="#/"><img class="ffc-logo" src="/assets/central-logo.svg" alt="Central do FFC" width="32" height="32"></a>
     </div>
   </div>
 </header>

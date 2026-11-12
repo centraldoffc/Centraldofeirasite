@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
 <title>Gerenciar | Central do FFC</title>
-<link rel="icon" href="/mark.png">
+<link rel="icon" href="/assets/central-logo.svg">
 <link rel="stylesheet" href="assets/fonts.css">
 <link rel="stylesheet" href="assets/gerenciar.css">
 <link rel="stylesheet" href="assets/agencia.css">
@@ -62,6 +62,7 @@
 @keyframes dxsk{to{background-position:-200% 0}}
 @media(max-width:620px){.dx-team{grid-template-columns:1fr}.dx-r{grid-template-columns:22px 36px minmax(0,1fr) auto;gap:8px;padding:8px 4px}.dx-av{width:36px;height:36px}.dx-p b{font-size:22px}}
 </style>
+<link rel="stylesheet" href="/assets/brand.css">
 </head>
 <body class="manage-page">
 <svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -105,7 +106,7 @@
 
 <div id="login" hidden>
   <form class="lbox" onsubmit="return login(event)">
-    <div class="brand"><img src="/mark.png" alt=""><div>Central do FFC<small>Painel editorial</small></div></div><h2>Bem-vindo de volta.</h2><p>Acesse sua conta para cuidar das notícias do Feira FC.</p>
+    <div class="brand"><img class="ffc-logo" src="/assets/central-logo.svg" alt="Central do FFC"></div><h2>Bem-vindo de volta.</h2><p>Acesse sua conta para cuidar das notícias do Feira FC.</p>
     <label>E-mail<input type="email" id="em" placeholder="E-mail" autocomplete="username" required></label>
     <label>Senha<input type="password" id="pw" placeholder="Senha" autocomplete="current-password" required></label>
     <div class="err" id="lerr" role="alert"></div>
@@ -115,7 +116,7 @@
 
 <div class="app" id="app" hidden>
   <button class="backdrop" aria-label="Fechar menu" tabindex="-1" onclick="setMenu(false)"></button><aside id="sidebar" aria-label="Navegação principal"><button class="mobile-close" aria-label="Fechar menu" onclick="setMenu(false)">×</button>
-    <div class="brand"><img src="/mark.png" alt=""><div>Central do FFC<small>Painel editorial</small></div></div><div class="nav-label">Menu</div>
+    <div class="brand"><img class="ffc-logo" src="/assets/central-logo.svg" alt="Central do FFC"></div><div class="nav-label">Menu</div>
     <button class="nav on" data-v="dash"><svg class="icon" aria-hidden="true"><use href="#i-dash"/></svg>Dashboard</button>
     <button class="nav" data-v="list"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg>Notícias<span class="nav-count" id="nav-count">0</span></button>
     <button class="nav" data-v="edit" id="navNew"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Nova notícia</button>

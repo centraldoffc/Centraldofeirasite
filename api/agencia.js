@@ -1308,7 +1308,7 @@
       };
       const load = async () => {
         dialog.classList.add('ag-access-loading');
-        dialog.innerHTML = '<div class="ag-access-status" role="status" aria-live="polite"><div class="ag-access-logo"><img src="/mark.png" alt="Central do FFC" width="88" height="88"></div><span class="ag-access-label">CENTRAL DO FFC</span><h2>Preparando seu painel</h2><p>Estamos verificando seu acesso.<br>Só um instante.</p><span class="ag-access-spinner" aria-hidden="true"></span></div>';
+        dialog.innerHTML = '<div class="ag-access-status" role="status" aria-live="polite"><div class="ag-access-logo"><img class="ffc-logo" src="/assets/central-logo.svg" alt="Central do FFC" width="88" height="88"></div><span class="ag-access-label">CENTRAL DO FFC</span><h2>Preparando seu painel</h2><p>Estamos verificando seu acesso.<br>Só um instante.</p><span class="ag-access-spinner" aria-hidden="true"></span></div>';
         try {
           const status = await request({ action: 'onboarding_status' });
           dialog.classList.remove('ag-access-loading');

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>Entrar | Central do FFC</title>
-<link rel="icon" href="/mark.png">
+<link rel="icon" href="/assets/central-logo.svg">
 <link rel="stylesheet" href="/assets/fonts.css">
 <style>
 :root{--bg:#e9ebe9;--side:#f5f6f5;--line:#e6eae7;--acc:#1d754c;--hi:#1d754c;--g:#103f2a;--ink:#17221b;--dim:#69766e;--red:#bc4545;--font:'Plus Jakarta Sans',Arial,sans-serif}
@@ -40,6 +40,7 @@ input[type=text],input[type=email],input[type=password]{width:100%;background:#f
 .done .c{width:58px;height:58px;border-radius:50%;background:#e0eadd;color:var(--g);display:grid;place-items:center;font-size:26px}
 @media(max-width:620px){.lbox{padding:26px}.boxes input{height:48px;font-size:18px}}
 </style>
+<link rel="stylesheet" href="/assets/brand.css">
 </head>
 <body>
 <div id="login"><div class="lbox" id="app"></div></div>
@@ -56,7 +57,7 @@ const tr=e=>{const m=(e&&e.message||'').toLowerCase();
   return m.includes('invalid login')?'E-mail ou senha incorretos.':m.includes('rate limit')||m.includes('seconds')?'Muitas tentativas. Aguarde um pouco e tente de novo.':m.includes('expired')||m.includes('invalid')?'Código inválido ou expirado.':m.includes('password')?'Senha fraca. Use 8 ou mais caracteres.':'Algo deu errado. Tente novamente.'};
 
 /* ---------- login ---------- */
-const BRAND='<div class="brand"><img src="/mark.png" alt=""><div>Central do FFC</div></div>';
+const BRAND='<div class="brand"><img class="ffc-logo" src="/assets/central-logo.svg" alt="Central do FFC"></div>';
 const RED=location.origin+'/login'+(nx&&dest!=='/'?'?next='+encodeURIComponent(dest):'');
 async function google(){const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:RED}});
   if(error){const el=$('ien')||$('uen');if(el)el.textContent='Não foi possível entrar com Google. Tente novamente.'}}
