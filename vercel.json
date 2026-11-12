@@ -54,6 +54,10 @@
     {
       "source": "/news-sitemap.xml",
       "destination": "/api/sitemap?news=1"
+    },
+    {
+      "source": "/api/robots",
+      "destination": "/robots.txt"
     }
   ]
 }

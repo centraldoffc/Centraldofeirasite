@@ -814,7 +814,7 @@
   function tgCard(t) {
     const a = analyze(t);
     const last = S.cl.find(c => c.target_id === t.id);
-    return `<article class="ag-tgc"><div class="ag-nh">${t.free_agent ? '<span class="badge f">Livre</span>' : ''}<span class="ag-meta" style="margin-left:auto">${a.n} pista${a.n === 1 ? '' : 's'}</span></div>
+    return `<article class="ag-tgc"><div class="ag-nh"><span class="ag-meta" style="margin-left:auto">${a.n} pista${a.n === 1 ? '' : 's'}</span></div>
       <button class="ag-player-title" data-ag="open-tg" data-id="${t.id}">${esc(t.name)}</button><small>${esc([t.position, t.free_agent ? 'Sem clube' : t.club].filter(Boolean).join(' · ') || 'Sem clube informado')}</small>
       <p class="ag-latest">${last ? esc(last.text.slice(0, 150)) : 'Nenhuma pista registrada. Adicione a primeira informação.'}</p>
       <small>${last ? 'Última pista: ' + fdate(last.happened_at) : 'Abra a ficha para consultar os dados do atleta.'}</small>
@@ -863,7 +863,7 @@
     l.sort((x, y) => (r(x) ?? 9999) - (r(y) ?? 9999));
     const chip = (k, lab) => `<button class="btn o s" data-ag="ap-mk" data-v="${k}" aria-pressed="${A.mk === k}">${lab}</button>`;
     return `<div class="panel ag-filters"><div class="ag-chips">${chip('livres', 'Atletas livres')}${chip('vencendo', 'Contrato até 6 meses')}${chip('todos', 'Todos')}</div></div>
-    ${l.length ? `<div class="ag-stack">${l.map(t => { const d = r(t), ag = agOf(t.agent_id); return `<button class="panel ag-mk" data-ag="open-tg" data-id="${t.id}"><div class="tx"><b>${esc(t.name)}</b><small>${esc([t.position, t.free_agent ? 'Sem clube' : t.club].filter(Boolean).join(' · ') || 'Sem clube')}${ag ? ' · ' + esc(ag.name) : ''}</small></div>${t.free_agent ? '<span class="badge f">Livre</span>' : d === null ? '<span class="ag-meta">Sem data</span>' : `<span class="badge ${d < 0 ? 'u' : d <= 90 ? 'd' : ''}">${d < 0 ? 'Vencido' : 'em ' + d + ' dias'}</span>`}</button>`; }).join('')}</div>` : `<div class="panel">${empty('Nenhum atleta nesse recorte. Cadastre o contrato ou marque como livre no cadastro do atleta.')}</div>`}`;
+    ${l.length ? `<div class="ag-stack">${l.map(t => { const d = r(t), ag = agOf(t.agent_id); return `<button class="panel ag-mk" data-ag="open-tg" data-id="${t.id}"><div class="tx"><b>${esc(t.name)}</b><small>${esc([t.position, t.free_agent ? 'Sem clube' : t.club].filter(Boolean).join(' · ') || 'Sem clube')}${ag ? ' · ' + esc(ag.name) : ''}</small></div>${t.free_agent ? '' : d === null ? '<span class="ag-meta">Sem data</span>' : `<span class="badge ${d < 0 ? 'u' : d <= 90 ? 'd' : ''}">${d < 0 ? 'Vencido' : 'em ' + d + ' dias'}</span>`}</button>`; }).join('')}</div>` : `<div class="panel">${empty('Nenhum atleta nesse recorte. Cadastre o contrato ou marque como livre no cadastro do atleta.')}</div>`}`;
   }
   function apNews() {
     const A = S.ap, n = A.news;
